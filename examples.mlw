@@ -1,0 +1,37 @@
+module Examples
+
+(* *** *** *)
+
+ 
+
+  use import int.Int
+  use import list.List
+  use import ref.Ref
+ 
+ function sum (l:list int) : int =
+     match l with
+       | Nil -> 0
+       | Cons x xs -> x + sum xs      
+     end
+
+  val s : ref int 
+  val l0 : list int
+
+  let rec iter l = match l with
+     | Nil -> ()   
+     | Cons x xs -> s := x + !s; iter xs
+     end    
+   
+  let test () = 
+  iter l0; 
+  assert {!s = sum l0}
+  
+
+
+end
+
+(*
+Local Variables:
+compile-command: "why3ide -I . examples.mlw"
+End:
+*)
