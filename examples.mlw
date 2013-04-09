@@ -1,34 +1,257 @@
+(*module BinTree
+  use import bintree.Tree
+  
+  val s: ref int
+  
+  exception Failure
+
+  
+  let rec is_bst t = 
+    match t with
+     | Empty -> ()
+     | Node l x r -> 
+       is_bst l; is_bst r; 
+
+       if !s > x then raise Failure   
+       else 
+        begin 
+	  s := x; 
+          is_bst l; 
+          if is_bst r   
+        end
+    end
+
+  let is_bst t = 
+    match t with 
+     | Empty      -> true
+     | Node l x r -> s := x; is_bst t
+    end
+end *)
+
+
+
+
 module Examples
-
-(* *** *** *)
-
- 
-
   use import int.Int
   use import list.List
   use import ref.Ref
- 
- function sum (l:list int) : int =
+  use import list.Reverse
+  use import list.Append
+  use import list.Length
+
+  function sum (l:list int) : int =
      match l with
        | Nil -> 0
        | Cons x xs -> x + sum xs      
      end
-
+     
+  lemma sum_append:
+    forall l1 l2 : list int. sum (l2 ++ l1) = (sum l1) + (sum l2)
+  
+  lemma sum_reverse:
+    forall l1 : list int. sum (reverse l1) = sum l1
+  
   val s : ref int 
   val l0 : list int
 
-  let rec iter l = match l with
-     | Nil -> ()   
-     | Cons x xs -> s := x + !s; iter xs
-     end    
-   
+  (* ******************************  iter  ******************************* *)
+
+(*  
+
+  let rec iter 
+    (f: 'a -> unit) (l : list 'a)
+    (ghost inv: list 'a -> list 'a -> prop) 
+    (ghost before: list 'a) : unit =
+      variant   { l } 
+      requires  { inv before l }
+      ensures   { inv ((reverse l) ++ before) Nil }
+    match l with
+       | Nil       -> ()
+       | Cons x xs -> f x; iter f xs inv (Cons x before)
+     end
+    
+  let iter f l inv =
+      requires { inv Nil l }
+      ensures  { inv (rev l) Nil } 
+    iter f inv l Nil 
+
   let test () = 
-  iter l0; 
-  assert {!s = sum l0}
+    iter (fun x -> s:= x + !s) l (/| before. /| after. !s = sum before)
+   
+   // requires =   (/| bef. /| aft. !s = sum bef) before l
+   // ensures  =   (/| bef. /| aft. !s = sum bef) ((rev l) ++ bef) Nil
   
+       
+*)
+ 
+  let rec iter_0 l (ghost before: list int) = 
+    variant  { l }
+    requires { !s = sum before }
+    ensures  { !s = sum ((reverse l) ++ before) }
+    match l with
+      | Nil -> ()   
+      | Cons x xs -> s := x + !s; iter_0 xs (Cons x before)
+    end    
+   
+  let test_iter_0 () = 
+     s := 0;
+    iter_0 l0 Nil; 
+    assert {!s = sum l0}
+
+ val a0 : ref int
+ val a1 : ref int
+
+
+(*
+ let test () = 
+    iter (fun x -> a0:= !a0 + 1; a1 := !a1 - 1) l 
+    (/| b. /| a. !a0 + !a1 = length b + length a)  *)
+
+
+
+ let rec iter_1 l (ghost before: list int) = 
+    variant  { l }
+    requires {  !a0 + !a1 = length before + length l}
+    ensures  {  !a0 + !a1 = length ((reverse l) ++ before) 
+                          + length (Nil : list int)  }
+    match l with
+      | Nil -> ()   
+      | Cons x xs -> a0:= !a0 + 1; a1 := !a1 - 1; iter_1 xs (Cons x before)
+    end    
+   
+  let test_iter_1 () = 
+     a0 := 0; a1 := length l0;
+    iter_1 l0 Nil; 
+    assert {!a0 + !a1 = length l0}
+
+ val lr1 : ref (list int)
+(*
+ let test () = 
+    iter (fun x -> lr1: = Cons x !lr a0:= !a0 + 1; a1 := !a1 - 1) l 
+    (/| b. /| a. !a0 + !a1 = length b + length a)  *)
+
+
+
+ let rec iter_2 l (ghost before: list int) = 
+    variant  { l }
+    requires {  !a0 + !a1 = length before + length l}
+    ensures  {  !a0 + !a1 = length ((reverse l) ++ before) 
+                          + length (Nil : list int)  }
+    match l with
+      | Nil -> ()   
+      | Cons x xs -> lr1:= Cons x !lr; iter_2 xs (Cons x before)
+    end    
+   
+  let test_iter_2 () = 
+     a0 := 0; a1 := length l0;
+    iter_2 l0 Nil; 
+    assert {!a0 + !a1 = length l0}
+
+
+
+(**********************************  fold  ******************************************)
+(*
+  let rec fold (f: a' -> 'b -> 'a) (a: 'a) (l: list 'b) (ghost b: list 'b) 
+               (ghost inv : list 'b -> list 'b -> 
+       	requires  {inv b l a }
+        ensures   {inv ((reverse b) ++ l) Nil result} 
+      = match l with
+         | Nil -> a
+         | Cons x xs -> fold f (f a x) xs inv b 
+        end 
+
+  let fold f a l inv  = 
+      requires {inv Nil l a}
+      ensures  {inv (reverse l) Nil result}
+    fold f inv l Nil a 
+ 
+  let test () = 
+    fold (fun a x -> x + a) 0 l (/| b. /| l. /| a. a = sum b)   
+
+*)
+
+
+let rec fold (a : int) (l : list int) (ghost b : list int)
+ requires { a = sum b}
+ ensures  { result = sum ((reverse b) ++ l) }
+ = match l with
+    | Nil -> a
+    | Cons x  xs ->  fold (x + a) xs (Cons x b) 
+  end
+
+ let test_fold () = 
+    let n = fold 0 l0 Nil in 
+    assert {n = sum l0}
+
+
+
+(* ******************************  map  ******************************* *)
+
+(*
+
+ let rec map f l (ghost b) ()  =
+     requires  { true }
+     ensures   { inv  }
+  match l with
+    | Nil -> Nil
+    | Cons x xs -> Cons (f x) (map f xs))  
+
+
+
+ let map f l inv =
+      requires { inv Nil l }
+      ensures  { inv (rev l) Nil } 
+    map f inv l Nil 
+
+  let test () = 
+    iter (fun x -> x + 1) 
+         (/| before. /| after. /| l. sum l = sum after + length after)  
+
+*)
+ 
+  let rec map_1 (l: list int)  =
+    requires { true } 
+    ensures  { sum result = sum l + length l  }
+    match l with
+      | Nil -> Nil  
+      | Cons x xs ->  Cons (x + 1) (map_1 xs)
+    end    
+   
+  let test_map_1 () = 
+    let l1 = map_1 l0 in
+    assert {sum l1 = sum l0 + length l0}
+
+
+
+ val lr : ref (list int)
+
+ let rec map_2 (l: list int) (ghost b: list int)  =
+    requires { !lr = b}
+    ensures  { !lr = ((reverse result) ++ b)}
+    match l with
+      | Nil -> Nil  
+      | Cons x xs ->  let y = lr := Cons x !lr; x in	
+      	       	       Cons y (map_2 xs (Cons x b))
+    end    
+   
+  let test_map_2 () = 
+    lr := Nil;
+    let l1 = map_2 l0 Nil in
+    assert {!lr = reverse l1}
+
+
+
+
+
+(*
+
+
+*)
+
 
 
 end
+
 
 (*
 Local Variables:
