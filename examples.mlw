@@ -1,40 +1,56 @@
-(*module BinTree
-  use import bintree.Tree
-  
+module BinTree
+ (* use import bintree.Tree
+  use import bintree.Inorder
+  use import ref.Ref
+  use import int.Int
+  use import list.SortedInt
   val s: ref int
-  
+
+
+  predicate member (x: int) (t: tree int) =
+    match t with
+     | Empty -> false
+     | Node l y r -> if x = y then true
+       	      	     else member x l \/ member x r
+    end
+
+  predicate is_bst (t: tree int) = sorted (inorder t)
+
   exception Failure
 
-  
-  let rec is_bst t = 
+  let rec is_bst t =
+    requires {forall x:int. member x t -> x >= 0 /\ !s >= 0}
+    requires {true}
+    ensures {is_bst t}
+    raises {Failure -> not is_bst t}
     match t with
      | Empty -> ()
-     | Node l x r -> 
-       is_bst l; is_bst r; 
-
-       if !s > x then raise Failure   
-       else 
-        begin 
-	  s := x; 
-          is_bst l; 
-          if is_bst r   
-        end
-    end
-
-  let is_bst t = 
-    match t with 
-     | Empty      -> true
-     | Node l x r -> s := x; is_bst t
-    end
-end *)
+     | Node l x r ->
+          is_bst l;
+	  if !s > x then raise Failure
+	  else (s:= x; is_bst r)
+     end
 
 
 
 
-module Examples
+ (*let rec leftmost (t: tree int) : int =
+      match t with
+        | Empty -> raise Failure
+	| Node (Node Empty x r0) y r -> x
+	| Node l x r -> leftmost l
+      end *) *)
+end
+
+
+
+
+module Iter
   use import int.Int
+  use import int.MinMax
   use import list.List
   use import ref.Ref
+  use import list.Mem
   use import list.Reverse
   use import list.Append
   use import list.Length
@@ -42,60 +58,63 @@ module Examples
   function sum (l:list int) : int =
      match l with
        | Nil -> 0
-       | Cons x xs -> x + sum xs      
+       | Cons x xs -> x + sum xs
      end
-     
+
   lemma sum_append:
     forall l1 l2 : list int. sum (l2 ++ l1) = (sum l1) + (sum l2)
-  
+
   lemma sum_reverse:
     forall l1 : list int. sum (reverse l1) = sum l1
-  
-  val s : ref int 
+
+  lemma mem_reverse :
+    forall l1: list int, x: int. mem x l1 <-> mem x (reverse l1)
+
+  val s : ref int
   val l0 : list int
 
   (* ******************************  iter  ******************************* *)
 
-(*  
+(*
 
-  let rec iter 
+  let rec iter
     (f: 'a -> unit) (l : list 'a)
-    (ghost inv: list 'a -> list 'a -> prop) 
+    (ghost inv: list 'a -> list 'a -> prop)
     (ghost before: list 'a) : unit =
-      variant   { l } 
+      variant   { l }
       requires  { inv before l }
       ensures   { inv ((reverse l) ++ before) Nil }
     match l with
        | Nil       -> ()
        | Cons x xs -> f x; iter f xs inv (Cons x before)
      end
-    
+
   let iter f l inv =
       requires { inv Nil l }
-      ensures  { inv (rev l) Nil } 
-    iter f inv l Nil 
+      ensures  { inv (rev l) Nil }
+    iter f inv l Nil
 
-  let test () = 
+  let test () =
     iter (fun x -> s:= x + !s) l (/| before. /| after. !s = sum before)
-   
+
    // requires =   (/| bef. /| aft. !s = sum bef) before l
    // ensures  =   (/| bef. /| aft. !s = sum bef) ((rev l) ++ bef) Nil
-  
-       
+
+
 *)
- 
-  let rec iter_0 l (ghost before: list int) = 
+
+  let rec iter_0 l (ghost before: list int) =
     variant  { l }
     requires { !s = sum before }
     ensures  { !s = sum ((reverse l) ++ before) }
     match l with
-      | Nil -> ()   
+      | Nil -> ()
       | Cons x xs -> s := x + !s; iter_0 xs (Cons x before)
-    end    
-   
-  let test_iter_0 () = 
+    end
+
+  let test_iter_0 () =
      s := 0;
-    iter_0 l0 Nil; 
+    iter_0 l0 Nil;
     assert {!s = sum l0}
 
  val a0 : ref int
@@ -103,87 +122,202 @@ module Examples
 
 
 (*
- let test () = 
-    iter (fun x -> a0:= !a0 + 1; a1 := !a1 - 1) l 
+ let test () =
+    iter (fun x -> a0:= !a0 + 1; a1 := !a1 - 1) l
     (/| b. /| a. !a0 + !a1 = length b + length a)  *)
 
 
 
- let rec iter_1 l (ghost before: list int) = 
+ let rec iter_1 l (ghost before: list int) =
     variant  { l }
     requires {  !a0 + !a1 = length before + length l}
-    ensures  {  !a0 + !a1 = length ((reverse l) ++ before) 
+    ensures  {  !a0 + !a1 = length ((reverse l) ++ before)
                           + length (Nil : list int)  }
     match l with
-      | Nil -> ()   
+      | Nil -> ()
       | Cons x xs -> a0:= !a0 + 1; a1 := !a1 - 1; iter_1 xs (Cons x before)
-    end    
-   
-  let test_iter_1 () = 
+    end
+
+  let test_iter_1 () =
      a0 := 0; a1 := length l0;
-    iter_1 l0 Nil; 
+    iter_1 l0 Nil;
     assert {!a0 + !a1 = length l0}
 
  val lr1 : ref (list int)
+
 (*
- let test () = 
-    iter (fun x -> lr1: = Cons x !lr a0:= !a0 + 1; a1 := !a1 - 1) l 
+ let test () =
+    iter (fun x -> lr1: = Cons x !lr a0:= !a0 + 1; a1 := !a1 - 1) l
     (/| b. /| a. !a0 + !a1 = length b + length a)  *)
 
 
 
- let rec iter_2 l (ghost before: list int) = 
+ let rec iter_2 l (ghost before: list int) =
     variant  { l }
     requires {  !a0 + !a1 = length before + length l}
-    ensures  {  !a0 + !a1 = length ((reverse l) ++ before) 
+    ensures  {  !a0 + !a1 = length ((reverse l) ++ before)
                           + length (Nil : list int)  }
     match l with
-      | Nil -> ()   
-      | Cons x xs -> lr1:= Cons x !lr; iter_2 xs (Cons x before)
-    end    
-   
-  let test_iter_2 () = 
+      | Nil -> ()
+      | Cons x xs -> lr1:= Cons x !lr1; iter_2 xs (Cons x before)
+    end
+
+  let test_iter_2 () =
      a0 := 0; a1 := length l0;
-    iter_2 l0 Nil; 
+    iter_2 l0 Nil;
     assert {!a0 + !a1 = length l0}
 
+end
 
 
-(**********************************  fold  ******************************************)
+module Fold
+  use import int.Int
+  use import int.MinMax
+  use import list.List
+  use import ref.Ref
+  use import list.Mem
+  use import list.Reverse
+  use import list.Append
+  use import list.Length
+  use import Iter
+
+(**********************************  fold  *************************************)
 (*
-  let rec fold (f: a' -> 'b -> 'a) (a: 'a) (l: list 'b) (ghost b: list 'b) 
-               (ghost inv : list 'b -> list 'b -> 
+  let rec fold (f: a' -> 'b -> 'a) (a: 'a) (l: list 'b) (ghost b: list 'b)
+               (ghost inv : list 'b -> list 'b ->
        	requires  {inv b l a }
-        ensures   {inv ((reverse b) ++ l) Nil result} 
+        ensures   {inv ((reverse l) ++ b) Nil result}
       = match l with
          | Nil -> a
-         | Cons x xs -> fold f (f a x) xs inv b 
-        end 
+         | Cons x xs -> fold f (f a x) xs inv b
+        end
 
-  let fold f a l inv  = 
+  let fold f a l inv  =
       requires {inv Nil l a}
       ensures  {inv (reverse l) Nil result}
-    fold f inv l Nil a 
- 
-  let test () = 
-    fold (fun a x -> x + a) 0 l (/| b. /| l. /| a. a = sum b)   
+    fold f inv l Nil a
 
 *)
 
 
-let rec fold (a : int) (l : list int) (ghost b : list int)
+(* let test_0 () =
+     fold (fun a x -> x + a) 0 l (/| b. /| l. /| a. a = sum b) *)
+
+let rec fold_0 (a : int) (l : list int) (ghost b : list int)
  requires { a = sum b}
- ensures  { result = sum ((reverse b) ++ l) }
+ ensures  { result = sum ((reverse l) ++ b) }
  = match l with
     | Nil -> a
-    | Cons x  xs ->  fold (x + a) xs (Cons x b) 
+    | Cons x  xs ->  fold_0 (x + a) xs (Cons x b)
   end
 
- let test_fold () = 
-    let n = fold 0 l0 Nil in 
+
+ let test_fold_0 () =
+    let n = fold_0 0 l0 Nil in
     assert {n = sum l0}
 
 
+(* let test_1 () =
+     fold (fun a x -> min x a) 0 l
+      (/| b. /| l. /| a. a =
+       forall x:int. (x >= 0 /\ mem x b) -> a <= x *)
+
+let rec fold_1 (a : int) (l : list int) (ghost b : list int)
+   requires { forall x:int. (x >= 0 /\ mem x b)  -> a <= x }
+   ensures  { forall x:int. (x >= 0 /\ mem x ((reverse l) ++ b)) -> result <= x }
+  = match l with
+     | Nil -> a
+     | Cons x xs -> fold_1 (min x a) xs (Cons x b)
+    end
+
+
+ let test_fold_1 () =
+    let n = fold_1 0 l0 Nil in
+    assert {forall x: int. x >= 0 /\ mem x l0 -> n <= x}
+
+
+(* let test_2 () =
+     fold (fun a x -> min x a) 0 l
+      (/| b. /| l. /| a. a =
+       forall x:int. (mem x b /\ x >= 0) <-> mem x a *)
+
+let rec fold_2 (a : list int) (l : list int) (ghost b : list int)
+   requires { forall x:int. (mem x b /\ x >= 0) <-> mem x a }
+   ensures  { forall x:int. (mem x (reverse l ++ b) /\ x >= 0) <-> mem x result}
+  = match l with
+     | Nil -> a
+     | Cons x xs -> fold_2 (if x >= 0 then Cons x a else a) xs (Cons x b)
+    end
+
+ let test_fold_2 () =
+    let l1 = fold_2 Nil l0 Nil in
+    assert {forall x:int. (mem x l0 /\ x >= 0) <-> mem x l1 }
+
+end
+
+module Filter
+  use import int.Int
+  use import int.MinMax
+  use import list.List
+  use import ref.Ref
+  use import list.Mem
+  use import list.Reverse
+  use import list.Append
+  use import list.Length
+  use import Iter
+  use import Fold
+
+(*
+  let rec filter (f: a' -> bool) (l: list 'a) (ghost b: list 'a)
+               (ghost inv : list 'b -> list 'b ->
+       	requires  {inv b l }
+        ensures   {inv ((reverse l) ++ b) Nil}
+      = match l with
+         | Nil -> Nil
+         | Cons x xs -> if f x then Cons x (filter f xs) inv b
+	   	        else filter f xs
+        end
+
+  let filter f l inv  =
+      requires {inv Nil l}
+      ensures  {inv (reverse l) Nil}
+    filter f l Nil inv
+
+*)
+
+
+(* let test_0 () =
+     fold (fun a x -> x + a) 0 l (/| b. /| l. /| a. a = sum b) *)
+
+let rec filter_0 (l : list int) (ghost b r: list int)
+ requires { forall x: int. mem x b /\ x >= 0 <-> mem x r}
+ ensures  { forall x: int. mem x ((reverse l) ++ b) /\ x >= 0 <->
+           mem x ((reverse result) ++ r)}
+ = match l with
+    | Nil -> Nil
+    | Cons x  xs ->  if x >= 0 then Cons x (filter_0 xs (Cons x b) (Cons x r))
+                     else filter_0 xs (Cons x b) r
+  end
+
+
+ let test_filter_0 () =
+    let l1 = filter_0 l0 Nil Nil in
+    assert {forall x: int. mem x l0 /\ x >= 0 <-> mem x l1}
+
+end
+
+module Map
+  use import int.Int
+  use import int.MinMax
+  use import list.List
+  use import ref.Ref
+  use import list.Mem
+  use import list.Reverse
+  use import list.Append
+  use import list.Length
+  use import Iter
+  use import Fold
+  use import Filter
 
 (* ******************************  map  ******************************* *)
 
@@ -194,30 +328,30 @@ let rec fold (a : int) (l : list int) (ghost b : list int)
      ensures   { inv  }
   match l with
     | Nil -> Nil
-    | Cons x xs -> Cons (f x) (map f xs))  
+    | Cons x xs -> Cons (f x) (map f xs))
 
 
 
  let map f l inv =
       requires { inv Nil l }
-      ensures  { inv (rev l) Nil } 
-    map f inv l Nil 
+      ensures  { inv (rev l) Nil }
+    map f inv l Nil
 
-  let test () = 
-    iter (fun x -> x + 1) 
-         (/| before. /| after. /| l. sum l = sum after + length after)  
+  let test () =
+    iter (fun x -> x + 1)
+         (/| before. /| after. /| l. sum l = sum after + length after)
 
 *)
- 
+
   let rec map_1 (l: list int)  =
-    requires { true } 
+    requires { true }
     ensures  { sum result = sum l + length l  }
     match l with
-      | Nil -> Nil  
+      | Nil -> Nil
       | Cons x xs ->  Cons (x + 1) (map_1 xs)
-    end    
-   
-  let test_map_1 () = 
+    end
+
+  let test_map_1 () =
     let l1 = map_1 l0 in
     assert {sum l1 = sum l0 + length l0}
 
@@ -229,12 +363,12 @@ let rec fold (a : int) (l : list int) (ghost b : list int)
     requires { !lr = b}
     ensures  { !lr = ((reverse result) ++ b)}
     match l with
-      | Nil -> Nil  
-      | Cons x xs ->  let y = lr := Cons x !lr; x in	
+      | Nil -> Nil
+      | Cons x xs ->  let y = lr := Cons x !lr; x in
       	       	       Cons y (map_2 xs (Cons x b))
-    end    
-   
-  let test_map_2 () = 
+    end
+
+  let test_map_2 () =
     lr := Nil;
     let l1 = map_2 l0 Nil in
     assert {!lr = reverse l1}
