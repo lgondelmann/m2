@@ -100,6 +100,10 @@ let test (t: tree int) =
 *)
 
 
+  lemma lemm: 
+
+sorted (reverse b ++ inorder l ++ Cons x inorder r)  =
+   sorted (reverse (Cons x (reverse (inorder l)) ++ b) ++ inorder r)
 
   let rec iter_inorder_isbst (t : tree int) (ghost b: list int) : unit =
 
