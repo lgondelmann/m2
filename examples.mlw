@@ -1,60 +1,10 @@
-module BinTree
- (* use import bintree.Tree
-  use import bintree.Inorder
-  use import ref.Ref
-  use import int.Int
-  use import list.SortedInt
-  val s: ref int
-
-
-  predicate member (x: int) (t: tree int) =
-    match t with
-     | Empty -> false
-     | Node l y r -> if x = y then true
-       	      	     else member x l \/ member x r
-    end
-
-  predicate is_bst (t: tree int) = sorted (inorder t)
-
-  exception Failure
-
-  let rec is_bst t =
-    requires {forall x:int. member x t -> x >= 0 /\ !s >= 0}
-    requires {true}
-    ensures {is_bst t}
-    raises {Failure -> not is_bst t}
-    match t with
-     | Empty -> ()
-     | Node l x r ->
-          is_bst l;
-	  if !s > x then raise Failure
-	  else (s:= x; is_bst r)
-     end
-
-
-
-
- (*let rec leftmost (t: tree int) : int =
-      match t with
-        | Empty -> raise Failure
-	| Node (Node Empty x r0) y r -> x
-	| Node l x r -> leftmost l
-      end *) *)
-end
-
-
-
-
-module Iter
-  use import int.Int
-  use import int.MinMax
+(******************************************************************************)
+module Sum 
   use import list.List
-  use import ref.Ref
-  use import list.Mem
-  use import list.Reverse
+  use import int.Int
   use import list.Append
-  use import list.Length
-
+  use import list.Reverse 
+  use import list.Mem
   function sum (l:list int) : int =
      match l with
        | Nil -> 0
@@ -69,6 +19,129 @@ module Iter
 
   lemma mem_reverse :
     forall l1: list int, x: int. mem x l1 <-> mem x (reverse l1)
+
+end
+
+(******************************************************************************)
+module BinTree
+  use import bintree.Tree
+  use import bintree.Inorder
+  use import ref.Ref
+  use import int.Int
+  use import list.SortedInt
+  use import list.Mem
+  use import list.Reverse
+  use import Sum
+  val s: ref int
+  val t: tree int
+
+  (*
+predicate member (x: int) (t: tree int) =
+    match t with
+     | Empty -> false
+     | Node l y r -> if x = y then true
+       	      	     else member x l \/ member x r
+    end
+
+
+  let rec iter_inorder 
+      (f: 'a -> unit) 
+      (t: tree 'a) 
+      (ghost b: list 'a)
+      (ghost inv: list 'a -> list 'a -> prop) : unit =
+    requires { inv b l } 
+    ensures  { inv (reverse (inorder t) ++ b) Nil }
+    match t with
+      | Empty -> ()
+      | Node l x r -> 
+           iter_inorder f l b inv; 
+	   f x; 
+	   iter_inorder f r (reverse (inorder l) ++ Cons x b) inv
+    end 
+
+    let iter_inorder f t inv =
+        requires { inv Nil (inorder t) } 
+    	ensures  { inv (reverse (inorder t)) Nil }
+    iter_inorder f t inv Nil
+*)
+
+(* let test (t: tree int) = 
+    iter_inorder (fun x -> s:= x + !s) t (/l b. /l a. !s = sum b) *)
+ 
+  let rec iter_inorder_sum (t: tree int) (ghost b: list int) : unit  = 
+    requires { !s = sum b }
+    ensures  { !s = sum ((reverse (inorder t)) ++ b) }
+    match t with
+      | Empty -> ()
+      | Node l x r -> 
+      iter_inorder_sum l b; 
+      (s := x + !s); iter_inorder_sum r (Cons x (inorder l) ++ b) 
+    end
+
+  let test_iter_0 () =
+     s := 0;
+    iter_inorder_sum t Nil;
+    assert {!s = sum (reverse (inorder t))}
+
+exception Failure 
+
+
+(* 
+ requres ...
+ ensures ...
+ raises {caller exn -> exn_pred ((reverse (inorder t)) ++ b)) Nil}
+
+let test (t: tree int) = 
+    iter_inorder 
+      (fun x -> if x < !s then raise Failure else s := x + !s) 
+      t 
+      (/l b. /l a. sorted b *)
+
+
+
+  let rec iter_inorder_isbst (t : tree int) (ghost b: list int) : unit =
+    
+    requires {sorted b}
+    ensures  {sorted ((reverse (inorder t)) ++ b)}
+    raises {Failure  -> not (sorted ((reverse (inorder t)) ++ b))}
+   match t with
+     | Empty -> ()
+     | Node l x r ->
+          iter_inorder_isbst l b;
+	  (if x < !s then raise Failure  else s:= x);
+	  iter_inorder_isbst r (Cons x (inorder l) ++ b)
+     end
+
+  let test_iter_1 (t: tree int) =
+    requires { forall x:int. mem x (inorder t) -> x >= 0 /\ !s >= 0 }
+    ensures  { sorted (reverse (inorder t)) }
+    raises   { Failure  -> not (sorted  (reverse (inorder t))) }
+    s := 0;
+    iter_inorder_isbst t Nil
+ 
+
+
+
+ (*let rec leftmost (t: tree int) : int =
+      match t with
+        | Empty -> raise Failure
+	| Node (Node Empty x r0) y r -> x
+	| Node l x r -> leftmost l
+      end *) 
+end
+
+
+(******************************************************************************)
+module Iter
+  use import int.Int
+  use import int.MinMax
+  use import list.List
+  use import ref.Ref
+  use import list.Mem
+  use import list.Reverse
+  use import list.Append
+  use import list.Length
+  use import Sum
 
   val s : ref int
   val l0 : list int
@@ -180,6 +253,7 @@ module Fold
   use import list.Append
   use import list.Length
   use import Iter
+  use import Sum
 
 (**********************************  fold  *************************************)
 (*
@@ -268,9 +342,9 @@ module Filter
   use import Fold
 
 (*
-  let rec filter (f: a' -> bool) (l: list 'a) (ghost b: list 'a)
-               (ghost inv : list 'b -> list 'b ->
-       	requires  {inv b l }
+  let rec filter (f: a' -> bool) (l: list 'a) (ghost b r: list 'a)
+               (ghost inv : list 'a -> list 'a -> list 'a -> prop
+       	requires  {inv b r l}
         ensures   {inv ((reverse l) ++ b) Nil}
       = match l with
          | Nil -> Nil
@@ -286,8 +360,6 @@ module Filter
 *)
 
 
-(* let test_0 () =
-     fold (fun a x -> x + a) 0 l (/| b. /| l. /| a. a = sum b) *)
 
 let rec filter_0 (l : list int) (ghost b r: list int)
  requires { forall x: int. mem x b /\ x >= 0 <-> mem x r}
@@ -306,6 +378,9 @@ let rec filter_0 (l : list int) (ghost b r: list int)
 
 end
 
+
+
+(*
 module Map
   use import int.Int
   use import int.MinMax
@@ -315,9 +390,10 @@ module Map
   use import list.Reverse
   use import list.Append
   use import list.Length
+  use import Sum
   use import Iter
-  use import Fold
-  use import Filter
+
+
 
 (* ******************************  map  ******************************* *)
 
@@ -391,4 +467,50 @@ end
 Local Variables:
 compile-command: "why3ide -I . examples.mlw"
 End:
+*)
+
+ (* predicate is_binary_searh_tree (t: tree int) = 
+    match t with 
+     | Empty -> true
+     | Node l x r -> 
+       (forall y: int. member y l -> y <= x) /\
+       (forall z: int. member z l -> x <= z) /\
+       is_binary_searh_tree l /\ is_binary_searh_tree r
+    end
+ 
+
+  lemma mem_sorted : 
+    forall x y: int, l: list int. sorted (Cons x l) /\ mem y l -> x <= y   
+
+  lemma member_bst : 
+    forall x: int, t: tree int. mem x (inorder t) -> member x t
+
+  lemma is_bst_node : 
+    forall l r : tree int, x: int.  
+      sorted (inorder (Node l x r)) -> 
+      (forall y: int. member y l -> y <= x) /\
+      (forall z: int. member z r -> x <= z) /\ 
+      sorted (inorder l) /\  sorted (inorder r)
+
+  lemma is_bst : 
+    forall t: tree int.  sorted (inorder t) -> is_binary_searh_tree t
+*)
+
+
+
+
+ (* inductive prefix (l0 l1: list 'a) = 
+     | PrefixNil : forall l: list 'a. prefix Nil l
+     | PrefixCons : forall l0 l1: list 'a, x: 'a. prefix l0 l1 ->
+                       prefix (Cons x l0) (Cons x l1)
+
+  lemma sorted_prefix : 
+  forall l0 l1 : list int. prefix l0 l1 /\ not (sorted l0) -> not (sorted l1)
+
+  lemma sorted_prefix2 : 
+  forall l0 l1 : list int. 
+     not (sorted (l0 ++ l1)) /\ sorted l1 -> 
+
+ prefix l0 l1 /\ not (sorted l0) -> not (sorted l1) *)
+
 *)
