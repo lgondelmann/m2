@@ -1,9 +1,9 @@
 (******************************************************************************)
-module Sum 
+module Sum
   use import list.List
   use import int.Int
   use import list.Append
-  use import list.Reverse 
+  use import list.Reverse
   use import list.Mem
   function sum (l:list int) : int =
      match l with
@@ -44,38 +44,38 @@ predicate member (x: int) (t: tree int) =
     end
 
 
-  let rec iter_inorder 
-      (f: 'a -> unit) 
-      (t: tree 'a) 
+  let rec iter_inorder
+      (f: 'a -> unit)
+      (t: tree 'a)
       (ghost b: list 'a)
       (ghost inv: list 'a -> list 'a -> prop) : unit =
-    requires { inv b l } 
+    requires { inv b l }
     ensures  { inv (reverse (inorder t) ++ b) Nil }
     match t with
       | Empty -> ()
-      | Node l x r -> 
-           iter_inorder f l b inv; 
-	   f x; 
-	   iter_inorder f r (reverse (inorder l) ++ Cons x b) inv
-    end 
+      | Node l x r ->
+           iter_inorder f l b inv;
+	   f x;
+	   iter_inorder f r (Cons x (reverse (inorder l) ++ b)) inv
+    end
 
     let iter_inorder f t inv =
-        requires { inv Nil (inorder t) } 
+        requires { inv Nil (inorder t) }
     	ensures  { inv (reverse (inorder t)) Nil }
     iter_inorder f t inv Nil
 *)
 
-(* let test (t: tree int) = 
+(* let test (t: tree int) =
     iter_inorder (fun x -> s:= x + !s) t (/l b. /l a. !s = sum b) *)
- 
-  let rec iter_inorder_sum (t: tree int) (ghost b: list int) : unit  = 
+
+  let rec iter_inorder_sum (t: tree int) (ghost b: list int) : unit  =
     requires { !s = sum b }
     ensures  { !s = sum ((reverse (inorder t)) ++ b) }
     match t with
       | Empty -> ()
-      | Node l x r -> 
-      iter_inorder_sum l b; 
-      (s := x + !s); iter_inorder_sum r (Cons x (inorder l) ++ b) 
+      | Node l x r ->
+      iter_inorder_sum l b;
+      (s := x + !s); iter_inorder_sum r (Cons x (reverse (inorder l)) ++ b)
     end
 
   let test_iter_0 () =
@@ -83,42 +83,46 @@ predicate member (x: int) (t: tree int) =
     iter_inorder_sum t Nil;
     assert {!s = sum (reverse (inorder t))}
 
-exception Failure 
+exception Failure
 
 
-(* 
+(*
  requres ...
  ensures ...
  raises {caller exn -> exn_pred ((reverse (inorder t)) ++ b)) Nil}
 
-let test (t: tree int) = 
-    iter_inorder 
-      (fun x -> if x < !s then raise Failure else s := x + !s) 
-      t 
-      (/l b. /l a. sorted b *)
+let test (t: tree int) =
+    iter_inorder
+      (fun x -> if x < !s then raise Failure else s := x + !s)
+      t
+      (/l b. /l a. sorted (reverse b) /\
+                   forall x:int. mem x b -> x <= !s)
+*)
 
 
 
   let rec iter_inorder_isbst (t : tree int) (ghost b: list int) : unit =
-    
-    requires {sorted b}
-    ensures  {sorted ((reverse (inorder t)) ++ b)}
-    raises {Failure  -> not (sorted ((reverse (inorder t)) ++ b))}
+
+    requires {sorted (reverse b) /\ forall x:int. mem x b -> x <= !s}
+    ensures  {sorted (reverse b ++ inorder t)
+          /\ forall x:int.
+             mem x (reverse b ++ inorder t) -> x <= !s }
+    raises {Failure  -> true (*not (sorted ((reverse (inorder t)) ++ b))*)}
    match t with
      | Empty -> ()
      | Node l x r ->
           iter_inorder_isbst l b;
 	  (if x < !s then raise Failure  else s:= x);
-	  iter_inorder_isbst r (Cons x (inorder l) ++ b)
+	  iter_inorder_isbst r (Cons x (reverse (inorder l)) ++ b)
      end
 
   let test_iter_1 (t: tree int) =
-    requires { forall x:int. mem x (inorder t) -> x >= 0 /\ !s >= 0 }
-    ensures  { sorted (reverse (inorder t)) }
-    raises   { Failure  -> not (sorted  (reverse (inorder t))) }
+    requires { forall x:int. mem x (inorder t) -> x >= 0 }
+    ensures  { sorted (inorder t) }
+    raises   { Failure  -> true (*not (sorted  (reverse (inorder t)))*) }
     s := 0;
     iter_inorder_isbst t Nil
- 
+
 
 
 
@@ -127,7 +131,7 @@ let test (t: tree int) =
         | Empty -> raise Failure
 	| Node (Node Empty x r0) y r -> x
 	| Node l x r -> leftmost l
-      end *) 
+      end *)
 end
 
 
@@ -255,27 +259,27 @@ module Fold
   use import Iter
   use import Sum
 
-(**********************************  fold  *************************************)
+(**********************************  fold_left  *************************************)
 (*
-  let rec fold (f: a' -> 'b -> 'a) (a: 'a) (l: list 'b) (ghost b: list 'b)
-               (ghost inv : list 'b -> list 'b ->
-       	requires  {inv b l a }
-        ensures   {inv ((reverse l) ++ b) Nil result}
+  let rec fold_left (f: a' -> 'b -> 'a) (a: 'a) (l: list 'b) (ghost b: list 'b)
+               (ghost inv : list 'b -> list 'b -> 'a -> prop) : 'a
+       	requires  { inv b                l   a      }
+        ensures   { inv (rev_append l b) Nil result }
       = match l with
          | Nil -> a
-         | Cons x xs -> fold f (f a x) xs inv b
+         | Cons x xs -> fold_left f (f a x) xs b inv
         end
 
-  let fold f a l inv  =
+  let fold_left f a l inv  =
       requires {inv Nil l a}
       ensures  {inv (reverse l) Nil result}
-    fold f inv l Nil a
+    fold_left f inv l Nil a
 
 *)
 
 
 (* let test_0 () =
-     fold (fun a x -> x + a) 0 l (/| b. /| l. /| a. a = sum b) *)
+     fold_left (fun a x -> x + a) 0 l Nil (\b. \l. \a. a = sum b) *)
 
 let rec fold_0 (a : int) (l : list int) (ghost b : list int)
  requires { a = sum b}
@@ -329,6 +333,39 @@ let rec fold_2 (a : list int) (l : list int) (ghost b : list int)
 
 end
 
+(**********************************  fold_right  *************************************)
+(*
+  let rec fold_right (f: 'b -> a' -> 'a) (l: list 'b) (a: 'a) (ghost b: list 'b)
+                     (ghost inv : list 'b -> list 'b -> 'a -> prop) : 'a
+       	requires { inv (rev_append l b) Nil a      }
+        ensures  { inv b                l   result }
+      = match l with
+         | Nil -> a
+         | Cons x xs -> f x (fold_right f xs a (Cons x b) inv)
+        end
+
+   inv (Cons x b) xs          result0
+   ------------------------------------------
+   inv b          (Cons x xs) (f x result0)
+
+  let fold_right f l a inv  =
+      requires { inv (reverse l) Nil a      }
+      ensures  { inv Nil         l   result }
+    fold_right f l a Nil inv
+
+  let test_0 () =
+     fold_right (fun x a -> x + a) l 0 Nil (\b. \l. \a. a = sum b)
+
+  let filter p l
+    ensures { forall x. mem x result <-> mem x l /\ p x }
+  =
+    fold_right (fun x acc -> if p x then Cons x acc else acc) l Nil
+      (\b \l \a. forall x. mem x a <-> mem x l /\ p x)
+
+*)
+
+
+
 module Filter
   use import int.Int
   use import int.MinMax
@@ -343,19 +380,22 @@ module Filter
 
 (*
   let rec filter (f: a' -> bool) (l: list 'a) (ghost b r: list 'a)
-               (ghost inv : list 'a -> list 'a -> list 'a -> prop
-       	requires  {inv b r l}
-        ensures   {inv ((reverse l) ++ b) Nil}
+               (ghost inv : list 'a -> list 'a -> list 'a -> prop) : list 'a
+       	requires  { inv b r l }
+        ensures   { inv (reverse l ++ b) (reverse result ++ r) Nil }
       = match l with
          | Nil -> Nil
-         | Cons x xs -> if f x then Cons x (filter f xs) inv b
-	   	        else filter f xs
+         | Cons x xs -> if f x then Cons x (filter f xs (Cons x b) (Cons x r) inv)
+	   	               else         filter f xs (Cons x b)          r inv)
         end
 
   let filter f l inv  =
       requires {inv Nil l}
       ensures  {inv (reverse l) Nil}
     filter f l Nil inv
+
+  let l1 = filter (fun x -> x >= 0) l0 (\b \a \r forall x. mem x r <-> mem x b /\ x >= 0) in
+  assert { forall x. mem x l1 -> mem x l0 /\ x >= 0 }
 
 *)
 
@@ -469,47 +509,47 @@ compile-command: "why3ide -I . examples.mlw"
 End:
 *)
 
- (* predicate is_binary_searh_tree (t: tree int) = 
-    match t with 
+ (* predicate is_binary_searh_tree (t: tree int) =
+    match t with
      | Empty -> true
-     | Node l x r -> 
+     | Node l x r ->
        (forall y: int. member y l -> y <= x) /\
        (forall z: int. member z l -> x <= z) /\
        is_binary_searh_tree l /\ is_binary_searh_tree r
     end
- 
 
-  lemma mem_sorted : 
-    forall x y: int, l: list int. sorted (Cons x l) /\ mem y l -> x <= y   
 
-  lemma member_bst : 
+  lemma mem_sorted :
+    forall x y: int, l: list int. sorted (Cons x l) /\ mem y l -> x <= y
+
+  lemma member_bst :
     forall x: int, t: tree int. mem x (inorder t) -> member x t
 
-  lemma is_bst_node : 
-    forall l r : tree int, x: int.  
-      sorted (inorder (Node l x r)) -> 
+  lemma is_bst_node :
+    forall l r : tree int, x: int.
+      sorted (inorder (Node l x r)) ->
       (forall y: int. member y l -> y <= x) /\
-      (forall z: int. member z r -> x <= z) /\ 
+      (forall z: int. member z r -> x <= z) /\
       sorted (inorder l) /\  sorted (inorder r)
 
-  lemma is_bst : 
+  lemma is_bst :
     forall t: tree int.  sorted (inorder t) -> is_binary_searh_tree t
 *)
 
 
 
 
- (* inductive prefix (l0 l1: list 'a) = 
+ (* inductive prefix (l0 l1: list 'a) =
      | PrefixNil : forall l: list 'a. prefix Nil l
      | PrefixCons : forall l0 l1: list 'a, x: 'a. prefix l0 l1 ->
                        prefix (Cons x l0) (Cons x l1)
 
-  lemma sorted_prefix : 
+  lemma sorted_prefix :
   forall l0 l1 : list int. prefix l0 l1 /\ not (sorted l0) -> not (sorted l1)
 
-  lemma sorted_prefix2 : 
-  forall l0 l1 : list int. 
-     not (sorted (l0 ++ l1)) /\ sorted l1 -> 
+  lemma sorted_prefix2 :
+  forall l0 l1 : list int.
+     not (sorted (l0 ++ l1)) /\ sorted l1 ->
 
  prefix l0 l1 /\ not (sorted l0) -> not (sorted l1) *)
 
