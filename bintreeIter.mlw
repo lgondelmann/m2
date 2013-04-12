@@ -27,12 +27,12 @@ module BinTreeIter
     (ghost exn_cond     : list 'a -> tree 'a -> list'a -> prop) : unit =
     requires { inv before (inorder t ++ after) }
     ensures  { inv (rev_append (inorder t) before) after }
-    raises   { exn -> exn_cond  before t after }
+    raises   { Exit -> exn_cond  before t after }
     match t with
       | Empty -> ()
       | Node l x r ->
            iter_inorder l inv f before (Cons x (inorder r) ++ after) inv;
-	   f (rev_append (inorder l) before) (inorder r ++ a) x;
+	   f (rev_append (inorder l) before) (inorder r ++ after) x;
 	   iter_inorder r inv f (Cons x (rev_append (inorder l) before)) after
     end
 *)
@@ -85,7 +85,7 @@ module BinTreeIter
 (*******************************************************************************)
 (*******************************************************************************)
 
-  (* predicate inv0 (b a: list ) = hd b = !s /\ Decr.sorted b *)
+   predicate inv0 (b a: list int) (s : option int) = hd b = s /\ Decr.sorted b
 
 
   predicate exn_cond0 (b : list int) (t: tree int) (a: list 'a) =
@@ -104,8 +104,8 @@ module BinTreeIter
 
 
   let rec iter_inorder_0 (t : tree int) (ghost b a: list int) : unit
-    requires { hd b = !s /\ Decr.sorted b }
-    ensures  { let b1 = rev_append (inorder t) b in hd b1 = !s /\ Decr.sorted b1 }
+    requires { inv0 b a !s }
+    ensures  { let b1 = rev_append (inorder t) b in inv0 b1 a !s }
     raises   { Failure  -> exn_cond0 b t a }
     = match t with
        | Empty -> ()
@@ -175,7 +175,7 @@ let test (t: tree int) =
 
     iter_inorder
 
-      (fun b a x ->
+      (fun (ghost b) (ghost a) x ->
       match !s with
 	     | Some y ->
 	         if x < y

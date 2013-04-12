@@ -18,11 +18,11 @@
    locfile="../bintreeIter.mlw"
    loclnum="2" loccnumb="7" loccnume="18"
    verified="true"
-   expanded="true">
+   expanded="false">
    <goal
     name="WP_parameter f0"
     locfile="../bintreeIter.mlw"
-    loclnum="84" loccnumb="6" loccnume="8"
+    loclnum="95" loccnumb="6" loccnume="8"
     expl="VC for f0"
     sum="83b3828a769d4cf9ccea7fee294332a0"
     proved="true"
@@ -42,7 +42,7 @@
    <goal
     name="WP_parameter iter_inorder_0"
     locfile="../bintreeIter.mlw"
-    loclnum="95" loccnumb="10" loccnume="24"
+    loclnum="106" loccnumb="10" loccnume="24"
     expl="VC for iter_inorder_0"
     sum="99aff17e6b00679f3ea39049446b7ba7"
     proved="true"
@@ -57,7 +57,7 @@
      <goal
       name="WP_parameter iter_inorder_0.1"
       locfile="../bintreeIter.mlw"
-      loclnum="95" loccnumb="10" loccnume="24"
+      loclnum="106" loccnumb="10" loccnume="24"
       expl="1. postcondition"
       sum="c85625d7752f639b039e154abacd942c"
       proved="true"
@@ -77,7 +77,7 @@
      <goal
       name="WP_parameter iter_inorder_0.2"
       locfile="../bintreeIter.mlw"
-      loclnum="95" loccnumb="10" loccnume="24"
+      loclnum="106" loccnumb="10" loccnume="24"
       expl="2. precondition"
       sum="1fba0fb81ba82fdac95bdf60e0a93322"
       proved="true"
@@ -97,7 +97,7 @@
      <goal
       name="WP_parameter iter_inorder_0.3"
       locfile="../bintreeIter.mlw"
-      loclnum="95" loccnumb="10" loccnume="24"
+      loclnum="106" loccnumb="10" loccnume="24"
       expl="3. precondition"
       sum="1e42f78a315a2a89fe68ca4cbb465bcc"
       proved="true"
@@ -117,7 +117,7 @@
      <goal
       name="WP_parameter iter_inorder_0.4"
       locfile="../bintreeIter.mlw"
-      loclnum="95" loccnumb="10" loccnume="24"
+      loclnum="106" loccnumb="10" loccnume="24"
       expl="4. precondition"
       sum="abf4b8f35ac3b387dfaaf7bbe8cf800c"
       proved="true"
@@ -137,7 +137,7 @@
      <goal
       name="WP_parameter iter_inorder_0.5"
       locfile="../bintreeIter.mlw"
-      loclnum="95" loccnumb="10" loccnume="24"
+      loclnum="106" loccnumb="10" loccnume="24"
       expl="5. postcondition"
       sum="610ec07bcd283b6ae7f1c04b8b6ae5a3"
       proved="true"
@@ -157,7 +157,7 @@
      <goal
       name="WP_parameter iter_inorder_0.6"
       locfile="../bintreeIter.mlw"
-      loclnum="95" loccnumb="10" loccnume="24"
+      loclnum="106" loccnumb="10" loccnume="24"
       expl="6. exceptional postcondition"
       sum="d0bfbcf075935b1b8d4f1e467e0c1c79"
       proved="true"
@@ -177,7 +177,7 @@
      <goal
       name="WP_parameter iter_inorder_0.7"
       locfile="../bintreeIter.mlw"
-      loclnum="95" loccnumb="10" loccnume="24"
+      loclnum="106" loccnumb="10" loccnume="24"
       expl="7. exceptional postcondition"
       sum="1bda8f000150d1c11102fff9eaffceca"
       proved="true"
@@ -197,7 +197,7 @@
      <goal
       name="WP_parameter iter_inorder_0.8"
       locfile="../bintreeIter.mlw"
-      loclnum="95" loccnumb="10" loccnume="24"
+      loclnum="106" loccnumb="10" loccnume="24"
       expl="8. exceptional postcondition"
       sum="fcdf710c8903ea79fdfcf7adf75fdd4e"
       proved="true"
@@ -219,7 +219,7 @@
    <goal
     name="WP_parameter iter_inorder_0_init"
     locfile="../bintreeIter.mlw"
-    loclnum="107" loccnumb="6" loccnume="25"
+    loclnum="118" loccnumb="6" loccnume="25"
     expl="VC for iter_inorder_0_init"
     sum="bc7322e3216f0f27b46a63b132f5e9e3"
     proved="true"
@@ -234,7 +234,7 @@
      <goal
       name="WP_parameter iter_inorder_0_init.1"
       locfile="../bintreeIter.mlw"
-      loclnum="107" loccnumb="6" loccnume="25"
+      loclnum="118" loccnumb="6" loccnume="25"
       expl="1. precondition"
       sum="4665893c7e2177457d67d187a1e17932"
       proved="true"
@@ -254,7 +254,7 @@
      <goal
       name="WP_parameter iter_inorder_0_init.2"
       locfile="../bintreeIter.mlw"
-      loclnum="107" loccnumb="6" loccnume="25"
+      loclnum="118" loccnumb="6" loccnume="25"
       expl="2. postcondition"
       sum="1980e84a75e8c067122457475cc14b8e"
       proved="true"
@@ -274,7 +274,7 @@
      <goal
       name="WP_parameter iter_inorder_0_init.3"
       locfile="../bintreeIter.mlw"
-      loclnum="107" loccnumb="6" loccnume="25"
+      loclnum="118" loccnumb="6" loccnume="25"
       expl="3. exceptional postcondition"
       sum="234a62c6cf84ec0c6eb5c2f532999868"
       proved="true"
@@ -296,7 +296,7 @@
    <goal
     name="WP_parameter test_iter_0"
     locfile="../bintreeIter.mlw"
-    loclnum="113" loccnumb="6" loccnume="17"
+    loclnum="124" loccnumb="6" loccnume="17"
     expl="VC for test_iter_0"
     sum="5a5dd97d1da14d13619f1839b5ee55df"
     proved="true"
@@ -311,7 +311,7 @@
      <goal
       name="WP_parameter test_iter_0.1"
       locfile="../bintreeIter.mlw"
-      loclnum="113" loccnumb="6" loccnume="17"
+      loclnum="124" loccnumb="6" loccnume="17"
       expl="1. precondition"
       sum="1d6544bfee5afb075c54c9ec1c451dc2"
       proved="true"
@@ -331,7 +331,7 @@
      <goal
       name="WP_parameter test_iter_0.2"
       locfile="../bintreeIter.mlw"
-      loclnum="113" loccnumb="6" loccnume="17"
+      loclnum="124" loccnumb="6" loccnume="17"
       expl="2. postcondition"
       sum="4683cb69bd01196dba16171b50c00a34"
       proved="true"
@@ -351,7 +351,7 @@
      <goal
       name="WP_parameter test_iter_0.3"
       locfile="../bintreeIter.mlw"
-      loclnum="113" loccnumb="6" loccnume="17"
+      loclnum="124" loccnumb="6" loccnume="17"
       expl="3. exceptional postcondition"
       sum="130e3f1689eb1bc05867336ac2e7d434"
       proved="true"
@@ -366,6 +366,320 @@
        obsolete="false"
        archived="false">
        <result status="valid" time="0.07"/>
+      </proof>
+     </goal>
+    </transf>
+   </goal>
+   <goal
+    name="WP_parameter iter_inorder_isbst_1"
+    locfile="../bintreeIter.mlw"
+    loclnum="192" loccnumb="9" loccnume="29"
+    expl="VC for iter_inorder_isbst_1"
+    sum="97947238097a1f2dc43d266f408a13f5"
+    proved="true"
+    expanded="false"
+    shape="CV0aEmptyasortedV3Aainfix =CV3aNilaNoneaConsVwaSomeV4V2Larev_appendainorderV0V1aNodeVVVasortedarev_appendainorderV0V1NIasortedarev_appendainorderV5V1NACV8aSomeViainfix &lt;V6V9asortedarev_appendainorderV0V1NAasortedaConsV6arev_appendainorderV5V1Nasortedarev_appendainorderV0V1NIasortedarev_appendainorderV7V11NAasortedV13Aainfix =CV13aNilaNoneaConsVwaSomeV14V12Larev_appendainorderV0V1IasortedV15Aainfix =CV15aNilaNoneaConsVwaSomeV16V12Larev_appendainorderV7V11FAasortedV11Aainfix =aSomeV6V10LaConsV6arev_appendainorderV5V1Iainfix =V10aSomeV6FaNoneasortedarev_appendainorderV0V1NIasortedarev_appendainorderV7V18NAasortedV20Aainfix =CV20aNilaNoneaConsVwaSomeV21V19Larev_appendainorderV0V1IasortedV22Aainfix =CV22aNilaNoneaConsVwaSomeV23V19Larev_appendainorderV7V18FAasortedV18Aainfix =aSomeV6V17LaConsV6arev_appendainorderV5V1Iainfix =V17aSomeV6FIasortedV24Aainfix =CV24aNilaNoneaConsVwaSomeV25V8Larev_appendainorderV5V1FAasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV26V2IasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV27V2FF">
+    <label
+     name="expl:VC for iter_inorder_isbst_1"/>
+    <transf
+     name="split_goal_wp"
+     proved="true"
+     expanded="false">
+     <goal
+      name="WP_parameter iter_inorder_isbst_1.1"
+      locfile="../bintreeIter.mlw"
+      loclnum="192" loccnumb="9" loccnume="29"
+      expl="1. postcondition"
+      sum="c85625d7752f639b039e154abacd942c"
+      proved="true"
+      expanded="false"
+      shape="CV0aEmptyasortedV3Aainfix =CV3aNilaNoneaConsVwaSomeV4V2Larev_appendainorderV0V1aNodeVVVtIasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV8V2FF">
+      <label
+       name="expl:VC for iter_inorder_isbst_1"/>
+      <proof
+       prover="0"
+       timelimit="3"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.02"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter iter_inorder_isbst_1.2"
+      locfile="../bintreeIter.mlw"
+      loclnum="192" loccnumb="9" loccnume="29"
+      expl="2. precondition"
+      sum="1fba0fb81ba82fdac95bdf60e0a93322"
+      proved="true"
+      expanded="false"
+      shape="CV0aEmptytaNodeVVVasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV6V2IasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV7V2FF">
+      <label
+       name="expl:VC for iter_inorder_isbst_1"/>
+      <proof
+       prover="0"
+       timelimit="3"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.02"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter iter_inorder_isbst_1.3"
+      locfile="../bintreeIter.mlw"
+      loclnum="192" loccnumb="9" loccnume="29"
+      expl="3. assertion"
+      sum="49c36f314c454cc63e6aa2b44d11a61c"
+      proved="true"
+      expanded="false"
+      shape="CV0aEmptytaNodeVVVCV6aSomeVasortedaConsV4arev_appendainorderV3V1NIainfix &lt;V4V7aNonetIasortedV8Aainfix =CV8aNilaNoneaConsVwaSomeV9V6Larev_appendainorderV3V1FIasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV10V2IasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV11V2FF">
+      <label
+       name="expl:VC for iter_inorder_isbst_1"/>
+      <proof
+       prover="0"
+       timelimit="3"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="1.43"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter iter_inorder_isbst_1.4"
+      locfile="../bintreeIter.mlw"
+      loclnum="192" loccnumb="9" loccnume="29"
+      expl="4. exceptional postcondition"
+      sum="5ba8ffa08f77717b8a98551a7f012e7b"
+      proved="true"
+      expanded="false"
+      shape="CV0aEmptytaNodeVVVCV6aSomeVasortedarev_appendainorderV0V1NIasortedaConsV4arev_appendainorderV3V1NIainfix &lt;V4V7aNonetIasortedV8Aainfix =CV8aNilaNoneaConsVwaSomeV9V6Larev_appendainorderV3V1FIasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV10V2IasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV11V2FF">
+      <label
+       name="expl:VC for iter_inorder_isbst_1"/>
+      <proof
+       prover="1"
+       timelimit="7"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="7.15"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter iter_inorder_isbst_1.5"
+      locfile="../bintreeIter.mlw"
+      loclnum="192" loccnumb="9" loccnume="29"
+      expl="5. precondition"
+      sum="9fbd4e819a6898759351f2da4e46b94d"
+      proved="true"
+      expanded="false"
+      shape="CV0aEmptytaNodeVVVCV6aSomeVasortedV9Aainfix =aSomeV4V8LaConsV4arev_appendainorderV3V1Iainfix =V8aSomeV4FIainfix &lt;V4V7NaNonetIasortedV10Aainfix =CV10aNilaNoneaConsVwaSomeV11V6Larev_appendainorderV3V1FIasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV12V2IasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV13V2FF">
+      <label
+       name="expl:VC for iter_inorder_isbst_1"/>
+      <proof
+       prover="0"
+       timelimit="3"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="1.09"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter iter_inorder_isbst_1.6"
+      locfile="../bintreeIter.mlw"
+      loclnum="192" loccnumb="9" loccnume="29"
+      expl="6. postcondition"
+      sum="9dc2c8edb3c8a1bc73eadb2222aed5f1"
+      proved="true"
+      expanded="false"
+      shape="CV0aEmptytaNodeVVVCV6aSomeVasortedV11Aainfix =CV11aNilaNoneaConsVwaSomeV12V10Larev_appendainorderV0V1IasortedV13Aainfix =CV13aNilaNoneaConsVwaSomeV14V10Larev_appendainorderV5V9FIasortedV9Aainfix =aSomeV4V8LaConsV4arev_appendainorderV3V1Iainfix =V8aSomeV4FIainfix &lt;V4V7NaNonetIasortedV15Aainfix =CV15aNilaNoneaConsVwaSomeV16V6Larev_appendainorderV3V1FIasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV17V2IasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV18V2FF">
+      <label
+       name="expl:VC for iter_inorder_isbst_1"/>
+      <proof
+       prover="0"
+       timelimit="3"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.04"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter iter_inorder_isbst_1.7"
+      locfile="../bintreeIter.mlw"
+      loclnum="192" loccnumb="9" loccnume="29"
+      expl="7. exceptional postcondition"
+      sum="e48f58746ef5426ca2ae0f7e2dd362fc"
+      proved="true"
+      expanded="false"
+      shape="CV0aEmptytaNodeVVVCV6aSomeVasortedarev_appendainorderV0V1NIasortedarev_appendainorderV5V9NIasortedV9Aainfix =aSomeV4V8LaConsV4arev_appendainorderV3V1Iainfix =V8aSomeV4FIainfix &lt;V4V7NaNonetIasortedV10Aainfix =CV10aNilaNoneaConsVwaSomeV11V6Larev_appendainorderV3V1FIasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV12V2IasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV13V2FF">
+      <label
+       name="expl:VC for iter_inorder_isbst_1"/>
+      <proof
+       prover="0"
+       timelimit="3"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.04"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter iter_inorder_isbst_1.8"
+      locfile="../bintreeIter.mlw"
+      loclnum="192" loccnumb="9" loccnume="29"
+      expl="8. precondition"
+      sum="f92c79f836fee7f92a1bf499c99088c8"
+      proved="true"
+      expanded="false"
+      shape="CV0aEmptytaNodeVVVCV6aSomeVtaNoneasortedV9Aainfix =aSomeV4V8LaConsV4arev_appendainorderV3V1Iainfix =V8aSomeV4FIasortedV10Aainfix =CV10aNilaNoneaConsVwaSomeV11V6Larev_appendainorderV3V1FIasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV12V2IasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV13V2FF">
+      <label
+       name="expl:VC for iter_inorder_isbst_1"/>
+      <proof
+       prover="0"
+       timelimit="3"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.56"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter iter_inorder_isbst_1.9"
+      locfile="../bintreeIter.mlw"
+      loclnum="192" loccnumb="9" loccnume="29"
+      expl="9. postcondition"
+      sum="69de44c53610dd1729529a58f69470d8"
+      proved="true"
+      expanded="false"
+      shape="CV0aEmptytaNodeVVVCV6aSomeVtaNoneasortedV11Aainfix =CV11aNilaNoneaConsVwaSomeV12V10Larev_appendainorderV0V1IasortedV13Aainfix =CV13aNilaNoneaConsVwaSomeV14V10Larev_appendainorderV5V9FIasortedV9Aainfix =aSomeV4V8LaConsV4arev_appendainorderV3V1Iainfix =V8aSomeV4FIasortedV15Aainfix =CV15aNilaNoneaConsVwaSomeV16V6Larev_appendainorderV3V1FIasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV17V2IasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV18V2FF">
+      <label
+       name="expl:VC for iter_inorder_isbst_1"/>
+      <proof
+       prover="0"
+       timelimit="3"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.04"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter iter_inorder_isbst_1.10"
+      locfile="../bintreeIter.mlw"
+      loclnum="192" loccnumb="9" loccnume="29"
+      expl="10. exceptional postcondition"
+      sum="f1386b0acee385e88fb7d43546cec7c6"
+      proved="true"
+      expanded="false"
+      shape="CV0aEmptytaNodeVVVCV6aSomeVtaNoneasortedarev_appendainorderV0V1NIasortedarev_appendainorderV5V9NIasortedV9Aainfix =aSomeV4V8LaConsV4arev_appendainorderV3V1Iainfix =V8aSomeV4FIasortedV10Aainfix =CV10aNilaNoneaConsVwaSomeV11V6Larev_appendainorderV3V1FIasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV12V2IasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV13V2FF">
+      <label
+       name="expl:VC for iter_inorder_isbst_1"/>
+      <proof
+       prover="0"
+       timelimit="3"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.02"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter iter_inorder_isbst_1.11"
+      locfile="../bintreeIter.mlw"
+      loclnum="192" loccnumb="9" loccnume="29"
+      expl="11. exceptional postcondition"
+      sum="fcdf710c8903ea79fdfcf7adf75fdd4e"
+      proved="true"
+      expanded="false"
+      shape="CV0aEmptytaNodeVVVasortedarev_appendainorderV0V1NIasortedarev_appendainorderV3V1NIasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV6V2IasortedV1Aainfix =CV1aNilaNoneaConsVwaSomeV7V2FF">
+      <label
+       name="expl:VC for iter_inorder_isbst_1"/>
+      <proof
+       prover="0"
+       timelimit="3"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="2.61"/>
+      </proof>
+     </goal>
+    </transf>
+   </goal>
+   <goal
+    name="WP_parameter test_iter_1"
+    locfile="../bintreeIter.mlw"
+    loclnum="213" loccnumb="6" loccnume="17"
+    expl="VC for test_iter_1"
+    sum="5cb1a8efbbf0d238c7ace2168ef3f6a1"
+    proved="true"
+    expanded="false"
+    shape="asortedainorderV0NIasortedarev_appendainorderV0V2NAasortedainorderV0IasortedV4Aainfix =CV4aNilaNoneaConsVwaSomeV5V3Larev_appendainorderV0V2FAasortedV2Aainfix =aNoneV1LaNilIainfix =V1aNoneFF">
+    <label
+     name="expl:VC for test_iter_1"/>
+    <transf
+     name="split_goal_wp"
+     proved="true"
+     expanded="false">
+     <goal
+      name="WP_parameter test_iter_1.1"
+      locfile="../bintreeIter.mlw"
+      loclnum="213" loccnumb="6" loccnume="17"
+      expl="1. precondition"
+      sum="23e2ffc73655b859db8b7ddb3a193ecf"
+      proved="true"
+      expanded="false"
+      shape="asortedV2Aainfix =aNoneV1LaNilIainfix =V1aNoneFF">
+      <label
+       name="expl:VC for test_iter_1"/>
+      <proof
+       prover="0"
+       timelimit="7"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.01"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter test_iter_1.2"
+      locfile="../bintreeIter.mlw"
+      loclnum="213" loccnumb="6" loccnume="17"
+      expl="2. postcondition"
+      sum="3bed9eb1c61bb651adc6fe0dc2851ed1"
+      proved="true"
+      expanded="false"
+      shape="asortedainorderV0IasortedV4Aainfix =CV4aNilaNoneaConsVwaSomeV5V3Larev_appendainorderV0V2FIasortedV2Aainfix =aNoneV1LaNilIainfix =V1aNoneFF">
+      <label
+       name="expl:VC for test_iter_1"/>
+      <proof
+       prover="0"
+       timelimit="7"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.02"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter test_iter_1.3"
+      locfile="../bintreeIter.mlw"
+      loclnum="213" loccnumb="6" loccnume="17"
+      expl="3. exceptional postcondition"
+      sum="edabaead86a34b8e6581d59e39d60df2"
+      proved="true"
+      expanded="false"
+      shape="asortedainorderV0NIasortedarev_appendainorderV0V2NIasortedV2Aainfix =aNoneV1LaNilIainfix =V1aNoneFF">
+      <label
+       name="expl:VC for test_iter_1"/>
+      <proof
+       prover="0"
+       timelimit="7"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.09"/>
       </proof>
      </goal>
     </transf>
