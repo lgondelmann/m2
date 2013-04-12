@@ -1,0 +1,234 @@
+(******************************************************************************)
+module BinTreeIter
+  use import bintree.Inorder
+  use import ref.Ref
+  use import int.Int
+  use import list.Mem
+  use import list.HdTl
+  use import list.Append
+  use import list.RevAppend
+  use import list.Reverse
+  val s: ref (option int )
+  val t: tree int
+
+  exception Failure
+
+  clone export list.RevSorted with type t = int,
+  predicate le = (<=)
+
+(****************************** Iter générique ****************************)
+
+(*
+  let rec iter_inorder
+    (t            : tree 'a)
+    (ghost inv    : list 'a -> list 'a -> prop)
+    (f            : list 'a -> list 'a -> 'a -> unit)
+    (ghost before after : list 'a)
+    (ghost exn_cond     : list 'a -> tree 'a -> list'a -> prop) : unit =
+    requires { inv before (inorder t ++ after) }
+    ensures  { inv (rev_append (inorder t) before) after }
+    raises   { exn -> exn_cond  before t after }
+    match t with
+      | Empty -> ()
+      | Node l x r ->
+           iter_inorder l inv f before (Cons x (inorder r) ++ after) inv;
+	   f (rev_append (inorder l) before) (inorder r ++ a) x;
+	   iter_inorder r inv f (Cons x (rev_append (inorder l) before)) after
+    end
+*)
+
+
+(****************************** ajout des ghots ****************************)
+(*  let iter_inorder f t inv exn_cond =
+        requires { inv                       Nil   (inorder t) }
+        ensures  { inv       reverse (inorder t)           Nil  }
+        raises   { exn -> exn_cond  Nil t  Nil }
+      iter_inorder t inv f Nil Nil exn_cond
+*)
+
+
+
+(*----------------------------> RÉSULTAT 0 <------------------------------- *)
+(*
+
+  predicate inv0 (b a: list ) = ...
+
+  predicate exn_cond0 (b : list int) (t: tree int) (a: list int) = ...
+
+  let f0 (ghost b a : list int) (x: int) = ...
+
+ let test_iter_0 (t: tree int)
+    ensures  { ... }
+    raises   { ... }
+    iter_inorder f t inv exn_cond
+
+ ------>
+
+ let rec iter_inorder_0 t (ghost before after) =
+      iter_inorder [f <- f0;   inv <- inv0;   exn_cond <- exn_cond0 ]
+
+ let iter_inorder_0_init t =
+     requires { inv0                       Nil   (inorder t) }
+     ensures  { inv0       reverse (inorder t)           Nil  }
+     raises   { exn -> exn_cond0  Nil t  Nil }
+   = iter_inorder_0 t Nil Nil
+
+ let test_iter_0_init (t: tree int)
+    ensures  { ... }
+    raises   { ... }
+    ...
+    iter_inorder_0 t
+*)
+(*------------------------------------------------------------------------ *)
+
+
+(*******************************************************************************)
+(*******************************************************************************)
+
+  (* predicate inv0 (b a: list ) = hd b = !s /\ Decr.sorted b *)
+
+
+  predicate exn_cond0 (b : list int) (t: tree int) (a: list 'a) =
+    not (Decr.sorted (rev_append (inorder t) b))
+
+
+  let f0 (ghost b a : list int) (x: int) =
+    requires { hd b = !s /\ Decr.sorted b }
+    ensures  { let b1 = Cons x b in hd b1 = !s /\ Decr.sorted b1 }
+    raises   { Failure -> not (Decr.sorted (Cons x b))           }
+    match !s with
+     | Some y ->
+	       if x < y then raise Failure else s:= Some x
+     | None   -> s := Some x
+    end
+
+
+  let rec iter_inorder_0 (t : tree int) (ghost b a: list int) : unit
+    requires { hd b = !s /\ Decr.sorted b }
+    ensures  { let b1 = rev_append (inorder t) b in hd b1 = !s /\ Decr.sorted b1 }
+    raises   { Failure  -> exn_cond0 b t a }
+    = match t with
+       | Empty -> ()
+       | Node l x r ->
+       	   iter_inorder_0 l b (Cons x (inorder r) ++ a);
+	   f0 (rev_append (inorder l) b) (inorder r ++ a) x;
+	   iter_inorder_0 r (Cons x (rev_append (inorder l) b)) a
+      end
+
+  let iter_inorder_0_init (t : tree int)
+     requires { hd Nil = !s /\ Decr.sorted Nil }
+     ensures  { let b1 = (rev_append (inorder t) Nil) in hd b1 = !s /\ Decr.sorted b1}
+     raises   { Failure -> exn_cond0 (Nil : list int) t (Nil : list int) }
+   = iter_inorder_0 t Nil Nil
+
+  let test_iter_0 (t: tree int)
+    ensures  { Incr.sorted (inorder t) }
+    raises   { Failure  -> not (Incr.sorted (inorder t)) } =
+    s := None;
+    iter_inorder_0_init t
+
+(*******************************************************************************)
+(*******************************************************************************)
+
+
+
+(*----------------------------> RÉSULTAT 2 <------------------------------- *)
+(*
+
+ let test_iter_1 (t: tree int)
+    ensures  { ... }
+    raises   { ... }
+    iter_inorder f t inv exn_cond
+
+----->
+
+  let rec iter_inorder_1 t (ghost before after) =
+      iter_inorder [f        <- (fun x (ghost b a) -> ...) ;
+                    inv      <- (\b. \a. prop);
+		    exn_cond <- (\b. \t. \a. prop ]
+
+ let iter_inorder_1_init t =
+   = iter_inorder_1 t Nil Nil
+     		    [f        <- (fun x (ghost b a) -> ...) ;
+                     inv      <- (\b. \a. prop);
+		     exn_cond <- (\b. \t. \a. prop ]
+
+ let test_iter_1 (t: tree int)
+    ensures  { ... }
+    raises   { ... }
+ iter_inorder_1_init t
+
+*)
+
+(*------------------------------------------------------------------------ *)
+
+
+
+(****************************************************************************)
+(****************************************************************************)
+
+
+(*
+
+
+let test (t: tree int) =
+
+    iter_inorder
+
+      (fun b a x ->
+      match !s with
+	     | Some y ->
+	         if x < y
+	         then
+	          (assert {not (Decr.sorted (Cons x (rev_append (inorder l) b)))};
+	           raise Failure)
+	         else s:= Some x
+	     | None   ->
+	         s := Some x (*leftmost element : initialisation *)
+
+      t
+      (\ba.  hd b = !s /\ Decr.sorted b)
+      (\bta. Failure -> not (Decr.sorted (Cons x b))
+
+*)
+
+
+
+ let rec iter_inorder_isbst_1 (t : tree int) (ghost b: list int) : unit =
+    requires {  hd b = !s /\ Decr.sorted b }
+    ensures  { let b1 = rev_append (inorder t) b
+                in hd b1 = !s /\ Decr.sorted b1 }
+    raises   { Failure  -> not (Decr.sorted (rev_append (inorder t) b)) }
+      match t with
+       | Empty -> ()
+       | Node l x r ->
+           iter_inorder_isbst_1 l b;
+	   match !s with
+	     | Some y ->
+	         if x < y
+	         then
+	          (assert {not (Decr.sorted (Cons x (rev_append (inorder l) b)))};
+	           raise Failure)
+	         else s:= Some x
+	     | None   ->
+	         s := Some x (*leftmost element : initialisation *)
+	  end;
+	  iter_inorder_isbst_1 r (Cons x (rev_append (inorder l) b))
+     end
+
+  let test_iter_1 (t: tree int) =
+      ensures  { Incr.sorted (inorder t) }
+      raises   { Failure  -> not (Incr.sorted (inorder t)) }
+    s := None;
+    iter_inorder_isbst_1 t Nil
+
+
+
+
+end
+
+(*
+Local Variables:
+compile-command: "why3ide bintreeIter.mlw"
+End:
+*)
