@@ -1,0 +1,212 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[a4paper,11pt,oneside]{article}
+
+\usepackage[sc]{mathpazo} \linespread{1.0}
+\usepackage[scaled]{helvet} % ss
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+\usepackage[a4paper,pdftex,colorlinks=true,
+	urlcolor=blue,pdfstartview=FitH]{hyperref}
+\usepackage{graphicx}
+\usepackage{amssymb,amsfonts,amsthm,amsmath}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{caption} 
+
+\titleformat{\section}[hang]% style du titre
+  {\normalfont\Large\bfseries}% police du titre + numéro
+  {\thesection}% numérotation
+  {0.4in}% espacement numéro/titre <--- valeur à changer
+  {}% police spécifique du titre
+\titlespacing*{\section}
+  {-0.5in}% espacement gauche
+  {0.2in}% espacement avant
+  {0.2in}% espacement après
+  [0.1in]% espacement à droite
+
+\titleformat{\subsection}[hang]% style du titre
+  {\normalfont\large\bfseries}% police du titre + numéro
+  {\thesubsection}% numérotation
+  {0.2in}% espacement numéro/titre <--- valeur à changer
+  {}% police spécifique du titre
+\titlespacing*{\subsection}
+  {-0.44in}% espacement gauche
+  {0.2in}% espacement avant
+  {0.2in}% espacement après
+  [0.1in]% espacement à droite
+
+
+%\titleformat{\subsubsection}[hang]% style du titre
+%  {\normalfont\large\bfseries}% police du titre + numéro
+%  {\thesubsubsection}% numérotation
+%  {0.1in}% espacement numéro/titre <--- valeur à changer
+%  {}% police spécifique du titre
+%\titlespacing*{\subsubsection}
+%  {-0.30in}% espacement gauche
+%  {0.2in}% espacement avant
+%  {0.2in}% espacement après
+%  [0.1in]% espacement à droite
+
+\RequirePackage{listings}
+\RequirePackage{amssymb}
+
+\lstset{basicstyle={\ttfamily}}
+
+\lstdefinelanguage{why3}
+{
+morekeywords=[1]{},%
+%keywordstyle=[1]{\color{blue}},%
+string=[b]",%
+showstringspaces=false,%
+stringstyle=\itshape,%
+commentstyle= \color{gray}\small\texttt, %
+columns=[l]fullflexible,%
+sensitive=true,%
+morecomment=[s]{(*}{*)},%
+escapeinside={*?}{?*},%
+keepspaces=true,
+literate=%
+%{'a}{$\alpha$}{1}%
+%{'b}{$\beta$}{1}%
+%{<}{$<$}{1}%
+%{>}{$>$}{1}%
+%{<=}{$\le$}{1}%
+%{>=}{$\ge$}{1}%
+% {<>}{$\ne$}{1}%
+% {/\\}{$\land$}{1}%
+% {\\/}{ $\lor$ }{3}%
+% {\ or(}{ $\lor$(}{3}%
+% {not\ }{$\lnot$ }{1}%
+% {not(}{$\lnot$(}{1}%
+% {+->}{\texttt{+->}}{2}%
+% % {+->}{$\mapsto$}{2}%
+% {-->}{\texttt{-\relax->}}{2}%
+% %{-->}{$\longrightarrow$}{2}%
+% {->}{$\rightarrow$}{2}%
+% {<->}{$\leftrightarrow$}{2}%
+%
+%
+}
+
+\colorlet{notgreen}{ForestGreen!15}
+
+\definecolor{cblue}{RGB}{2,4,8}
+\lstset{language=why3,
+    %%% BOUCLE, TEST & Co.
+      emph={add, double, edges, vertices, merge,
+      len,  nand, even, ackermann},
+      emphstyle=\color{
+black}\bf,
+    %%% IMPORT & Co.
+      emph=[2]{namespace,predicate,function,inductive,type,use,clone,%
+import,export,theory,end,in,match,with,%
+goal,axiom,lemma,forall},
+      emphstyle=[2]\color{
+NavyBlue},
+ 		emph=[3]{nat, list_nat, tree_nat, int, bool},
+      emphstyle=[3]\color{
+ForestGreen},
+	emph=[4]{S, Cons, O, True, False, true, false, Leaf, Node},
+      emphstyle=[4]\color{
+cblue}
+%    %%% MODULES
+%      emph={[3]mod_1, mod_2},
+%      emphstyle=[3]\color{red!50!green},
+%    %%% FONCTIONS NUMERIQUES
+%      emph={[4]cos, sin, tan, acos, asin, atan},
+%      emphstyle=[4]\color{gray},
+%    %%% CONSTANTES
+%      emph={[5]pi, True, False},
+%      emphstyle=[5]\color{orange}
+}
+
+
+% default language is Why3
+\lstset{language=why3}
+\lstnewenvironment{why3}{\lstset{language=why3}}{}
+\let\why\lstinline
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+ \begin{document}
+
+\vspace*{-5cm}
+\begin{small}
+\section*{{\normalsize \begin{center}GhostML : a mini-ML with global references and ghost terms\end{center}}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\label{GhostML  programs}
+\begin{figure}[!ht]\vspace*{-1cm}
+\begin{displaymath}
+  \begin{array}{lll@{\hspace*{2.5cm} }l}
+    prog & ::= &		typedecl^* \quad vardecl^*  \quad  t	 &									\text{program} \\
+     typedecl & ::= &\texttt{type} ~ id ~ \alpha, ..., \alpha ~ = \tau &  						\text{type declaration} \\
+     vardecl & ::= &\texttt{val} ~ id : \texttt{ref} ~ \tau &  										\text{global reference declaration}\\										
+  \end{array} 
+\end{displaymath} \vspace*{-0.5cm}
+\caption*{ \textbf{GhostML Programs} \hfill}
+\end{figure}
+\label{GhostML  types and schemes}
+\begin{figure}[!h]
+\begin{displaymath}
+  \begin{array}{rrl@{\hspace*{4.5cm}}l}	
+    \tau & ::= & \alpha 			&																\text{type variable} \hspace*{5cm} \\
+      &   | & \varepsilon ~ (\tau,\dots, \tau)	 &							\text{data constructor type} \\
+       &   | & \tau \rightarrow \tau &												\text{function type} \\
+       &   | & ~\texttt{int} ~|~ \texttt{bool} ~|~ \texttt{Prop} ~|~ ...	 &							\text{build-in types} \\
+     \sigma & ::= & \forall \overline{\alpha} . \tau		&												\text{type scheme} \hspace*{5cm} \\   
+  \end{array} 
+\end{displaymath} \vspace*{-0.5cm}
+\caption*{ \textbf{GhostML Types and Schemes} \hfill}
+\end{figure}
+\label{GhostML  values}
+\begin{figure}[!h]\vspace*{-0.5cm}
+\begin{displaymath}
+  \begin{array}{rrl@{\hspace*{4.5cm} }l}
+
+    v & ::= &		x		&																	\text{variable} \\
+      &   | & 		c		 & 																\text{build-in constant \quad ( \textit{1, 2, ..., true, false, ... True, ...})} \\
+      &   | & 		op	& 																\text{build-in operand} \quad (+, \times,  \wedge, \vee, ...) \\
+      &   | & 		C(v,\dots, v) & 												\text{constructor application  }  \\
+      &   | & 		\texttt{fun} \ x \rightarrow t & 					\text{function }  \\
+  \end{array} 
+\end{displaymath} \vspace*{-0.5cm}
+\caption*{ \textbf{GhostML Values} \hfill}
+\end{figure}
+\label{GhostML  terms}
+\begin{figure}[!h]\vspace*{-0.5cm}
+\begin{displaymath}
+  \begin{array}{rrl@{\quad\quad\quad}l}
+   t & ::=  & v &																											\text{value} \\
+      &   | & t (t) &			 																		                  \text{application} \\
+       &   | & t ; t &			 																		                  \text{sequence} \\
+      &   | & \texttt{let} x = t \ \texttt{in} \ t	&													\text{local binding} \\
+      &   | & \texttt{letrec} f x  = t & 																		\text{recursive function} \\
+      &   | & \texttt{ghost} \ t &																				\text{ghost term} \\
+      &   | & !~x & 																										\text{global reference access} \\
+      &   | & x := t & 																									\text{global reference assignment} \\
+      &   | & \mathsf{if}~t~\mathsf{then}~t~\mathsf{else}~t & 						\text{conditional expression} \\
+      &   | & \mathsf{match} ~ t ~ \mathsf{with} ~
+         p \rightarrow t, ~\dots,~p \rightarrow t  ~ \mathsf{end}& 				    \text{pattern-matching} \\
+  \end{array} 
+\end{displaymath} \vspace*{-0.5cm}
+\caption*{ \textbf{GhostML Terms} \hfill}
+\end{figure}
+\label{GhostML  patterns}
+\begin{figure}[!h]
+\begin{displaymath}
+  \begin{array}{rrl@{\hspace*{4.5cm}}l}
+    p & ::= & x 			&								\text{variable pattern} \hspace*{5cm} \\
+      &   | & C(p,\dots,p)	 &						\text{constructor pattern} \\
+  \end{array} 
+\end{displaymath} \vspace*{-0.5cm}
+\caption*{ \textbf{GhostML Patterns} \hfill}
+\end{figure}
+\end{small}
+
+
+\bibliographystyle{plain}
+\bibliography{abbrevs,demons,demons2,demons3,team,crossrefs,crossrefs2,./biblio}
+
+\end{document}
