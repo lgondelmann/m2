@@ -22,180 +22,6 @@ module Sum
 
 end
 
-(******************************************************************************)
-module BinTree
-  use import bintree.Tree
-  use import bintree.Inorder
-  use import ref.Ref
-  use import int.Int
-  use import list.Mem
-  use import list.HdTl
-  use import list.Append
-  use import list.RevAppend
-  use import Sum
-  val s: ref (option int )
-  val t: tree int
-
- 
-(*
- let rec iter_inorder    
-      (t: tree 'a)     
-      (ghost inv: list 'a -> list 'a -> prop) 
-      (f: list 'a -> list 'a -> 'a -> unit)
-      (ghost before after : list 'a)
-      (ghost exn_cond : list 'a -> tree 'a -> list'a -> prop)
-      
-: unit =
-    requires { inv before (inorder t ++ after) }
-    ensures  { inv (rev_append (inorder t) before) after }
-    raises   { exn -> exn_cond  before t after }
-    match t with
-      | Empty -> ()
-      | Node l x r ->
-           iter_inorder l inv f before (Cons x (inorder r) ++ after) inv;
-	   f (rev_append (inorder l) before) (inorder r ++ a) x;
-	   iter_inorder r inv f (Cons x (rev_append (inorder l) before)) after
-    end
-
-    let iter_inorder f t inv exn_cond =
-        requires { inv Nil (inorder t) }
-    	ensures  { inv (rev_app (inorder t) Nil) Nil }
-   	 raises   { exn -> exn_cond (inorder t) Nil Nil }
-    iter_inorder t inv f Nil Nil exn_cond
-*)
-
-
-
-(*
-predicate inv0 (b a: list ) = hd b = !s /\ Decr.sorted b
-
-predicate exn_cond0 (b a : list int) (t: tree int) = 
-  not (Decr.sorted (rev_append (inorder t) b))
-
- let f0 (ghost b a : list int) (x: int) =  
-   requires { let b1 = b in 
-    	       hd b1 = !s /\ Decr.sorted b1 }
-   ensures {let b1 = Cons x b in 
-    	       hd b1 = !s /\ Decr.sorted b1}
-   raises {Failure -> not (Decr.sorted (Cons x b))}
-   match !s with 
-    | Some y -> 
-	       if x < y then raise Failure else s:= Some x
-     | None   -> s := Some x 
-    end
-
-let test (t: tree int) =
-    iter_inorder f t inv exn_cond
-                 (fun ...)    (\b. \a.
-      
----> let rec iter_inorder_0 =  
-        iter_inorder [inv <- inv0; exn_cond <- exn_cond0; f <- f0]
-*)
-
-
-  exception Failure
-
-  predicate gt (x y: int) = x >= y 
-
-  clone export list.RevSorted with type t = int, 
-  predicate le = (<=)
-
-  
-  predicate exn_cond (b a : list int) (t: tree int) = 
-    not (Decr.sorted (rev_append (inorder t) b))
-
-
- let f (ghost b a : list int) (x: int) =  
-   requires { let b1 = b in 
-    	       hd b1 = !s /\ Decr.sorted b1 }
-   ensures {let b1 = Cons x b in 
-    	       hd b1 = !s /\ Decr.sorted b1}
-   raises {Failure -> not (Decr.sorted (Cons x b))}
-   match !s with 
-    | Some y -> 
-	       if x < y then raise Failure else s:= Some x
-     | None   -> s := Some x 
-    end
-
-
- let rec iter_inorder_0 (t : tree int) (ghost b a: list int) : unit 
-    requires { hd b = !s /\ Decr.sorted b }
-    ensures  { let b1 = rev_append (inorder t) b in 
-    	       hd b1 = !s /\ Decr.sorted b1 } 
-    raises {Failure  -> not (Decr.sorted (rev_append (inorder t) b)) }
-    = match t with
-     | Empty -> ()
-     | Node l x r ->     
-       	   iter_inorder_0 l  b (Cons x (inorder r) ++ a);
-	   f (rev_append (inorder l) b) (inorder r ++ a) x;
-	   iter_inorder_0 r (Cons x (rev_append (inorder l) b)) a
-       end 
-
-  let test_iter_0 (t: tree int) 
-    ensures  { Incr.sorted (inorder t) }
-    raises   { Failure  -> not (Incr.sorted (inorder t)) } =
-    s := None;
-    iter_inorder_0 t Nil Nil
-
-
- let rec iter_inorder_isbst_1 (t : tree int) (ghost b: list int) : unit =
-    requires { hd b = !s /\ Decr.sorted b }
-    ensures  { let b1 = rev_append (inorder t) b in 
-    	       hd b1 = !s /\ Decr.sorted b1 }
-    raises {Failure  -> not (Decr.sorted (rev_append (inorder t) b)) }
-   match t with
-     | Empty -> ()
-     | Node l x r ->
-          iter_inorder_isbst_1 l b;
-	  match !s with 
-	    | Some y -> 
-	     if x < y 
-	     then ( assert {not (Decr.sorted (Cons x (rev_append (inorder l) b))) }; 
-	           raise Failure )  
-	     else s:= Some x
-	    | None   -> s := Some x (*leftmost element *) 
-	  end;
-	  iter_inorder_isbst_1 r (Cons x (rev_append (inorder l) b))
-     end 
-
-  let test_iter_1 (t: tree int) =
- 
-    ensures  { Incr.sorted (inorder t) }
-    raises   { Failure  -> not (Incr.sorted (inorder t)) }
-    s := None;
-    iter_inorder_isbst_1 t Nil
-
-
- (* let rec iter_inorder_isbst (t : tree int) (ghost b: list int) : unit =
-
-    requires {sorted (reverse b) /\ forall x:int. mem x b -> x <= !s}
-    ensures  {sorted (reverse b ++ inorder t)
-    	  /\ mem !s (reverse b ++ inorder t) 
-          /\ (forall x:int. mem x (reverse b ++ inorder t) -> x <= !s)
-	   }
-    raises {Failure  -> true (*not (sorted ((reverse (inorder t)) ++ b))*)}
-   match t with
-     | Empty -> ()
-     | Node l x r ->
-          iter_inorder_isbst l b;
-	  (if x < !s then raise Failure  else s:= x);
-	  iter_inorder_isbst r (Cons x (reverse (inorder l)) ++ b)
-     end 
-*)
-
-
-
-
-
-
- (*let rec leftmost (t: tree int) : int =
-      match t with
-        | Empty -> raise Failure
-	| Node (Node Empty x r0) y r -> x
-	| Node l x r -> leftmost l
-      end *)
-end
-
 
 (******************************************************************************)
 module Iter
@@ -316,28 +142,82 @@ module Fold
   use import ref.Ref
   use import list.Mem
   use import list.Reverse
+  use import list.RevAppend
   use import list.Append
   use import list.Length
+  use import list.SortedInt
+  use import list.Permut
   use import Iter
   use import Sum
 
-(**********************************  fold_left  *************************************)
+(**********************************  fold_left  *******************************)
 (*
-  let rec fold_left (f: a' -> 'b -> 'a) (a: 'a) (l: list 'b) (ghost b: list 'b)
-               (ghost inv : list 'b -> list 'b -> 'a -> prop) : 'a
+  let rec fold_left 
+    (f: a' -> 'b -> 'a) 
+    (a: 'a) 
+    (l: list 'b) 
+    (ghost b: list 'b)
+    (ghost inv : list 'b -> list 'b -> 'a -> prop) : 'a
        	requires  { inv b                l   a      }
         ensures   { inv (rev_append l b) Nil result }
-      = match l with
-         | Nil -> a
-         | Cons x xs -> fold_left f (f a x) xs b inv
-        end
+    = match l with
+       | Nil -> a
+       | Cons x xs -> fold_left f (f a x) xs b inv
+      end
 
-  let fold_left f a l inv  =
+  let fold_left 
+    (f: a' -> 'b -> 'a) 
+    (a: 'a) 
+    (l: list 'b) 
+    (ghost inv : list 'b -> list 'b -> 'a -> prop) : 'a
       requires {inv Nil l a}
-      ensures  {inv (reverse l) Nil result}
-    fold_left f inv l Nil a
+      ensures  {inv (reverse l) Nil result} =
+    fold_left f a l Nil inv 
 
 *)
+
+(********************* exemple : insertion sort ******************************)
+
+  let rec insertion  (l : list int) (x: int)  = 
+    requires { sorted l }
+    ensures { sorted result /\ permut (Cons x l) result }
+    match l with
+     | Nil      ->  Cons x Nil
+     | Cons y r ->  if x < y then Cons x l else Cons y (insertion r x)
+    end  
+
+
+(* let test_fold_left_insertion_sort (l : list int) =
+     fold_left 
+       insertion				(*f*)
+       Nil 	 				(*a*)
+       l 	 				(*l*)
+       (\b. \a. \r. sorted r /\ permut b r) 	(*inv*) *)
+
+ 
+
+
+  let rec fold_left_insertion_sort 
+    (a: list int) (l : list int) (ghost b : list int)
+    requires { sorted a      /\ permut  b               a      }
+    ensures  { sorted result /\ permut (rev_append l b) result }
+    = match l with
+       | Nil -> a
+       | Cons x xs -> fold_left_insertion_sort (insertion a x) xs (Cons x b)
+      end
+ 
+  let fold_left_insertion_sort_init 
+     (a: list int) (l : list int) =
+     requires {sorted a      /\ permut Nil a}
+     ensures { sorted result /\ permut (rev_append l Nil) result }
+     fold_left_insertion_sort a l Nil 
+
+  let test_fold_left_insertion_sort (l : list int) =
+     let l1 = fold_left_insertion_sort_init Nil l in
+     assert { sorted l1 /\ permut (rev_append l Nil) l1} 
+
+
+(************************* exemple : sum ****************************************)
 
 
 (* let test_0 () =
