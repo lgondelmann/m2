@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \documentclass[a4paper,11pt,oneside]{article}
-
+\label{packages}
 \usepackage[sc]{mathpazo} \linespread{1.0}
 \usepackage[scaled]{helvet} % ss
 \usepackage[T1]{fontenc}
@@ -14,6 +14,7 @@
 \usepackage[usenames,dvipsnames]{xcolor}
 \usepackage[dvipsnames]{xcolor}
 \usepackage{caption} 
+\usepackage{semantic}
 
 \titleformat{\section}[hang]% style du titre
   {\normalfont\Large\bfseries}% police du titre + numéro
@@ -136,25 +137,29 @@ cblue}
 \section*{{\normalsize \begin{center}GhostML : a mini-ML with global references and ghost terms\end{center}}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+
+\label{GhostML syntax ----------------------------------------}
 \label{GhostML  programs}
 \begin{figure}[!ht]\vspace*{-1cm}
 \begin{displaymath}
   \begin{array}{lll@{\hspace*{2.5cm} }l}
-    prog & ::= &		typedecl^* \quad vardecl^*  \quad  t	 &									\text{program} \\
-     typedecl & ::= &\texttt{type} ~ id ~ \alpha, ..., \alpha ~ = \tau &  						\text{type declaration} \\
-     vardecl & ::= &\texttt{val} ~ id : \texttt{ref} ~ \tau &  										\text{global reference declaration}\\										
+     prog       	& ::= &		typedecl^{*} \quad vardecl^{*}  \quad  t	 			&							\text{program} \\
+     typedecl 	& ::= &	\texttt{type} ~ id ~ \alpha, ..., \alpha ~ = \tau 		&  						\text{type declaration} \\
+     vardecl   	& ::= &	\texttt{val} ~ id : \texttt{ref} ~ \tau							 &  						\text{global reference declaration}\\										
   \end{array} 
 \end{displaymath} \vspace*{-0.5cm}
 \caption*{ \textbf{GhostML Programs} \hfill}
 \end{figure}
+
 \label{GhostML  types and schemes}
 \begin{figure}[!h]
 \begin{displaymath}
   \begin{array}{rrl@{\hspace*{4.5cm}}l}	
-    \tau & ::= & \alpha 			&																\text{type variable} \hspace*{5cm} \\
-      &   | & \varepsilon ~ (\tau,\dots, \tau)	 &							\text{data constructor type} \\
-       &   | & \tau \rightarrow \tau &												\text{function type} \\
-       &   | & ~\texttt{int} ~|~ \texttt{bool} ~|~ \texttt{Prop} ~|~ ...	 &							\text{build-in types} \\
+    \tau 		& ::= & \alpha 			&																	\text{type variable} \hspace*{5cm} \\
+      				&   | & \varepsilon ~ (\tau,\dots, \tau)	 &							\text{datatype constructor} \\
+       				&   | & \tau \rightarrow \tau &												\text{function type} \\
+       				&   | & ~\texttt{int} ~|~ \texttt{bool} ~|~ \texttt{Prop} ~|~ ...	 &							\text{build-in types} \\
      \sigma & ::= & \forall \overline{\alpha} . \tau		&												\text{type scheme} \hspace*{5cm} \\   
   \end{array} 
 \end{displaymath} \vspace*{-0.5cm}
@@ -164,12 +169,10 @@ cblue}
 \begin{figure}[!h]\vspace*{-0.5cm}
 \begin{displaymath}
   \begin{array}{rrl@{\hspace*{4.5cm} }l}
-
-    v & ::= &		x		&																	\text{variable} \\
-      &   | & 		c		 & 																\text{build-in constant \quad ( \textit{1, 2, ..., true, false, ... True, ...})} \\
-      &   | & 		op	& 																\text{build-in operand} \quad (+, \times,  \wedge, \vee, ...) \\
-      &   | & 		C(v,\dots, v) & 												\text{constructor application  }  \\
-      &   | & 		\texttt{fun} \ x \rightarrow t & 					\text{function }  \\
+   v & ::= &		   x						&										\text{variable} \\
+      &   | & 		op					& 									\text{build-in constants and operands \ ( \textit{1, true, +}, $\vee$, ...)} \\
+      &   | & 		C(v,\dots, v) & 									\text{constructor application  }  \\
+      &   | & 		\texttt{fun} \ x \rightarrow t & 	\text{function }  \\
   \end{array} 
 \end{displaymath} \vspace*{-0.5cm}
 \caption*{ \textbf{GhostML Values} \hfill}
@@ -180,7 +183,7 @@ cblue}
   \begin{array}{rrl@{\quad\quad\quad}l}
    t & ::=  & v &																											\text{value} \\
       &   | & t (t) &			 																		                  \text{application} \\
-       &   | & t ; t &			 																		                  \text{sequence} \\
+      &   | & C(t,\dots, t) & 																						\text{constructor application  }  \\
       &   | & \texttt{let} x = t \ \texttt{in} \ t	&													\text{local binding} \\
       &   | & \texttt{letrec} f x  = t & 																		\text{recursive function} \\
       &   | & \texttt{ghost} \ t &																				\text{ghost term} \\
@@ -204,6 +207,10 @@ cblue}
 \caption*{ \textbf{GhostML Patterns} \hfill}
 \end{figure}
 \end{small}
+
+
+\label{GhostML operational semantics ------------------}
+
 
 
 \bibliographystyle{plain}
