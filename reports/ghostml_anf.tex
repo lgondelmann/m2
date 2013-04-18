@@ -175,7 +175,7 @@ cblue}
    v & ::= &		   x						&										\text{variable} \\
       &   | & 		op					& 									\text{build-in constants and operands \ ( \textit{1, true, +}, $\vee$, ...)} \\
       &   | & 		C(v,\dots, v) & 									\text{constructor application  }  \\
-      &   | & 		\texttt{fun} \ x \rightarrow t & 	\text{function }  \\
+      &   | & 		(\texttt{fun} \ \varepsilon x \rightarrow t) & 	\text{function }  \\
   \end{array} 
 \end{displaymath} \vspace*{-0.5cm}
 \caption*{ \textbf{GhostML Values} \hfill}
@@ -185,8 +185,7 @@ cblue}
 \begin{displaymath}
   \begin{array}{rrl@{\quad\quad\quad}l}
    t & ::=  & v &																											\text{value} \\
-      &   | & t (t) &			 																		                  \text{application} \\
-      &   | & C(t,\dots, t) & 																						\text{constructor application  }  \\
+      &   | & v (v) &			 																		                  \text{application} \\
       &   | & \texttt{let}~x = t \ \texttt{in} \ t	&													\text{local binding} \\
       &   | & \texttt{letrec}~ f~ x  = t & 																		\text{recursive function} \\
       &   | & !~x & 																										\text{global reference access} \\
@@ -215,23 +214,35 @@ cblue}
 \newpage
 \section*{{\normalsize \begin{center} Operational  Semantics \end{center}}}
 
-	\definecolor{gray}{gray}{0.25}
-\newcommand{\stepone}[4]{#1{\color{gray}|_{#3}}   ~~\leadsto~~ #2{\color{gray}|_{#4}}}
+\definecolor{gray}{gray}{0.27}
+\newcommand{\stepone}[4]{#1{\color{gray}_{|#3}}   ~~\leadsto~~ #2{\color{gray}_{|#4}}}
+\newcommand{\sbst}[3]{#1 [#2 \mapsfrom #3] }
 \reservestyle{\command}{\textbf}
-\command{let[\;let\;], fun[fun\;],  ghost[ghost\;]}
+\command{let[\;let\;], fun[fun\;],  ghost[ghost\;],  in[\;in\;],  if[\;if\;],  then[\;then\;],  else[\;else\;]}
+\typicallabel{E-IF-False-Redex}
 
-\label{E-App}
- \infrule[E-AppLeft]
-     {\stepone{t_{1}}{t_{1}'}{\sigma}{\sigma'}}
-     {\stepone{t_1~t_2}{t_1'~t_2}{\sigma}{\sigma'}}
- \infrule[E-AppRight]
-     {\stepone{t_{2}}{t_{2}'}{\sigma}{\sigma'}}
-     {\stepone{v~t_2}{v~t_2'}{\sigma}{\sigma'}}
- \infax[\textbf{E-AppRedex}]
-	{\stepone{(\<fun> \varepsilon x_{\tau} \rightarrow t)v}{t[x  \mapsfrom v }{\sigma}{\sigma}}
+ \infax[E-App-Redex]
+	{\stepone{(\<fun> \varepsilon x_{\tau} \rightarrow t)v}{\sbst{t}{x}{v}}{\sigma}{\sigma}}
 	
+ \infax[E-Let-Redex]
+	{\stepone{\<let> \varepsilon x = v_{1} \<in> t}{\sbst{t}{x}{v}}{\sigma}{\sigma}}	
+	
+  \infax[E-IF-True-Redex]
+  {\stepone{\<if> \mathtt{true} \<then> t_{1} \<else> t_{2}} {t_{1}}{\sigma}{\sigma}}
+	
+ \infax[E-IF-False-Redex]
+  {\stepone{\<if> \mathtt{false} \<then> t_{1} \<else> t_{2}} {t_{2}}{\sigma}{\sigma}}
+	
+ \infrule[E-IF-Context]
+ {\stepone{t_{1}}{t_{1}'}{\sigma}{\sigma'}}
+  {\stepone{\<if> t_{1}\<then> t_{2} \<else> t_{3}}{\<if> t_{1}'\<then> t_{2} \<else> t_{3}}{\sigma}{\sigma'}}	
+	
+  \infrule[E-Let-Context]
+   	{\stepone{t_{1}}{t_{1}'}{\sigma}{\sigma'}}
+    {\stepone{\<let> \varepsilon x = t_{1} \<in> t_{2}}{\<let> \varepsilon x = t_{1} \<in>  t_{2}'}{\sigma}{\sigma'}}
+   	
+ 
 
-\label{E-CApp}
 \label{E-Local}
 \label{E-Ref}
 \label{E-Cases}
