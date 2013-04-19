@@ -1,0 +1,276 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[a4paper,11pt,oneside]{article}
+\label{packages}
+\usepackage[sc]{mathpazo} \linespread{1.0}
+\usepackage[scaled]{helvet} % ss
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+\usepackage[a4paper,pdftex,colorlinks=true,
+	urlcolor=blue,pdfstartview=FitH]{hyperref}
+\usepackage{graphicx}
+\usepackage{amssymb,amsfonts,amsthm,amsmath}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{caption} 
+\protect\usepackage{semantic}
+\usepackage{bcprules}
+\usepackage{stmaryrd}
+\titleformat{\section}[hang]% style du titre
+  {\normalfont\Large\bfseries}% police du titre + numéro
+  {\thesection}% numérotation
+  {0.4in}% espacement numéro/titre <--- valeur à changer
+  {}% police spécifique du titre
+\titlespacing*{\section}
+  {-0.5in}% espacement gauche
+  {0.2in}% espacement avant
+  {0.2in}% espacement après
+  [0.1in]% espacement à droite
+
+\titleformat{\subsection}[hang]% style du titre
+  {\normalfont\large\bfseries}% police du titre + numéro
+  {\thesubsection}% numérotation
+  {0.2in}% espacement numéro/titre <--- valeur à changer
+  {}% police spécifique du titre
+\titlespacing*{\subsection}
+  {-0.44in}% espacement gauche
+  {0.2in}% espacement avant
+  {0.2in}% espacement après
+  [0.1in]% espacement à droite
+
+
+%\titleformat{\subsubsection}[hang]% style du titre
+%  {\normalfont\large\bfseries}% police du titre + numéro
+%  {\thesubsubsection}% numérotation
+%  {0.1in}% espacement numéro/titre <--- valeur à changer
+%  {}% police spécifique du titre
+%\titlespacing*{\subsubsection}
+%  {-0.30in}% espacement gauche
+%  {0.2in}% espacement avant
+%  {0.2in}% espacement après
+%  [0.1in]% espacement à droite
+
+\RequirePackage{listings}
+\RequirePackage{amssymb}
+
+\lstset{basicstyle={\ttfamily}}
+
+\lstdefinelanguage{why3}
+{
+morekeywords=[1]{},%
+%keywordstyle=[1]{\color{blue}},%
+string=[b]",%
+showstringspaces=false,%
+stringstyle=\itshape,%
+commentstyle= \color{gray}\small\texttt, %
+columns=[l]fullflexible,%
+sensitive=true,%
+morecomment=[s]{(*}{*)},%
+escapeinside={*?}{?*},%
+keepspaces=true,
+literate=%
+%{'a}{$\alpha$}{1}%
+%{'b}{$\beta$}{1}%
+%{<}{$<$}{1}%
+%{>}{$>$}{1}%
+%{<=}{$\le$}{1}%
+%{>=}{$\ge$}{1}%
+% {<>}{$\ne$}{1}%
+% {/\\}{$\land$}{1}%
+% {\\/}{ $\lor$ }{3}%
+% {\ or(}{ $\lor$(}{3}%
+% {not\ }{$\lnot$ }{1}%
+% {not(}{$\lnot$(}{1}%
+% {+->}{\texttt{+->}}{2}%
+% % {+->}{$\mapsto$}{2}%
+% {-->}{\texttt{-\relax->}}{2}%
+% %{-->}{$\longrightarrow$}{2}%
+% {->}{$\rightarrow$}{2}%
+% {<->}{$\leftrightarrow$}{2}%
+%
+%
+}
+
+\colorlet{notgreen}{ForestGreen!15}
+
+\definecolor{cblue}{RGB}{2,4,8}
+\lstset{language=why3,
+    %%% BOUCLE, TEST & Co.
+      emph={add, double, edges, vertices, merge,
+      len,  nand, even, ackermann},
+      emphstyle=\color{
+black}\bf,
+    %%% IMPORT & Co.
+      emph=[2]{namespace,predicate,function,inductive,type,use,clone,%
+import,export,theory,end,in,match,with,%
+goal,axiom,lemma,forall},
+      emphstyle=[2]\color{
+NavyBlue},
+ 		emph=[3]{nat, list_nat, tree_nat, int, bool},
+      emphstyle=[3]\color{
+ForestGreen},
+	emph=[4]{S, Cons, O, True, False, true, false, Leaf, Node},
+      emphstyle=[4]\color{
+cblue}
+%    %%% MODULES
+%      emph={[3]mod_1, mod_2},
+%      emphstyle=[3]\color{red!50!green},
+%    %%% FONCTIONS NUMERIQUES
+%      emph={[4]cos, sin, tan, acos, asin, atan},
+%      emphstyle=[4]\color{gray},
+%    %%% CONSTANTES
+%      emph={[5]pi, True, False},
+%      emphstyle=[5]\color{orange}
+}
+
+
+% default language is Why3
+\lstset{language=why3}
+\lstnewenvironment{why3}{\lstset{language=why3}}{}
+\let\why\lstinline
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+
+
+ \begin{document}
+
+\vspace*{-5cm}
+\begin{small}
+\section*{{\normalsize \begin{center}GhostML : a mini-ML with global references and ghost terms\end{center}}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\grtitle}[1]{ & & &\textbf{[#1]}    \\}
+\newcommand{\grhead}[3]{#1 & ::= & #2 & \text{#3} \\}
+\newcommand{\grcase}[2]{& | & #1 & \text{#2} \\}
+\newpage
+\section*{GhostML syntax}
+\label{GhostML syntax }
+\begin{figure}[!ht]\vspace*{-1cm}
+\begin{displaymath}	 	
+  \begin{array}{lll@{\hspace*{2.5cm} }l}
+		 \grhead{prog}{typedecl^{*} \quad vardecl^{*} \quad t}{program}
+		 \grhead{typedecl}{\texttt{type} ~ id ~ \alpha, ..., \alpha ~ = \tau}{type declaration}
+		 \grhead{vardecl}{\texttt{val} ~ id : \texttt{ref} ~ \tau}{global reference declaration}
+    \end{array} 
+\end{displaymath} \vspace*{-0.5cm}
+\caption*{ \textbf{GhostML Programs} \hfill}
+\end{figure}
+
+\begin{figure}[!ht]\vspace*{-1cm}
+\begin{displaymath}
+ \begin{array}{lll@{\hspace*{2.5cm} }l}
+  	\grhead{\tau}{\alpha}{type variable}
+  	\grcase{\varepsilon ~ (\tau,\dots, \tau)}{datatype constructor}
+  	\grcase{\tau \rightarrow \tau}{function type}
+  	\grcase{~\texttt{Unit} ~|~\texttt{int} ~|~ \texttt{bool} ~|~ \texttt{Prop} ~|~ ...}{build-in types}
+	\grhead{\sigma}{\forall \overline{\alpha} . \tau}{type scheme}
+  \end{array} 
+\end{displaymath} \vspace*{-0.5cm}
+\caption*{ \textbf{GhostML   types and schemes} \hfill}
+\end{figure}
+
+\begin{figure}[!h]\vspace*{-0.5cm}
+\begin{displaymath}
+  \begin{array}{rrl@{\hspace*{4cm} }l}
+  \grhead{\varepsilon}{\quad}{data variable}
+  \grcase{\texttt{ghost}}{ghost variable} \\
+  
+  \grhead{v}{x}{variable}
+  \grcase{op}{build-in constants and operands \ ( \textit{1, true, +}, $\vee$, ...)}
+  \grcase{C(v,\dots, v)}{constructor application}
+  \grcase{(\texttt{fun} \ \varepsilon x_{\tau} \rightarrow t)}{function}
+  \grcase{ \texttt{rec} \ f \ \varepsilon x_{\tau}   =  t}{recursive function} \\
+
+  \grhead{t}{v}{value}
+  \grcase{v ~ v}{application}
+  \grcase{\texttt{let}~\varepsilon x_{\sigma} = t \ \texttt{in} \ t}{local binding}
+  \grcase{!~x}{global reference access}
+  \grcase{x := v}{global reference assignment}
+  \grcase{\mathsf{if}~v~\mathsf{then}~t~\mathsf{else}~t }{conditional expression}
+  \grcase{\mathsf{match} ~v ~ \mathsf{with} ~ c	}{pattern-matching}
+  \end{array} 
+\end{displaymath} \vspace*{-0.5cm}
+\caption*{ \textbf{GhostML Values \& Terms} \hfill}
+\end{figure}
+
+\begin{figure}[!h]
+\begin{displaymath}
+  \begin{array}{rrl@{\hspace*{4.5cm}}l}
+  \grhead{c}{p -> t}{base case}
+  \grcase{p -> t  ~|c}{branch case} \\
+  \grhead{p}{x}{variable}
+  \grcase{C(x,\dots, x)}{constructor}
+  \end{array} 
+\end{displaymath} \vspace*{-0.5cm}
+\caption*{ \textbf{GhostML Patterns \& Cases} \hfill}
+\end{figure}
+\end{small}
+\newpage
+
+\label{GhostML operational semantics}
+\section*{GhostML  operational semantics}
+
+
+\definecolor{gray}{gray}{0.2}
+\newcommand{\stepone}[4]{#1{\color{gray}_{|#3}}   ~~\leadsto~~ #2{\color{gray}_{|#4}}}
+\newcommand{\sbst}[3]{#1 [#2 \mapsfrom #3] }
+\reservestyle{\command}{\texttt}
+\command{let[\;let\;], fun[fun\;], rec[rec\;],  ghost[ghost\;],  in[\;in\;],  if[\;if\;],  then[\;then\;],  else[\;else\;],
+ unit[\;unit\;], match[\;match\;], with[\;with\;]}
+\typicallabel{E-IF-False-True-Again}
+
+	\infax[E-AppFun]
+		{\stepone{(\<fun> \varepsilon x_{\tau} \rightarrow t)v}{\sbst{t}{x}{v}}{\mu}{\mu}}
+	
+	\infax[E-AppRec]
+		{\stepone{(\<rec> f \ \varepsilon x_{\tau} \rightarrow t)  v}
+		{t [f \mapsfrom (\<rec> f \ \varepsilon x_{\tau} \rightarrow t), x \mapsfrom v]}{\mu}{\mu}}
+		
+	\infax[E-Let]
+		{\stepone{\<let> \varepsilon x_{\sigma} = v_{1} \<in> t}{\sbst{t}{x}{v}}{\mu}{\mu}}	
+	
+ 	\infax[E-IF-True]
+  		{\stepone{\<if> \mathtt{true} \<then> t_{1} \<else> t_{2}} {t_{1}}{\mu}{\mu}}
+	
+	\infax[E-IF-False]
+  		{\stepone{\<if> \mathtt{false} \<then> t_{1} \<else> t_{2}} {t_{2}}{\mu}{\mu}}
+
+	\infax[E-Assign]
+  		{\stepone{x := v}{unit}{\mu}{\sbst{\mu}{x}{v}}}
+
+	\infrule[E-Deref] 
+		{\mu(x) = v}
+		{\stepone{x}{v}{\mu}{\mu}} 
+  
+  	\infrule[E-Let-Context]
+   		{\stepone{t_{1}}{t_{1}'}{\mu}{\mu'}}
+    	{\stepone{\<let> \varepsilon x_{\sigma} = t_{1} \<in> t_{2}}{\<let> \varepsilon x_{\sigma} = t_{1} \<in>  t_{2}'}{\mu}{\mu'}}
+   	
+	\infrule[E-Case-Match]
+		{ v_{i}~\mathrm{ filters}~  x_{i}~ \mathrm{for}~  i \in 1 ...  n }
+		{\stepone{\<match> C(v_{1}, \ldots, v_{n}) \<with>  | C(x_{1}, \ldots, x_{n}) \rightarrow t ~| c }
+		{\\ t[x_{i} \mapsfrom v_{i}]^{i \in 1...n}}{\mu}{\mu}}
+ 
+\infrule[E-Case-Fail]
+		{ C \neq C' }
+		{\stepone{\<match> C(v_{1}, \ldots, v_{n}) \<with>  | C'(x_{1}, \ldots, x_{n}) \rightarrow t ~| c  }
+		{ \\ \<match> C(v_{1}, \ldots, v_{n})  \<with> c }{ \mu }{ \mu}}
+\newpage
+\label{GhostML typing }
+
+\section{GhostML Typing}
+\newcommand{\tstep}[3]{#1 \vdash  #2 : #3}
+
+	\infrule[T-Var]
+		{\Gamma(x) = \forall \overline{\alpha}.\tau}
+		{\tstep{\Gamma}{\varepsilon x}{\sigma[\overline{\alpha}} \mapsfrom \overline{\tau}]}
+
+    \infrule[T-op]
+		{\Gamma(\texttt{op}) = \forall \overline{\alpha}.\tau}
+		{\tstep{\Gamma}{\texttt{op}}{\sigma[\overline{\alpha}} \mapsfrom \overline{\tau}]}
+		
+		
+
+\bibliographystyle{plain}
+\bibliography{abbrevs,demons,demons2,demons3,team,crossrefs,crossrefs2,./biblio}
+\end{document}
