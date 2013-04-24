@@ -1,0 +1,89 @@
+\section{GhostLambda: Lambda-Calculus with Ghost Code}
+%cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+Annotating a program with logical formulae predicting statically it dynamic behaviour is a 
+keystone of the deductive software verification approach.
+
+Typically, these logical formulae are assertions about program assigned variables,
+ loop invariants, recursive function variants, etc. 
+ 
+ However,  it is often useful to annotate programs with some data that appear in program 
+  that appear in assertions but do not affect the program dynamic behaviour in any way. 
+   
+ When a correct-by-construction executable code is extracted
+ from the specified program, this , called \textit{ghost code} disappear together with
+ specification. 
+ 
+In this section we describe a language where one can annotate programs with such \textit{ghost code}.
+We start by formalizing \textit{ghost}$\lambda$\textit{-calculus}, a tiny language of simply typed $\lambda$-calculus enriched with ghost variables and ghost expressions.
+We then define ghost code \textit{erasure}, which transforms a well-typed ghostLambda term  to a term of standard  $\lambda$-calculus.
+Finally we state and proof a few basic preservation properties of such translation.
+
+
+
+\subsection{Syntax and Semantics}
+The syntax and small-step operational semantics of \glam is summarized in ~\autoref{fig:syntax}.
+\begin{figure}[!h]
+	  \hrule 
+  	 \begin{flushright}  	 \textbf{Syntax}  	 \end{flushright}
+\begin{displaymath}
+ \begin{array}{lll@{\hspace*{2.5cm} }l}
+	\grtitle{\texttt{t}}{\textsc{terms:}}
+  	\grcase{()}{unit}
+  	\grcase{\glvar}{variable}
+  	\grcase{\lambda \glvar.\texttt{t}}{abstraction}
+  	\grcase{\texttt{t} \texttt{t}}{application}
+  	\grcase{\texttt{ghost t}}{ghost term} \\
+  	\grtitle{\texttt{v}}{\textsc{values:}}
+  	\grcase{()}{unit}
+  	\grcase{\lambda \glvar.\texttt{t}}{abstraction}
+  	\\
+  	\grtitle{\mathfrak{B}}{\textsc{ghost status :}}
+  	\grcase{\top ~~(*true*)}{ghost code} 
+   	\grcase{\bot~~(*false*)}{physical code} \\
+  	\\
+  	\grtitle{\tau}{\textsc{types:}}
+  	\grcase{\texttt{unit}}{unit type}
+  	\grcase{\tau^{\mathfrak{B}} \rightarrow \tau}{function type}
+  \end{array} 
+\end{displaymath} 
+  \hrule 
+  	 \begin{flushright}  	 \textbf{Evaluation}  	 \end{flushright}
+  	\infax[E-AppFun]    	{\stepone{(\lambda x^{b}_{\tau}.\texttt{t})v}{\sbst{\texttt{t}}{x^{b}_{\tau}}{v}}}
+	\infax[E-DeGhost]	 	{\stepone{\texttt{ghost t}}{\texttt{t}}}
+	\infrule[E-Context]{{\texttt{t}} \rightarrow {\texttt{t}'}}{{\texttt{E t}} \rightarrow {\texttt{E t}'}}
+	\begin{center}
+ 	 where ~ \texttt{E}   $::= \square$  | \texttt{E}~\texttt{t} |	 \texttt{v} \texttt{E}
+ 	 \end{center}	 
+\caption{ \textbf{\glam syntax and semantics} \hfill}
+\label{fig:syntax}
+\end{figure}
+\newpage
+\subsection{Typing}
+The typing relation of \glam is summarized in ~\autoref{fig:typing}.
+\begin{figure}[!h]
+%	
+% 	 	  \hrule
+%  	 \begin{flushright}  	 \textbf{Typing}  	 \end{flushright}
+	\infrule[T-Unit]	 	{}{\tystepone{()}{unit}{\bot}} \vspace*{0.4cm}
+	
+	\infrule[T-Var]	 	{}{\tystepone{x^{\mathfrak{B}}_{\tau}}{\tau}{\mathfrak{B}}}\vspace*{0.4cm}
+	
+	\infrule[T-Ghost]	 {\tystepone{\texttt{t}}{\tau}{\mathfrak{B}}}{\tystepone{\texttt{ghost t}}{\tau}{\top}}\vspace*{0.4cm}
+	
+	\infrule[T-Abs]	 	 {\tystepone{\texttt{t}}{\tau_{2}}{\mathfrak{B}_{2}}}
+										{\tystepone{\lambda x_{\tau_{1}}^{\mathfrak{B}_{1}}.\texttt{t}}{\tau_{1}^{\mathfrak{B}_{1}} \rightarrow \tau_{2}}{\mathfrak{B}_{2}}}\vspace*{0.4cm}
+										
+	\infrule[T-Ghost]	 
+	{\tystepone{\texttt{t}_{1}}{\tau_{2}^{\mathfrak{B}_{2}} \rightarrow \tau_{1}}{\mathfrak{B}_{1}} 
+	\qquad  {\tystepone{\texttt{t}_{2}}{\tau_{2}}{\mathfrak{B'}_{2}}}
+	\qquad \mathfrak{B}_{2} \Rightarrow \mathfrak{B'}_{2}}
+	{\tystepone{\texttt{t}_{1}~ \texttt{t}_{2} }{\tau_{1}}{\mathfrak{B}_{1} \vee (\neg \mathfrak{B}_{2} \wedge \mathfrak{B'}_{2} ) }}
+										
+\caption{ \textbf{\glam  } typing relation \hfill}
+\label{fig:typing}
+\end{figure}
+
+\subsection{Ghost Code Erasure}
+\subsection{Properties of Ghost Code Erasure}
+\subsubsection{Typing Erasure}
+\subsubsection{Evaluation Preservation}

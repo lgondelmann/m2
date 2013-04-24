@@ -1,0 +1,163 @@
+
+
+\vspace*{-5cm}
+\begin{small}
+\section*{{\normalsize \begin{center}GhostML : a mini-ML with global references and ghost terms\end{center}}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\grtitle}[1]{ & & &\textbf{[#1]}    \\}
+\newcommand{\grhead}[3]{#1 & ::= & #2 & \text{#3} \\}
+\newcommand{\grcase}[2]{& | & #1 & \text{#2} \\}
+\newpage
+\section*{GhostML syntax}
+\label{GhostML syntax }
+\begin{figure}[!ht]\vspace*{-1cm}
+\begin{displaymath}	 	
+  \begin{array}{lll@{\hspace*{2.5cm} }l}
+		 \grhead{prog}{typedecl^{*} \quad vardecl^{*} \quad t}{program}
+		 \grhead{typedecl}{\texttt{type} ~ id ~ \alpha, ..., \alpha ~ = \tau}{type declaration}
+		 \grhead{vardecl}{\texttt{val} ~ id : \texttt{ref} ~ \tau}{global reference declaration}
+    \end{array} 
+\end{displaymath} \vspace*{-0.5cm}
+\caption*{ \textbf{GhostML Programs} \hfill}
+\end{figure}
+
+\begin{figure}[!ht]\vspace*{-1cm}
+\begin{displaymath}
+ \begin{array}{lll@{\hspace*{2.5cm} }l}
+  	\grhead{\tau}{\alpha}{type variable}
+  	\grcase{\varepsilon ~ (\tau,\dots, \tau)}{datatype constructor}
+  	\grcase{\tau \rightarrow \tau}{function type}
+  	\grcase{~\texttt{Unit} ~|~\texttt{int} ~|~ \texttt{bool} ~|~ \texttt{Prop} ~|~ ...}{build-in types}
+	\grhead{\sigma}{\forall \overline{\alpha} . \tau}{type scheme}
+  \end{array} 
+\end{displaymath} \vspace*{-0.5cm}
+\caption*{ \textbf{GhostML   types and schemes} \hfill}
+\end{figure}
+
+\begin{figure}[!h]\vspace*{-0.5cm}
+\begin{displaymath}
+  \begin{array}{rrl@{\hspace*{4cm} }l}
+  \grhead{\varepsilon}{\quad}{data variable}
+  \grcase{\texttt{ghost}}{ghost variable} \\
+  
+  \grhead{v}{x}{variable}
+  \grcase{op}{build-in constants and operands \ ( \textit{1, true, +}, $\vee$, ...)}
+  \grcase{C(v,\dots, v)}{constructor application}
+  \grcase{(\texttt{fun} \ \varepsilon x_{\tau} \rightarrow t)}{function}
+  \grcase{ \texttt{rec} \ f \ \varepsilon x_{\tau}   =  t}{recursive function} \\
+
+  \grhead{t}{v}{value}
+  \grcase{v ~ v}{application}
+  \grcase{\texttt{let}~\varepsilon x_{\sigma} = t \ \texttt{in} \ t}{local binding}
+  \grcase{!~x}{global reference access}
+  \grcase{x := v}{global reference assignment}
+  \grcase{\mathsf{if}~v~\mathsf{then}~t~\mathsf{else}~t }{conditional expression}
+  \grcase{\mathsf{match} ~v ~ \mathsf{with} ~ c	}{pattern-matching}
+  \end{array} 
+\end{displaymath} \vspace*{-0.5cm}
+\caption*{ \textbf{GhostML Values \& Terms} \hfill}
+\end{figure}
+
+\begin{figure}[!h]
+\begin{displaymath}
+  \begin{array}{rrl@{\hspace*{4.5cm}}l}
+  \grhead{c}{p -> t}{base case}
+  \grcase{p -> t  ~|c}{branch case} \\
+  \grhead{p}{x}{variable}
+  \grcase{C(x,\dots, x)}{constructor}
+  \end{array} 
+\end{displaymath} \vspace*{-0.5cm}
+\caption*{ \textbf{GhostML Patterns \& Cases} \hfill}
+\end{figure}
+\end{small}
+\newpage
+
+\label{GhostML operational semantics}
+\section*{GhostML  operational semantics}
+
+
+\definecolor{gray}{gray}{0.2}
+\newcommand{\stepone}[4]{#1{\color{gray}_{|#3}}   ~~\leadsto~~ #2{\color{gray}_{|#4}}}
+\newcommand{\sbst}[3]{#1 [#2 \mapsfrom #3] }
+\reservestyle{\command}{\texttt}
+\command{let[\;let\;], fun[fun\;], rec[rec\;],  ghost[ghost\;],  in[\;in\;],  if[\;if\;],  then[\;then\;],  else[\;else\;],
+ unit[\;unit\;], match[\;match\;], with[\;with\;]}
+\typicallabel{E-IF-False-True-Again}
+
+	\infax[E-AppFun]
+		{\stepone{(\<fun> \varepsilon x_{\tau} \rightarrow t)v}{\sbst{t}{x}{v}}{\mu}{\mu}}
+	
+	\infax[E-AppRec]
+		{\stepone{(\<rec> f \ \varepsilon x_{\tau} \rightarrow t)  v}
+		{t [f \mapsfrom (\<rec> f \ \varepsilon x_{\tau} \rightarrow t), x \mapsfrom v]}{\mu}{\mu}}
+		
+	\infax[E-Let]
+		{\stepone{\<let> \varepsilon x_{\sigma} = v_{1} \<in> t}{\sbst{t}{x}{v}}{\mu}{\mu}}	
+	
+ 	\infax[E-IF-True]
+  		{\stepone{\<if> \mathtt{true} \<then> t_{1} \<else> t_{2}} {t_{1}}{\mu}{\mu}}
+	
+	\infax[E-IF-False]
+  		{\stepone{\<if> \mathtt{false} \<then> t_{1} \<else> t_{2}} {t_{2}}{\mu}{\mu}}
+
+	\infax[E-Assign]
+  		{\stepone{x := v}{unit}{\mu}{\sbst{\mu}{x}{v}}}
+
+	\infrule[E-Deref] 
+		{\mu(x) = v}
+		{\stepone{x}{v}{\mu}{\mu}} 
+  
+  	\infrule[E-Let-Context]
+   		{\stepone{t_{1}}{t_{1}'}{\mu}{\mu'}}
+    	{\stepone{\<let> \varepsilon x_{\sigma} = t_{1} \<in> t_{2}}{\<let> \varepsilon x_{\sigma} = t_{1} \<in>  t_{2}'}{\mu}{\mu'}}
+   	
+	\infrule[E-Case-Match]
+		{ v_{i}~\mathrm{ filters}~  x_{i}~ \mathrm{for}~  i \in 1 ...  n }
+		{\stepone{\<match> C(v_{1}, \ldots, v_{n}) \<with>  | C(x_{1}, \ldots, x_{n}) \rightarrow t ~| c }
+		{\\ t[x_{i} \mapsfrom v_{i}]^{i \in 1...n}}{\mu}{\mu}}
+ 
+\infrule[E-Case-Fail]
+		{ C \neq C' }
+		{\stepone{\<match> C(v_{1}, \ldots, v_{n}) \<with>  | C'(x_{1}, \ldots, x_{n}) \rightarrow t ~| c  }
+		{ \\ \<match> C(v_{1}, \ldots, v_{n})  \<with> c }{ \mu }{ \mu}}
+\newpage
+\label{GhostML typing }
+
+\section{GhostML Typing}
+\newcommand{\tstep}[3]{#1 \vdash  #2 : #3}
+
+	\infrule[T-Var]
+		{\Gamma(x) = \forall \overline{\alpha}.\tau}
+		{\tstep{\Gamma}{\varepsilon x}{\sigma[\overline{\alpha}} \mapsfrom \overline{\tau}]}
+
+    \infrule[T-op]
+		{\Gamma(\texttt{op}) = \forall \overline{\alpha}.\tau}
+		{\tstep{\Gamma}{\texttt{op}}{\sigma[\overline{\alpha}} \mapsfrom \overline{\tau}]}
+		
+		
+Let us illustrate it with a small example (written in why3 language) 
+ of a function that runs though an integer list  and returns the sum of its elements.   
+	\begin{whycode}   
+var s : ref int
+let rec sumlist l =
+    match l with
+      | Nil -> ()
+      | Cons x xs -> s := x + !s; sumlist xs 
+    end
+    \end{whycode}
+Here the specification consist of saying that if before each recursive call of \texttt{sumlist} 
+variable \texttt{s} contained the sum of the already seen elements of the list \texttt{l},
+then at the end of each call it must contain the sum of 
+
+ \begin{whycode}
+let rec iter_0 l (ghost before: list int) =
+    variant  { l }
+    requires { !s = sum before }
+    ensures  { !s = sum ((reverse l) ++ before) }
+    match l with
+      | Nil -> ()
+      | Cons x xs -> s := x + !s; iter_0 xs (Cons x before)
+    end
+
+  \end{whycode}
+ 

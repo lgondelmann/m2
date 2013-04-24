@@ -1,0 +1,134 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[a4paper,11pt,oneside]{article}
+\label{packages}
+\usepackage[sc]{mathpazo} \linespread{1.0}
+\usepackage[scaled]{helvet} % ss
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+\usepackage[a4paper,pdftex,colorlinks=true,
+	urlcolor=blue,pdfstartview=FitH]{hyperref}
+\usepackage{graphicx}
+\usepackage{amssymb,amsfonts,amsthm,amsmath}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{caption} 
+\protect\usepackage{semantic}
+\usepackage{bcprules}
+\usepackage{stmaryrd}
+\titleformat{\section}[hang]% style du titre
+  {\normalfont\Large\bfseries}% police du titre + numéro
+  {\thesection}% numérotation
+  {0.4in}% espacement numéro/titre <--- valeur à changer
+  {}% police spécifique du titre
+\titlespacing*{\section}
+  {-0.5in}% espacement gauche
+  {0.2in}% espacement avant
+  {0.2in}% espacement après
+  [0.1in]% espacement à droite
+
+\titleformat{\subsection}[hang]% style du titre
+  {\normalfont\large\bfseries}% police du titre + numéro
+  {\thesubsection}% numérotation
+  {0.2in}% espacement numéro/titre <--- valeur à changer
+  {}% police spécifique du titre
+\titlespacing*{\subsection}
+  {-0.44in}% espacement gauche
+  {0.2in}% espacement avant
+  {0.2in}% espacement après
+  [0.1in]% espacement à droite
+
+
+%\titleformat{\subsubsection}[hang]% style du titre
+%  {\normalfont\large\bfseries}% police du titre + numéro
+%  {\thesubsubsection}% numérotation
+%  {0.1in}% espacement numéro/titre <--- valeur à changer
+%  {}% police spécifique du titre
+%\titlespacing*{\subsubsection}
+%  {-0.30in}% espacement gauche
+%  {0.2in}% espacement avant
+%  {0.2in}% espacement après
+%  [0.1in]% espacement à droite
+
+
+\RequirePackage{listings}
+\RequirePackage{amssymb}
+
+\lstset{
+  basicstyle={\ttfamily},
+  framesep=2pt,
+  frame=single,
+  keywordstyle={\color{blue}},
+  stringstyle=\itshape,
+  commentstyle=\itshape,
+  columns=[l]fullflexible,
+  showstringspaces=false,
+}
+
+\lstdefinelanguage{why3}
+{
+morekeywords={namespace,predicate,function,inductive,type,use,clone,%
+import,export,theory,module,end,in,with,%
+let,rec,for,to,do,done,match,if,then,else,while,try,invariant,variant,%
+absurd,raise,assert,exception,private,abstract,mutable,ghost,%
+downto,raises,writes,reads,requires,ensures,returns,val,model,%
+goal,axiom,lemma,forall},%
+string=[b]",%
+sensitive=true,%
+morecomment=[s]{(*}{*)},%
+keepspaces=true,
+}
+%literate=%
+%{'a}{$\alpha$}{1}%
+%{'b}{$\beta$}{1}%
+%{<}{$<$}{1}%
+%{>}{$>$}{1}%
+%{<=}{$\le$}{1}%
+%{>=}{$\ge$}{1}%
+% {<>}{$\ne$}{1}%
+% {/\\}{$\land$}{1}%
+% {\\/}{ $\lor$ }{3}%
+% {\ or(}{ $\lor$(}{3}%
+% {not\ }{$\lnot$ }{1}%
+% {not(}{$\lnot$(}{1}%
+% {+->}{\texttt{+->}}{2}%
+% % {+->}{$\mapsto$}{2}%
+% {-->}{\texttt{-\relax->}}{2}%
+% %{-->}{$\longrightarrow$}{2}%
+% {->}{$\rightarrow$}{2}%
+% {<->}{$\leftrightarrow$}{2}%
+
+\lstnewenvironment{whycode}{\lstset{language=why3}}{}
+\lstnewenvironment{ocamlcode}{\lstset{language={[Objective]Caml}}}{}
+
+
+
+
+%\lstset{basicstyle={\ttfamily}}
+\let\why\lstinline
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+
+
+
+
+
+ \begin{document}
+ 
+\newcommand{\glam}{\textit{ghost}-$\lambda$~}
+\newcommand{\glvar}{\texttt{x}^{\mathfrak{B}}_{\tau}}
+\newcommand{\grtitle}[2]{#1 & ::= &  & \textit{#2} \\}
+\newcommand{\grhead}[3]{#1 & ::= & #2 & \textit{#3} \\}
+\newcommand{\grcase}[2]{&  & #1 & \textit{#2} \\}
+
+\newcommand{\stepone}[2]{#1 ~~\stackrel{\epsilon}{\rightarrow}~~ #2}
+\newcommand{\tystepone}[3]{\vdash_{g\lambda}  #1 ~:~ (#2, #3) }
+\newcommand{\sbst}[3]{#1 [#2 \mapsfrom #3] }
+ 
+ 
+ 
+\input{ghostLambda.tex}
+\bibliographystyle{plain}
+\bibliography{abbrevs,demons,demons2,demons3,team,crossrefs,crossrefs2,./biblio}
+\end{document}
