@@ -4,7 +4,7 @@
 \usepackage[sc]{mathpazo} \linespread{1.0}
 \usepackage[scaled]{helvet} % ss
 \usepackage[T1]{fontenc}
-\usepackage[francais]{babel}
+\usepackage[english]{babel} 
 \usepackage[a4paper,pdftex,colorlinks=true,
 	urlcolor=blue,pdfstartview=FitH]{hyperref}
 \usepackage{graphicx}
@@ -108,8 +108,11 @@ keepspaces=true,
 %\lstset{basicstyle={\ttfamily}}
 \let\why\lstinline
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
-
-
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}{Lemma}[section]
+\newtheoremstyle{plain}
+{\topsep}
+{\topsep}{\itshape}{}{}{.}{ }{\textit{#1 #2} [\textsc{#3}]}
 
 
 
@@ -123,9 +126,8 @@ keepspaces=true,
 \newcommand{\grcase}[2]{&  & #1 & \textit{#2} \\}
 
 \newcommand{\stepone}[2]{#1 ~~\stackrel{\epsilon}{\rightarrow}~~ #2}
-\newcommand{\tystepone}[3]{\vdash_{g\lambda}  #1 ~:~ (#2, #3) }
+\newcommand{\tystepone}[3]{\vdash_{g\lambda}  #1 : (#2, #3) }
 \newcommand{\sbst}[3]{#1 [#2 \mapsfrom #3] }
- 
  
  
 \input{ghostLambda.tex}

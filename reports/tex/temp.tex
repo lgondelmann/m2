@@ -160,4 +160,25 @@ let rec iter_0 l (ghost before: list int) =
     end
 
   \end{whycode}
+ \begin{proof}
+By induction on a derivation of the statement 
+\text{$\vdash_{g\lambda}  \e(\texttt{t}) ~:~\e({\tau})$}. 
+For a given derivation, we proceed by case analysis on the final typing rule used in the
+ proof.
  
+ 	\textit{Case} \textsc{T-Unit}:\quad
+ 	
+ 	\textit{Case} \textsc{T-Var}:\quad
+ 	
+ 	\textit{Case} \textsc{T-Ghost}:\quad
+ 	
+ 	\textit{Case} \textsc{T-Abs}:\quad
+ 	
+ 	\textit{Case} \textsc{T-App}:\quad
+\end{proof}
+
+
+	\noindent\textit{Case} \textsc{T-Ghost}:\quad 
+ 	$\tystepone{\texttt{ghost t}}{\tau}{\top}$ 
+ 	
+ 	The ghost code being explicitly marked as such, this case is trivially true. 
