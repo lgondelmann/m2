@@ -1,5 +1,5 @@
 \section{GhostLambda: Lambda-Calculus with Ghost Code}
-%cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+%ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 Annotating a program with logical formulae predicting statically it dynamic behaviour is a 
 keystone of the deductive software verification approach.
 
@@ -86,12 +86,19 @@ The typing relation of \glam is summarized in ~\autoref{fig:typing}.
 
 \subsection{Ghost Code Erasure}
 \newcommand{\e}{\mathcal{E}}
-let \texttt{t} be a term such that ~~ $\tystepone{\texttt{t}}{\tau}{\mathfrak{B}}$ ~ holds. Then define  $\e$ that translate g$\lambda$-terms and types to $\lambda$-calculus as follows. \\
-The erasure of types is defined by :
+let \texttt{t} be a term such that ~~ $\tystepone{\texttt{t}}{\tau}{\mathfrak{B}}$ ~ holds. Then define  $\e$ that translate g$\lambda$-terms and types to $\lambda$-calculus as follows. 
 
-$ \e(\tau_{1}^{\top} \rightarrow \tau_{2}) = \texttt{unit} \rightarrow \tau_{2}$ 
+The erasure of types in presence of ghost markers 
+is defined by induction on the structure of 
+type $\tau$ : \\
 
-$ \e(\tau) = \tau \qquad \text{otherwise}$
+$ \e(\texttt{unit}, \bot) = \texttt{unit}$ 
+
+$ \e(\tau_{1}^{\top} \rightarrow \tau_{2}, \bot) 
+	= \texttt{unit} \rightarrow \e(\tau_{2}) $ 
+
+$ \e(\tau, \top) = \texttt{unit} $ for any type $\tau$. \\
+
 
 \noindent For the erasure of terms,  if $\mathfrak{B}$ is equal to $\top$ then $\e(\texttt{t}) = ()$. Otherwise : 
 
@@ -107,7 +114,6 @@ $ \e(\tau) = \tau \qquad \text{otherwise}$
 
 \subsection{Properties of Ghost Code Erasure}
 \subsubsection{Typing Erasure}
-
 \begin{lemma}[Translation of Typing Relation]
 	If  $\tystepone{\texttt{t}}{\tau}{\bot}$  
 	then \text{$\vdash_{\lambda}  \e(\texttt{t}) ~:~\e({\tau})$}.
@@ -115,14 +121,14 @@ $ \e(\tau) = \tau \qquad \text{otherwise}$
 \begin{proof}
 By induction on a derivation of the statement 
 \text{$\vdash_{g\lambda}  \e(\texttt{t}) ~:~\e({\tau})$}. 
-For a given derivation, we proceed by case analysis on the final typing rule used in the
- proof. 
+For a given derivation, we proceed by case analysis on the final typing rule
+ used in the proof. 
  
  	\noindent\textit{Case} \textsc{T-Unit}:\quad 
  	$\tystepone{\texttt{()}}{\texttt{unit}}{\bot}$ 
  	
- 		As  $\e(\texttt{()}) = \texttt{()}$ and $ \e(\texttt{unit}) = \texttt{unit}$ we have 
- 		immediately $\vdash_{\lambda} \texttt{()} : \texttt{unit}$.
+ 		As  $\e(\texttt{()}) = \texttt{()}$ and $ \e(\texttt{unit}) = \texttt{unit}$
+ 		 we have immediately $\vdash_{\lambda} \texttt{()} : \texttt{unit}$.
  	
  	\noindent\textit{Case} \textsc{T-Var}:\quad 
  	$\tystepone{x_{\tau}^{\bot}}{\tau}{\bot}$
@@ -132,13 +138,99 @@ For a given derivation, we proceed by case analysis on the final typing rule use
  	 
 
  	\textit{Case} \textsc{T-Abs}:\quad
- 		$\tystepone{\lambda x_{\tau_{1}}^{\mathfrak{B}_{1}}.
- 		\texttt{t}}{\tau_{1}^{\mathfrak{B}_{1}} \rightarrow \tau_{2}}{\bot}~ \text{with} 
- 		\tystepone{\texttt{t}}{\tau_{2}}{\bot}
- 		$
+ 		$\tystepone{\lambda x_{\tau_{1}}^{\mathfrak{B}_{1}}.\texttt{t}}
+ 		{\tau_{1}^{\mathfrak{B}_{1}} \rightarrow 
+ 		\tau_{2}}{\bot}~ \text{with} \tystepone{\texttt{t}}{\tau_{2}}{\bot}	$
+ 		
+ 		By induction hypothesis $\vdash_{\lambda} \e(\texttt{t}) : \e(\tau_{2}) $.
+ 		There are two cases to consider, depending on whether the parameter 
+ 		of the abstraction is ghost or not. If $\mathfrak{B_{1} = \top}$ then 
+ 		$\e(\lambda x_{\tau_{1}}^{\top}. \texttt{t}) = \lambda (). \e(\texttt{t})$
+ 		and therefore
+ 		\infrule[T-Abs]
+ 		{\vdash_{\lambda} \e(\texttt{t}) : \e(\tau_{2})}
+ 		{\lambda (). \vdash_{\lambda} \e(\texttt{t}) : 
+ 		\texttt{unit} \rightarrow 	\e(\tau_{2})} 
  	
+ 		Otherwise $\mathfrak{B_{1} = \bot}$ and again by the rule \textsc{T-Abs} 
+ 		we obtain :
+ 		\infrule[T-Abs]
+ 		{\vdash_{\lambda} \e(\texttt{t}) : \e(\tau_{2})}
+ 		{\lambda x_{\e(\tau_{1})}. \vdash_{\lambda} \e(\texttt{t}) : 
+ 		\e(\tau_{1}) \rightarrow 	\e(\tau_{2})}
+ 		
+ 		 	
  	\textit{Case} \textsc{T-App}:\quad
+ 	$\tystepone{\texttt{t}_{1}~\texttt{t}_{2}}{\tau_{1}}{\mathfrak{B}_{1}} $ ~
+ 	with sub-derivations: \\
+	\phantom{\textit{Case} \textsc{T-App}: \qquad}
+	$\tystepone{\texttt{t}_{1}}
+	{\tau_{2}^{\mathfrak{B}_{2}} \rightarrow \tau_{1}}{\mathfrak{B}_{1}}$ \\
+	\phantom{\textit{Case} \textsc{T-App}: \qquad}	
+	$ \tystepone{\texttt{t}_{2}}{\tau_{2}}{\mathfrak{B'}_{2}} $, \quad 
+	and constraints: \\ 
+	\phantom{\textit{Case} \textsc{T-App}: \qquad}	
+	$ \mathfrak{B}_{1}\vee (\neg \mathfrak{B}_{2} \wedge \mathfrak{B'}_{2})=\bot,$
+	$ \mathfrak{B}_{2} \Rightarrow \mathfrak{B'}_{2} = \top $ \\
+	
+	By lemma's statement, $\texttt{t}_{1}~\texttt{t}_{2}$ 
+	should not be a ghost term. Therefore
+	$\mathfrak{B}_{1}\vee (\neg \mathfrak{B}_{2} \wedge \mathfrak{B'}_{2})=\bot$.
+	From that and from the rule's premise condition 
+	$ \mathfrak{B}_{2} \Rightarrow \mathfrak{B'}_{2} = \top $ 
+	we deduce that $\mathfrak{B}_{1} = \bot$ 
+	and that \text{$ \mathfrak{B}_{2} \Leftrightarrow \mathfrak{B'}_{2}=\top $},
+	so we have to cases two consider.
+	
+	If \text{$ \mathfrak{B}_{2} = \mathfrak{B'}_{2} = \bot $} 
+	then by induction hypotheses: 
+	\text{$\vdash_{\lambda} \e(\texttt{t}_{1}) : 
+	\e(\tau_{2}) \rightarrow \e(\tau_{1}) $} and
+	\text{$\vdash_{\lambda} \e(\texttt{t}_{2}) : \e(\tau_{2}) $}.
+	Applying  \textsc{T-App} rule gives us 
+	\text{$\vdash_{\lambda} \e(\texttt{t}_{1}~\texttt{t}_{2}): \e(\tau_{1}) $}
+	(where \text{$\e(\texttt{t}_1)\e(\texttt{t}_{2}) =
+	 \e(\texttt{t}_{1}~\texttt{t}_{2})$} as \text{$\mathfrak{B_{1} = \bot}$}).  	 
+	
+	If \text{$ \mathfrak{B}_{2} = \mathfrak{B'}_{2} = \top $} 
+	then by induction hypothesis,
+	\text{$\vdash_{\lambda} \e(\texttt{t}_{1}) : 
+	\texttt{unit} \rightarrow \e(\tau_{1}) $}. 
+	Also by definition of $\e$ we have $\e(\texttt{t}_{2}) = \texttt{()}$, 
+	and $\e(\tau_{2}, \mathfrak{B'_{2}}) = \texttt{unit}$. 
+	Applying \textsc{T-App} rule gives us \\
+
+\hspace*{1.2in}
+\infer[\mbox{\textsc{(T-App)}}]
+ {\vdash_{\lambda} \e(\texttt{t}_{1}~\texttt{t}_{2}): \e(\tau_{1})}
+ {\infer
+   {\vdash_{\lambda} \e(\texttt{t}_{1}~\texttt{t}_{2}): \e(\tau_{1})}
+   {}
+   &
+ \infer[\mbox{\textsc{(T-Unit)}}]
+  {\vdash_{\lambda} \texttt{()} : \texttt{unit}}
+  {}}	
+  
+  	The case (\textsc{T-Ghost}) as well as any other valid derivation  
+  	where a typed term is marked as ghost do not satisfy lemma's requirement, 
+  	so these cases are trivially verified.
+
+
+										
 \end{proof}
 
 
 \subsubsection{Evaluation Preservation}
+
+\begin{lemma}[Evaluation under Erasure]
+	For any closed g$\lambda$-term \texttt{t} such that
+	$\tystepone{\texttt{t}}{\tau}{\bot}$ is valid, 
+	if	$\texttt{t} \rightarrow^\ast \texttt{v}$ for some value \texttt{v}, then
+	 \text{$\e(\texttt{t}) \rightarrow^\ast \e(v)$}.
+\end{lemma}
+\begin{proof}
+\end{proof}
+
+
+
+
