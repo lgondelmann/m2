@@ -10,7 +10,7 @@ Typically, these logical formulae are assertions about program assigned variable
   that appear in assertions but do not affect the program dynamic behaviour in any way. 
    
  When a correct-by-construction executable code is extracted
- from the specified program, this , called \textit{ghost code} disappear together with
+ from the specified program, this , called \textit{ghost code} disappear  together with
  specification. 
  
 In this section we describe a language where one can annotate programs with such \textit{ghost code}.
@@ -137,9 +137,9 @@ For a given derivation, we proceed by case analysis on the final typing rule
  	 $\vdash_{\lambda} x_{\e(\tau)} : \e(\tau)$.
  	 
 
- 	\textit{Case} \textsc{T-Abs}:\quad
+ 	\noindent\textit{Case} \textsc{T-Abs}:\quad
  		$\tystepone{\lambda x_{\tau_{1}}^{\mathfrak{B}_{1}}.\texttt{t}}
- 		{\tau_{1}^{\mathfrak{B}_{1}} \rightarrow 
+ 		{\tau_{1}^{_{1}} \rightarrow 
  		\tau_{2}}{\bot}~ \text{with} \tystepone{\texttt{t}}{\tau_{2}}{\bot}	$
  		
  		By induction hypothesis $\vdash_{\lambda} \e(\texttt{t}) : \e(\tau_{2}) $.
@@ -160,10 +160,10 @@ For a given derivation, we proceed by case analysis on the final typing rule
  		\e(\tau_{1}) \rightarrow 	\e(\tau_{2})}
  		
  		 	
- 	\textit{Case} \textsc{T-App}:\quad
+ 	\noindent\textit{Case} \textsc{T-App}:\quad
  	$\tystepone{\texttt{t}_{1}~\texttt{t}_{2}}{\tau_{1}}{\mathfrak{B}_{1}} $ ~
  	with sub-derivations: \\
-	\phantom{\textit{Case} \textsc{T-App}: \qquad}
+	\phantom{{Case} \textsc{T-App}: \qquad}
 	$\tystepone{\texttt{t}_{1}}
 	{\tau_{2}^{\mathfrak{B}_{2}} \rightarrow \tau_{1}}{\mathfrak{B}_{1}}$ \\
 	\phantom{\textit{Case} \textsc{T-App}: \qquad}	
@@ -221,16 +221,64 @@ For a given derivation, we proceed by case analysis on the final typing rule
 
 
 \subsubsection{Evaluation Preservation}
+\begin{lemma}[Evaluation preservation under erasure]
+	For any closed g$\lambda$-term \texttt{t} such that
+	$\tystepone{\texttt{t}}{\tau}{\bot}$ holds, 
+	if	$\texttt{t} \rightarrow \texttt{t'}$ for some term \texttt{t'}, then
+	 \text{$\e(\texttt{t}) \rightarrow \e(t')$}. 
+\end{lemma}
+\begin{proof} By induction on the evaluation relation of $\texttt{t} \rightarrow \texttt{t'}$. \\
+
+\noindent\textit{Case} \textsc{E-AppAbs}: \qquad 
+$(\lambda x^{\mathfrak{B_{1}}}_{\tau_{1}}.\texttt{t})v 
+\rightarrow \sbst{\texttt{t}}{x^{\mathfrak{B_{1}}}_{\tau_{1}}}{v}$ \\
+\phantom{\noindent\textit{Case} \textsc{E-AppAbs}: \qquad }		
+ $\tystepone{(\lambda x^{\mathfrak{B_{1}}}_{\tau_{1}}.\texttt{t})v}{\tau_{2}}{\bot} $ \\
+
+%\noindent 
+%$\e[(\lambda x^{\mathfrak{B_{1}}}_{\tau_{1}}.\texttt{t})v] 
+%  = \e(\lambda x^{\mathfrak{B_{1}}}_{\tau_{1}}.\texttt{t}) ~ \e(v) 
+% \stackrel{\epsilon}{\rightarrow} \sbst{\e(\texttt{t})}{x^{\mathfrak{B_{1}}}_{\tau_{1}}}{\e(v)}$ \\
+% 
+\noindent 
+\hspace*{1cm}{
+
+$
+\e[(\lambda x^{\bot}_{\tau_{1}}.\texttt{t})v]  \\
+  = \e(\lambda x^{\bot}_{\tau_{1}}.\texttt{t}) ~ \e(\texttt{v})  \\
+  = \lambda x_{\texttt{unit}}. \e(\texttt{t}))\e(\texttt{()})
+ \stackrel{\epsilon}{\rightarrow} \sbst{\e(\texttt{t})}{x^{\bot}_{\texttt{unit}}}{()}
+$}
+ 
+\end{proof}
 
 \begin{lemma}[Evaluation preservation under erasure]
 	For any closed g$\lambda$-term \texttt{t} such that
-	$\tystepone{\texttt{t}}{\tau}{\bot}$ is valid, 
-	if	$\texttt{t} \rightarrow^\ast \texttt{v}$ for some value \texttt{v}, then
-	 \text{$\e(\texttt{t}) \rightarrow^\ast \e(v)$}.
+	$\tystepone{\texttt{t}}{\tau}{\bot}$ holds, 
+	if	$\texttt{t} \rightarrow^{\ast} \texttt{v}$ for some value \texttt{v}, then
+	 \text{$\e(\texttt{t}) \rightarrow^\ast \e(v)$}. 
 \end{lemma}
 \begin{proof}
 
 \end{proof}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
