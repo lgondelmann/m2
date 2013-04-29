@@ -84,35 +84,64 @@ The typing relation of \glam is summarized in ~\autoref{fig:typing}.
 \end{figure}
 
 
+
+
+%--------------------------------------------------------------------------%
 \subsection{Ghost Code Erasure}
 \newcommand{\e}{\mathcal{E}}
-let \texttt{t} be a term such that ~~ $\tystepone{\texttt{t}}{\tau}{\mathfrak{B}}$ ~ holds. Then define  $\e$ that translate g$\lambda$-terms and types to $\lambda$-calculus as follows. 
+\theoremstyle{remark}
+\newtheorem{dfn}[theorem]{Definition}
 
-The erasure of types in presence of ghost markers 
-is defined by induction on the structure of 
-type $\tau$ : \\
+\qquad Once we formally defined the simply typed lambda-calculus enriched with ghost expressions, our goal is to show that terms which are not ghost 
+themselves have the same computational behaviour as their translation to
+lambda-calculus, which preserves the structure of terms except for ghost sub-expressions. 
 
-$ \e(\texttt{unit}, \bot) = \texttt{unit}$ 
+Therefore we need to define at first a type-erasure and a term-erasure translations from g$\lambda$-calculus to standard simply typed  
+$\lambda$-calculus:  
 
-$ \e(\tau_{1}^{\top} \rightarrow \tau_{2}, \bot) 
-	= \texttt{unit} \rightarrow \e(\tau_{2}) $ 
+\begin{dfn}[Type-Erasure] 
+\label{type-erasure}
+We define type-erasure by induction on the structure of types : \vspace{0.2cm} 
 
-$ \e(\tau, \top) = \texttt{unit} $ for any type $\tau$. \\
+\noindent$ \e_{\top}(\tau) = \texttt{unit} $ 
+
+\noindent$ \e_{\bot}(\texttt{unit}) = \texttt{unit}$ 
+
+\noindent$ \e_{\bot}(\tau_{2}^{\mathfrak{B_{2}}} \rightarrow \tau_{1})  
+= \e_{\mathfrak{B_{2}}}(\tau_{2}) \rightarrow \e_{\bot}(\tau_{1}) $. \\
+\end{dfn} 
+
+\begin{dfn}[Term-Erasure] 
+\label{term-erasure}
+Let \texttt{t} be a term such that 
+~~ $\tystepone{\texttt{t}}{\tau}{\mathfrak{B}}$ ~ holds. 
+We define term-erasure function by induction on 
+the structure of \texttt{t}\\[0.1cm]
+$ \e_{\top}(\texttt{t}) = \texttt{()}$\\[0.05cm]
+$\e_{\bot}(\texttt{()}) = \texttt{()}$\\[0.05cm]
+$\e_{\bot}(x_{\tau}^{\bot}) = x_{\e_{\bot}(\tau)}$\\[0.05cm]  
+$\e_{\bot}(\lambda x_{\tau_{2}}^{\mathfrak{B_{2}}}.t) 
+= \lambda x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}. \e_{\bot}(t)$\\[0.05cm]  
+$\e_{\bot}(\texttt{t}_{1} ~ \texttt{t}_{2}) 
+= \e_{\bot}(\texttt{t}_{1})  ~ \e_{\bot}(\texttt{t}_{2})$.
+\end{dfn}
+As it can be seen, the erasure function is a morphism that preserve
+the structure of operational (not ghost) terms and their types ($\sim\e_{\bot}(\star)$), and sends ghost expressions and types to \texttt{()} and \texttt{unit} respectively ($\sim\e_{\top}(\star)$).
 
 
-\noindent For the erasure of terms,  if $\mathfrak{B}$ is equal to $\top$ then $\e(\texttt{t}) = ()$. Otherwise : 
 
-  $\e(\texttt{()}) = \texttt{()}$
-  
-  $\e(x_{\tau}^{\bot}) = x_{\e(\tau)}$ 
-  
-  $\e(\lambda x_{\tau}^{\top}.t) = \lambda x_{\texttt{unit}}. \e(t)$
-  
-  $\e(\lambda x_{\tau}^{\bot}.t) = \lambda x_{\e(\tau)}. \e(t)$  
-  
-  $\e(\texttt{t}_{1} ~ \texttt{t}_{2}) = \e(\texttt{t}_{1})  ~ \e(\texttt{t}_{2})$
 
+%--------------------------------------------------------------------------%
 \subsection{Properties of Ghost Code Erasure}
+
+Now that we defined the erasure-translation of $g\lambda$-calculus to $\lambda$-calculus, our concern is to prove that evaluation of well-typed operational terms is preserved under erasure. However we need to state a 
+few basic lemmas before we can prove it. 
+
+
+
+    
+
+
 \subsubsection{Typing Erasure}
 \begin{lemma}[Translation of Typing Relation]
 	If  $\tystepone{\texttt{t}}{\tau}{\bot}$  
@@ -213,43 +242,44 @@ For a given derivation, we proceed by case analysis on the final typing rule
   
   	The case (\textsc{T-Ghost}) as well as any other valid derivation  
   	where a typed term is marked as ghost do not satisfy lemma's requirement, 
-  	so these cases are trivially verified.
-
-
-										
+  	so these cases are trivially verified.									
 \end{proof}
 
 
+
+
+
+
 \subsubsection{Evaluation Preservation}
-\begin{lemma}[Evaluation preservation under erasure]
+\begin{theorem}[Evaluation under erasure]
 	For any closed g$\lambda$-term \texttt{t} such that
 	$\tystepone{\texttt{t}}{\tau}{\bot}$ holds, 
 	if	$\texttt{t} \rightarrow \texttt{t'}$ for some term \texttt{t'}, then
 	 \text{$\e(\texttt{t}) \rightarrow \e(t')$}. 
-\end{lemma}
+\end{theorem}
 \begin{proof} By induction on the evaluation relation of $\texttt{t} \rightarrow \texttt{t'}$. \\
 
 \noindent\textit{Case} \textsc{E-AppAbs}: \qquad 
-$(\lambda x^{\mathfrak{B_{1}}}_{\tau_{1}}.\texttt{t})v 
-\rightarrow \sbst{\texttt{t}}{x^{\mathfrak{B_{1}}}_{\tau_{1}}}{v}$ \\
+ $\tystepone{(\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.\texttt{t})v}{\tau_{1}}{\bot} $ \\
 \phantom{\noindent\textit{Case} \textsc{E-AppAbs}: \qquad }		
- $\tystepone{(\lambda x^{\mathfrak{B_{1}}}_{\tau_{1}}.\texttt{t})v}{\tau_{2}}{\bot} $ \\
+$(\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.\texttt{t})v 
+\rightarrow \sbst{\texttt{t}}{x^{\mathfrak{B_{2}}}_{\tau_{2}}}{v}$ \\
 
-%\noindent 
-%$\e[(\lambda x^{\mathfrak{B_{1}}}_{\tau_{1}}.\texttt{t})v] 
-%  = \e(\lambda x^{\mathfrak{B_{1}}}_{\tau_{1}}.\texttt{t}) ~ \e(v) 
-% \stackrel{\epsilon}{\rightarrow} \sbst{\e(\texttt{t})}{x^{\mathfrak{B_{1}}}_{\tau_{1}}}{\e(v)}$ \\
-% 
-\noindent 
-\hspace*{1cm}{
 
-$
-\e[(\lambda x^{\bot}_{\tau_{1}}.\texttt{t})v]  \\
-  = \e(\lambda x^{\bot}_{\tau_{1}}.\texttt{t}) ~ \e(\texttt{v})  \\
-  = \lambda x_{\texttt{unit}}. \e(\texttt{t}))\e(\texttt{()})
- \stackrel{\epsilon}{\rightarrow} \sbst{\e(\texttt{t})}{x^{\bot}_{\texttt{unit}}}{()}
-$}
- 
+\begin{center}
+\begin{tabular}{lll}
+   & $\e[(\lambda x^{\bot}_{\tau_{2}}.\texttt{t})\texttt{v}]$ &\\
+   & $= \e(\lambda x^{\bot}_{\tau_{2}}.\texttt{t}) ~ \e(\texttt{v})$ 
+   & ($ \mathfrak{B_{1}} = \bot $)  \\
+ 	& $ = \lambda x_{\texttt{unit}}. \e(\texttt{t}))\e(\texttt{()})$ 
+ 	& ($\mathfrak{B_{2}} = \mathfrak{B'_{2}} = \bot $) \\
+   &  $ \stackrel{\epsilon}{\rightarrow} 
+   \sbst{\e(\texttt{t})}{x^{\bot}_{\texttt{unit}}}{()}$ & (head red.) \\
+   & $ \e(\sbst{\texttt{t}}{x^{\bot}_{\texttt{unit}}}{()}) $ 
+   & (by Lemma) 
+
+ \end{tabular}
+  \end{center}
 \end{proof}
 
 \begin{lemma}[Evaluation preservation under erasure]
@@ -261,25 +291,3 @@ $}
 \begin{proof}
 
 \end{proof}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
