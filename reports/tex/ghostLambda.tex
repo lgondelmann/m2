@@ -82,8 +82,46 @@ The typing relation of \glam is summarized in ~\autoref{fig:typing}.
 \caption{ \textbf{\glam  } typing relation \hfill}
 \label{fig:typing}
 \end{figure}
-
-
+\subsubsection{Properties of typing}
+\begin{lemma}[Inversion of typing relation]~\\
+\vspace{-0.5cm}
+\begin{enumerate}
+	\item 
+	if $\tystepone{\texttt{ghost t}}{\tau_{1}}{\mathfrak{B_{1}}}$ 
+	then	$ \mathfrak{B_{1}} = \top $ 
+	and $\tystepone{\texttt{t}}{\tau_{1}}{\mathfrak{B_{2}}} $.
+%	with $\mathfrak{B_{2}} = \{\bot, \top\}$.
+	
+ 	\item
+ 	if $\tystepone
+ 			{\lambda x_{\tau_{2}}^{\mathfrak{B}_{2}}.\texttt{t}}
+ 			{\tau_{1}}
+ 			{\mathfrak{B_{1}}}$
+ 	then $\tau_{1} = \tau_{2}^{\mathfrak{B}_{2}} \rightarrow \tau_{11}$
+ 	for some $\tau_{11}$ with \mbox{$\tystepone{\texttt{t}}{\tau_{11}}{\mathfrak{B_{1}}} $}.
+  
+ \item 
+ 	If ${\tystepone{\texttt{t}_{1}~ \texttt{t}_{2} }{\tau_{1}}{\mathfrak{B}_{1}}}$
+	then there exist $\tau_{11}$, $\tau_{2}$, $\mathfrak{B_{2}}$ and 	
+	$\mathfrak{B'_{2}}$
+	such that \\ 
+	$\tystepone
+		{\texttt{t}_{1}}
+		{\tau_{2}^{\mathfrak{B}_{2}} \rightarrow \tau_{11}}
+		{\mathfrak{B_{1}}}$
+		and 
+	${\tystepone{\texttt{t}_{2}}{\tau_{2}}{\mathfrak{B'}_{2}}}$ with \\
+	 \quad
+	\mbox{$\vDash \mathfrak{B}_{1} \vee (\neg \mathfrak{B}_{2} \wedge \mathfrak{B'}_{2} ) \wedge (\mathfrak{B}_{2} \Rightarrow \mathfrak{B'}_{2})$}. 
+	
+	In particular, if 
+ 		${\tystepone{\texttt{t}_{1}~ \texttt{t}_{2} }{\tau_{1}}{\bot}}$
+then $\vDash \mathfrak{B_{2}} \Leftrightarrow \mathfrak{B'_{2}} $.
+\end{enumerate}
+\end{lemma} 
+\begin{proof}
+Straightforward from definition of the typing relation.
+\end{proof}
 
 
 %--------------------------------------------------------------------------%
@@ -136,48 +174,176 @@ the structure of operational (not ghost) terms and their types ($\sim\e_{\bot}(\
 \subsection{Properties of Ghost Code Erasure}
 
 Now that we defined the erasure-translation of $g\lambda$-calculus to $\lambda$-calculus, our concern is to prove that evaluation of well-typed operational terms is preserved under erasure. However we need to state a 
-few basic lemmas before we can prove the main theorem. 
+few basic lemmas so that we can prove the main theorem. 
 
 
-\begin{lemma}[Inversion of typing relation]~\\
-\vspace{-0.5cm}
-\begin{enumerate}
-	\item 
-	if $\tystepone{\texttt{ghost t}}{\tau_{1}}{\mathfrak{B_{1}}}$ 
-	then	$ \mathfrak{B_{1}} = \top $ 
-	and $\tystepone{\texttt{t}}{\tau_{1}}{\mathfrak{B_{2}}} $.
-%	with $\mathfrak{B_{2}} = \{\bot, \top\}$.
-	
- 	\item
- 	if $\tystepone
- 			{\lambda x_{\tau_{2}}^{\mathfrak{B}_{2}}.\texttt{t}}
- 			{\tau_{1}}
- 			{\mathfrak{B_{1}}}$
- 	then $\tau_{1} = \tau_{2}^{\mathfrak{B}_{2}} \rightarrow \tau_{11}$
- 	for some $\tau_{11}$ with \mbox{$\tystepone{\texttt{t}}{\tau_{11}}{\mathfrak{B_{1}}} $}.
-  
- \item 
- 	If ${\tystepone{\texttt{t}_{1}~ \texttt{t}_{2} }{\tau_{1}}{\mathfrak{B}_{1}}}$
-	then there exist $\tau_{11}$, $\tau_{2}$, $\mathfrak{B_{2}}$ and 	
-	$\mathfrak{B'_{2}}$
-	such that \\ 
-	$\tystepone
+
+
+
+
+\subsubsection{Evaluation Preservation}
+\begin{lemma}[Substitution under erasure] ~\\
+	If $\tystepone
+			{\texttt{t}_{1}}
+			{\tau_{1}}
+			{\bot}$  
+	and \mbox{$\tystepone{\texttt{v}_{2}}{\tau_{2}}{\mathfrak{B_{2}}}$}	
+	hold, \\ then
+	$\e_{\bot}
+	(\sbst
 		{\texttt{t}_{1}}
-		{\tau_{2}^{\mathfrak{B}_{2}} \rightarrow \tau_{11}}
-		{\mathfrak{B_{1}}}$
-		and 
-	${\tystepone{\texttt{t}_{2}}{\tau_{2}}{\mathfrak{B'}_{2}}}$ with \\
-	 \quad
-	\mbox{$\vDash \mathfrak{B}_{1} \vee (\neg \mathfrak{B}_{2} \wedge \mathfrak{B'}_{2} ) \wedge (\mathfrak{B}_{2} \Rightarrow \mathfrak{B'}_{2})$}. 
-	
-	In particular, if 
- 		${\tystepone{\texttt{t}_{1}~ \texttt{t}_{2} }{\tau_{1}}{\bot}}$
-then $\vDash \mathfrak{B_{2}} \Leftrightarrow \mathfrak{B'_{2}} $.
-\end{enumerate}
-\end{lemma} 
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}})
+	= \sbst
+			{\e_{\bot}(\texttt{t}_{1})}
+			{x_{\e_{\mathfrak{B_{2}}(\tau_{2})}}}
+			{\e_{\mathfrak{B'_{2}}}(\texttt{v}_{2})}$
+\label{Substitution under erasure}
+\end{lemma}
 \begin{proof}
-Straightforward from definition of the typing relation.
-\end{proof}
+By induction on the structure of $\texttt{t}_{1}$.  \\
+
+\noindent\textit{Case} 
+$
+\texttt{t}_{1} = x^{\mathfrak{B_{2}}}_{\tau_{2}}$:
+\begin{center}
+ $\e_{\bot}
+	(\sbst
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}}) 
+	= \e_{\bot}(\texttt{v}_{2}) $ 
+	$= \sbst
+			{x_{\e_{\mathfrak{B_{2}}(\tau_{2})}}}
+			{x_{\e_{\mathfrak{B_{2}}(\tau_{2})}}}
+			{\e_{\bot}(\texttt{v}_{2})}$ \\[0.08cm]
+	$= \sbst
+			{\e_{\bot}(x^{\mathfrak{B_{2}}}_{\tau_{2}})}
+			{x_{\e_{\mathfrak{B_{2}}(\tau_{2})}}}
+			{\e_{\bot}(\texttt{v}_{2})}$
+\end{center}
+
+\noindent\textit{Case} $\mathfrak{B_{1} = \bot},\quad
+\texttt{t}_{1} = y^{\bot}_{\tau'_{2}} 
+\neq x^{\mathfrak{B_{2}}}_{\tau_{2}}$:
+\begin{center}
+ $\e_{\bot}
+	(\sbst
+		{y^{\bot}_{\tau'_{2}}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}}) 
+	= \e_{\bot}(y^{\bot}_{\tau'_{2}}) = y_{\e_{\bot}(\tau'_{2})} $ \\[0.08cm]
+	$  = \sbst
+			{y_{\e_{\bot}(\tau'_{2})}}
+			{x_{\e_{\mathfrak{B_{2}}(\tau_{2})}}}
+			{\e_{\bot}(\texttt{v}_{2})}$ 
+	$= \sbst
+			{\e_{\bot}(y^{\bot}_{\tau'_{2}})}
+			{x_{\e_{\mathfrak{B_{2}}(\tau_{2})}}}
+			{\e_{\bot}(\texttt{v}_{2})}$
+\end{center}
+
+\noindent\textit{Case} $\mathfrak{B_{1} = \bot},\quad
+\texttt{t}_{1} = \lambda y^{\mathfrak{B'_{2}}}_{\tau'_{2}}. t_{11} \quad
+\text{ with }   y^{\mathfrak{B'_{2}}}_{\tau'_{2}}  \text{fresh}: $
+\begin{center}
+ $\e_{\bot}
+	(\sbst
+		{(\lambda y^{\mathfrak{B'_{2}}}_{\tau'_{2}}. t_{11})}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}}) 	$
+	$ = \e_{\bot}[\lambda y^{\mathfrak{B'_{2}}}_{\tau'_{2}}.
+	(\sbst
+		{ t_{11}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}})] $\\[0.08cm]
+$	= \lambda y_{\e_{\mathfrak{B'_{2}}}(\tau'_{2})}.
+		\e_{\bot}(
+		\sbst
+			{\texttt{t}_{11}}
+			{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+			{\texttt{v}_{2}})] $\\[0.08cm]
+	$  \stackrel{Ind.Hyp.}{=} 
+	\lambda y_{\e_{\mathfrak{B'_{2}}}(\tau'_{2})}.		
+		\sbst
+			{(\e_{\bot}(\texttt{t}_{11}))}
+			{x_{\e_{\mathfrak{B_{2}}(\tau_{2})}}}
+			{\e_{\bot}(\texttt{v}_{2})}$ \\[0.08cm]
+	$= \sbst
+			{(\lambda y_{\e_{\mathfrak{B'_{2}}}(\tau'_{2})}.\e_{\bot}(\texttt{t}_{11}))}
+			{x_{\e_{\mathfrak{B_{2}}(\tau_{2})}}}
+			{\e_{\bot}(\texttt{v}_{2})}$ \\[0.08cm]
+	$ = 
+	\sbst
+			{\e_{\bot}(\lambda y^{\mathfrak{B'_{2}}}_{\tau'_{2}}. t_{11}) }
+			{x_{\e_{\mathfrak{B_{2}}(\tau_{2})}}}
+			{\e_{\bot}(\texttt{v}_{2})}$
+\end{center}
+
+\noindent\textit{Case} $\mathfrak{B_{1} = \bot},\quad
+\texttt{t}_{1} = \texttt{t}_{11}\texttt{t}_{12} $
+\begin{center}
+ $\e_{\bot}
+	(\sbst
+		{\texttt{t}_{11}\texttt{t}_{12}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}}) 	$ 
+	$= \e_{\bot}
+	(\sbst
+		{\texttt{t}_{11}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}} ~
+	\sbst
+		{\texttt{t}_{12}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}}) 	  $ \\[0.08cm]
+		$= \e_{\bot}
+	(\sbst
+		{\texttt{t}_{11}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}}) ~
+	\e_{\bot}(\sbst
+		{\texttt{t}_{12}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}}) 	  $ \\[0.08cm]
+		$ \stackrel{Ind.Hyp.}{=} 
+		(\sbst
+			{\e_{\bot}({\texttt{t}_{11}})}
+			{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
+			{\e_{\bot}(\texttt{v}_{2})})	
+				(\sbst
+			{\e_{\bot}({\texttt{t}_{12}})}
+			{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
+			{\e_{\bot}(\texttt{v}_{2})})	
+		 $ \\[0.08cm]
+	$ = 
+	\sbst
+		{\e_{\bot}(\texttt{t}_{11} \texttt{t}_{12})}
+		{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
+		{\e_{\bot}(\texttt{v}_{2})})	
+	$\\[0.08cm]
+
+\end{center}
+ \end{proof}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsubsection{Evaluation Preservation}
 \begin{lemma}[Substitution under erasure] 
 	If $\tystepone{\texttt{t}_{1}}{\tau_{1}}{\mathfrak{B_{1}}}$  
 	and \mbox{$\tystepone{\texttt{v}_{2}}{\tau_{2}}{\mathfrak{B_{2}}}$}	
@@ -335,6 +501,144 @@ $	= \lambda y_{\e_{\mathfrak{B'_{2}}}(\tau'_{2})}.
  \end{proof}
 
 
+\theoremstyle{remark}
+\begin{lemma}[One-step evaluation under erasure]
+	For any closed g$\lambda$-term \texttt{t} such that
+	$\tystepone{\texttt{t}}{\tau}{\bot}$ holds, 
+	if	$\texttt{t} \rightarrow_{g\lambda} \texttt{t}'$ for some term \texttt{t}', then either 
+	 \text{$\e_{\bot}(\texttt{t}) \rightarrow_{\lambda} \e_{\bot}(t')$} 
+	 or $\e_{\bot}(\texttt{t}) = \e_{\bot}(t')$. 
+\end{lemma}
+\begin{proof} By induction on the evaluation relation of $\texttt{t} \rightarrow_{g\lambda} \texttt{t}'$. \\
+
+\noindent\textit{Case} \textsc{E-AppAbs}: \qquad
+$~\texttt{t} = (\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.\texttt{t}_{1})\texttt{v}_{1}$ ~with~
+$(\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.\texttt{t}_{1})\texttt{v}_{1} 
+\stackrel{\epsilon\quad}{\rightarrow_{g\lambda}}  \sbst{\texttt{t}_{1}}{x^{\mathfrak{B_{2}}}_{\tau_{2}}}{\texttt{v}_{1}}$\\
+\phantom{\noindent\textit{Case} \textsc{E-AppAbs}: \qquad }		
+ $\tystepone{(\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.\texttt{t}_{1})\texttt{v}_{1}}{\tau_{1}}{\mathfrak{B_{1}}}, \quad$
+$\tystepone{\texttt{v}_{1}}{\tau_{2}}{\mathfrak{B'_{2}}}, $ \\
+\phantom{\noindent\textit{Case} \textsc{E-AppAbs}: \qquad }		
+$ \mathfrak{B_{1}} = \bot,  \quad 
+\vDash\mathfrak{B_{2}} \Leftrightarrow \mathfrak{B'_{2}} $ 
+\begin{center}
+\begin{tabular}{lll}
+   & $\e_{\bot}[(\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.\texttt{t}_{1})\texttt{v}_{1}]$ &\\
+   & $ = \lambda x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}. \e_{\bot}(\texttt{t}_{1}))\e_{\mathfrak{B'_{2}}}(\texttt{v}_{1})$ 
+   & (as $ \mathfrak{B_{1}} = \bot $)  \\
+   &  $ \stackrel{\epsilon~~}{\rightarrow_{\lambda}} 
+   \sbst
+   		{\e_{\bot}(\texttt{t}_{1})}
+   		{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
+   		{\e_{\mathfrak{B'_{2}}}(\texttt{v}_{1})}$ & (head red.) \\
+   & $ = \e_{\bot}(\sbst{\texttt{t}_{1}}{x^{\mathfrak{B_{2}}}_{\tau_{2}}}{\texttt{v}_{1}}) $ 
+   & (by Substitution under erasure lemma)
+
+ \end{tabular}
+  \end{center}
+
+\noindent\textit{Case} \textsc{E-DeGhost}:  \qquad \\ Trivially verified,
+as for any instance of $\tystepone{ghost \texttt{t}_{1}}{\tau_{1}}{\mathfrak{B_{1}}}$, $\mathfrak{B_{1}} = \top $.\\
+
+\noindent\textit{Case} \textsc{E-AppLeft}: \qquad 
+ $\texttt{t} = \texttt{t}_{1} \texttt{t}_{2},\quad
+ \texttt{t}^{'} = \texttt{t}_{1} \texttt{t}^{'}_{2}, ~ \text{ with }
+ \texttt{t}_{1} \rightarrow_{g\lambda} \texttt{t}^{'}_{1}$ \\
+\phantom{\noindent\textit{Case} \textsc{E-AppLeft}: \qquad}		
+$\tystepone{\texttt{t}_{1}}{\tau_{2}^{\mathfrak{B_{2}}} \rightarrow \tau_{1}}{\mathfrak{B_{1}}}$,  ~
+$\tystepone{\texttt{t}_{2}}{\tau_{2}}{\mathfrak{B'_{2}}}, $ \\ 
+\phantom{\noindent\textit{Case} \textsc{E-AppLeft}: \qquad}		
+$ \mathfrak{B_{1}} = \bot,  \quad 
+\vDash\mathfrak{B_{2}} \Leftrightarrow \mathfrak{B'_{2}} $ \\
+
+As $\mathfrak{B_{1}} = \bot$, we can apply induction hypothesis on
+$\texttt{t}_{1}$ which gives  
+$\e_{\bot}(\texttt{t}_{1}) \rightarrow_{\lambda} 
+\e_{\bot}(\texttt{t}_{1}^{'})$.
+Then, applying \textsc{E-AppRight} rule, we obtain:
+$$
+\e_{\bot}(\texttt{t}) 
+= \e_{\bot}(\texttt{t}_{1})\e_{\bot}(\texttt{t}_{2})
+\rightarrow_{\lambda} 
+\e_{\bot}(\texttt{t}^{'}_{1})\e_{\bot}(\texttt{t}_{2})
+= \e_{\bot}(\texttt{t}^{'}).$$
+
+
+
+
+\noindent\textit{Case} \textsc{E-AppRight}: \qquad 
+ $\texttt{t} = \texttt{v}_{1} \texttt{t}_{2},\quad
+ \texttt{t}^{'} = \texttt{v}_{1} \texttt{t}^{'}_{2}, ~ \text{ with }
+ \texttt{t}_{2} \rightarrow_{g\lambda} \texttt{t}^{'}_{2}$ \\
+\phantom{\noindent\textit{Case} \textsc{E-AppRight}: \qquad}		
+$\tystepone{\texttt{v}_{1}}{\tau_{2}^{\mathfrak{B_{2}}} \rightarrow \tau_{1}}{\mathfrak{B_{1}}}$,  ~
+$\tystepone{\texttt{t}_{2}}{\tau_{2}}{\mathfrak{B'_{2}}}, $ \\ 
+\phantom{\noindent\textit{Case} \textsc{E-AppRight}: \qquad}		
+$ \mathfrak{B_{1}} = \bot,  \quad 
+\vDash\mathfrak{B_{2}} \Leftrightarrow \mathfrak{B'_{2}} $ \\
+If $\mathfrak{B_{2}} = \mathfrak{B'_{2}} = \top $, then
+$$\e_{\bot}(\texttt{t}) 
+= \e_{\bot}(\texttt{v}_{1})\e_{\top}(\texttt{t}_{2})
+= (\e_{\bot}(\texttt{v}_{1}))\texttt{()}
+= \e_{\bot}(\texttt{v}_{1})\e_{\top}(\texttt{t}^{'}_{2})
+= \e_{\bot}(\texttt{t}^{'}). $$
+Otherwise, $\mathfrak{B_{2}} = \mathfrak{B'_{2}} = \bot $.
+By induction hypothesis, 
+$\e_{\bot}(\texttt{t}_{2}) \rightarrow_{\lambda} 
+\e_{\bot}(\texttt{t}_{2}^{'})$.
+Then, applying \textsc{E-AppRight} rule, we obtain:
+$$
+\e_{\bot}(\texttt{t}) 
+= \e_{\bot}(\texttt{v}_{1})\e_{\bot}(\texttt{t}_{2})
+\rightarrow_{\lambda} 
+\e_{\bot}(\texttt{v}_{1})\e_{\bot}(\texttt{t}^{'}_{2})
+= \e_{\bot}(\texttt{t}^{'}).$$
+
+
+
+
+%
+%
+%By canonical forms lemma, $\texttt{v}_{2} = 
+%\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}. \texttt{t}_{2} $.    
+ 
+% $\texttt{t} = \texttt{E t}_{1},\quad
+% \texttt{t'} = \texttt{E t'}_{1}, \quad
+% \texttt{t}_{1} \rightarrow_{g\lambda} \texttt{t'}_{1}$  
+
+\end{proof}
+
+\begin{theorem}[Value preservation under erasure]
+	For any closed g$\lambda$-term \texttt{t} such that
+	$\tystepone{\texttt{t}}{\tau}{\bot}$ holds, 
+	if	$\texttt{t} \rightarrow^{\ast}_{g\lambda} \texttt{v}$ for some value \texttt{v}, then
+	 \text{$\e(\texttt{t}) \rightarrow^\ast_{\lambda} \e(v)$}. 
+\end{theorem}
+\begin{proof} By induction on the length of the evaluation of 
+$\texttt{t} \rightarrow^{\ast}_{g\lambda} \texttt{v}$. 
+
+
+We already have proved the base case : indeed, if $\texttt{t} \rightarrow_{g\lambda} \texttt{v}$ then by the one-step evaluation lemma, 
+$\e_{\bot}(\texttt{t}) \rightarrow^{0 | 1}_{\lambda} 
+\e_{\bot}(\texttt{v})$. 
+
+Now, assume that $\texttt{t} \rightarrow^{1}_{g\lambda} 
+\texttt{t}' \rightarrow^{n}_{g\lambda}  \texttt{v}$
+for some arbitrary $n \in \mathbb{N}$.
+By the progress of typing, 
+$ \tystepone{\texttt{t}'}{\tau}{\bot} $, so we can apply induction hypothesis on $\texttt{t}'$ which gives~
+$\e(\texttt{t}') \rightarrow^\ast_{\lambda} \e(\texttt{v})$.
+By the one-step evaluation lemma again, we have 
+$\e_{\bot}(\texttt{t}) \rightarrow^{0 | 1}_{\lambda} 
+\e_{\bot}(\texttt{t}')$. 
+That is, 
+$\e_{\bot}(\texttt{t}) \rightarrow^{\ast}_{\lambda} 
+\e_{\bot}(\texttt{v})$.
+\end{proof}
+
+
+
+
 
 \subsubsection{Typing Erasure}
 \begin{lemma}[Translation of Typing Relation]~ \\
@@ -438,127 +742,4 @@ For a given derivation, we proceed by case analysis on the final typing rule
   	The case (\textsc{T-Ghost}) as well as any other valid derivation  
   	where a typed term is marked as ghost do not satisfy lemma's requirement, 
   	so these cases are trivially verified.									
-\end{proof}
-
-
-
-
-
-
-\subsubsection{Evaluation Preservation}
-\theoremstyle{remark}
-\begin{theorem}[Evaluation step under erasure]
-	For any closed g$\lambda$-term \texttt{t} such that
-	$\tystepone{\texttt{t}}{\tau}{\bot}$ holds, 
-	if	$\texttt{t} \rightarrow_{g\lambda} \texttt{t'}$ for some term \texttt{t'}, then
-	 \text{$\e_{\bot}(\texttt{t}) \rightarrow_{\lambda} \e_{\bot}(t')$} 
-	 or $\e_{\bot}(\texttt{t}) = \e_{\bot}(t')$. 
-\end{theorem}
-\begin{proof} By induction on the evaluation relation of $\texttt{t} \rightarrow_{g\lambda} \texttt{t'}$. \\
-
-\noindent\textit{Case} \textsc{E-AppAbs}: \qquad
-$(\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.\texttt{t})\texttt{v} 
-\rightarrow_{g\lambda} \sbst{\texttt{t}}{x^{\mathfrak{B_{2}}}_{\tau_{2}}}{\texttt{v}}$ \\
-\phantom{\noindent\textit{Case} \textsc{E-AppAbs}: \qquad }		
- $\tystepone{(\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.\texttt{t})\texttt{v}}{\tau_{1}}{\mathfrak{B_{1}}}, \quad$
-$\tystepone{\texttt{v}}{\tau_{2}}{\mathfrak{B'_{2}}}, $ \\
-\phantom{\noindent\textit{Case} \textsc{E-AppAbs}: \qquad }		
-$ \mathfrak{B_{1}} = \bot,  \quad 
-\vDash\mathfrak{B_{2}} \Leftrightarrow \mathfrak{B'_{2}} $ \\
-
-\begin{center}
-\begin{tabular}{lll}
-   & $\e_{\bot}[(\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.\texttt{t})\texttt{v}]$ &\\
-   & $ = \lambda x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}. \e_{\bot}(\texttt{t}))\e_{\bot}(\texttt{v})$ 
-   & (as $ \mathfrak{B_{1}} = \bot $)  \\
-   &  $ \stackrel{\epsilon}{\rightarrow_{\lambda}} 
-   \sbst
-   		{\e_{\bot}(\texttt{t})}
-   		{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
-   		{\e_{\bot}(\texttt{v})}$ & (head red.) \\
-   & $ = \e(\sbst{\texttt{t}}{x^{\mathfrak{B_{2}}}_{\tau_{2}}}{\texttt{v}}) $ 
-   & (by lemma \ref{Substitution under erasure})
-
- \end{tabular}
-  \end{center}
-
-\noindent\textit{Case} \textsc{E-DeGhost}:  \qquad  Trivially verified,
-as the lemma hypothesis typing of \texttt{t} is not satisfied.\\
-
-\noindent\textit{Case} \textsc{E-AppLeft}: \qquad 
- $\texttt{t} = \texttt{t}_{1} \texttt{t}_{2},\quad
- \texttt{t}^{'} = \texttt{t}_{1} \texttt{t}^{'}_{2}, ~ \text{ with }
- \texttt{t}_{1} \rightarrow_{g\lambda} \texttt{t}^{'}_{1}$ \\
-\phantom{\noindent\textit{Case} \textsc{E-AppLeft}: \qquad}		
-$\tystepone{\texttt{t}_{1}}{\tau_{2}^{\mathfrak{B_{2}}} \rightarrow \tau_{1}}{\mathfrak{B_{1}}}$,  ~
-$\tystepone{\texttt{t}_{2}}{\tau_{2}}{\mathfrak{B'_{2}}}, $ \\ 
-\phantom{\noindent\textit{Case} \textsc{E-AppLeft}: \qquad}		
-$ \mathfrak{B_{1}} = \bot,  \quad 
-\vDash\mathfrak{B_{2}} \Leftrightarrow \mathfrak{B'_{2}} $ \\
-
-As $\mathfrak{B_{1}} = \bot$, we can apply induction hypothesis to
-$\texttt{t}_{1}$ which gives us 
-$\e_{\bot}(\texttt{t}_{1}) \rightarrow_{\lambda} 
-\e_{\bot}(\texttt{t}_{1}^{'})$.
-Then, applying \textsc{E-AppRight} rule, we obtain:
-$$
-\e_{\bot}(\texttt{t}) 
-= \e_{\bot}(\texttt{t}_{1})\e_{\bot}(\texttt{t}_{2})
-\rightarrow_{\lambda} 
-\e_{\bot}(\texttt{t}^{'}_{1})\e_{\bot}(\texttt{t}_{2})
-= \e_{\bot}(\texttt{t}^{'}).$$
-
-
-
-
-\noindent\textit{Case} \textsc{E-AppRight}: \qquad 
- $\texttt{t} = \texttt{v}_{1} \texttt{t}_{2},\quad
- \texttt{t}^{'} = \texttt{v}_{1} \texttt{t}^{'}_{2}, ~ \text{ with }
- \texttt{t}_{2} \rightarrow_{g\lambda} \texttt{t}^{'}_{2}$ \\
-\phantom{\noindent\textit{Case} \textsc{E-AppRight}: \qquad}		
-$\tystepone{\texttt{v}_{1}}{\tau_{2}^{\mathfrak{B_{2}}} \rightarrow \tau_{1}}{\mathfrak{B_{1}}}$,  ~
-$\tystepone{\texttt{t}_{2}}{\tau_{2}}{\mathfrak{B'_{2}}}, $ \\ 
-\phantom{\noindent\textit{Case} \textsc{E-AppRight}: \qquad}		
-$ \mathfrak{B_{1}} = \bot,  \quad 
-\vDash\mathfrak{B_{2}} \Leftrightarrow \mathfrak{B'_{2}} $ \\
-If $\mathfrak{B_{2}} = \mathfrak{B'_{2}} = \top $, then
-$$\e_{\bot}(\texttt{t}) 
-= \e_{\bot}(\texttt{v}_{1})\e_{\top}(\texttt{t}_{2})
-= (\e_{\bot}(\texttt{v}_{1}))\texttt{()}
-= \e_{\bot}(\texttt{v}_{1})\e_{\top}(\texttt{t}^{'}_{2})
-= \e_{\bot}(\texttt{t}^{'}). $$
-Otherwise, $\mathfrak{B_{2}} = \mathfrak{B'_{2}} = \bot $.
-By induction hypothesis, 
-$\e_{\bot}(\texttt{t}_{2}) \rightarrow_{\lambda} 
-\e_{\bot}(\texttt{t}_{2}^{'})$.
-Then, applying \textsc{E-AppRight} rule, we obtain:
-$$
-\e_{\bot}(\texttt{t}) 
-= \e_{\bot}(\texttt{v}_{1})\e_{\bot}(\texttt{t}_{2})
-\rightarrow_{\lambda} 
-\e_{\bot}(\texttt{v}_{1})\e_{\bot}(\texttt{t}^{'}_{2})
-= \e_{\bot}(\texttt{t}^{'}).$$
-
-
-
-
-%
-%
-%By canonical forms lemma, $\texttt{v}_{2} = 
-%\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}. \texttt{t}_{2} $.    
- 
-% $\texttt{t} = \texttt{E t}_{1},\quad
-% \texttt{t'} = \texttt{E t'}_{1}, \quad
-% \texttt{t}_{1} \rightarrow_{g\lambda} \texttt{t'}_{1}$  
-
-\end{proof}
-
-\begin{lemma}[Value preservation under erasure]
-	For any closed g$\lambda$-term \texttt{t} such that
-	$\tystepone{\texttt{t}}{\tau}{\bot}$ holds, 
-	if	$\texttt{t} \rightarrow^{\ast} \texttt{v}$ for some value \texttt{v}, then
-	 \text{$\e(\texttt{t}) \rightarrow^\ast \e(v)$}. 
-\end{lemma}
-\begin{proof}
-\hspace*{5cm}TODO
 \end{proof}
