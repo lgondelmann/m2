@@ -163,7 +163,7 @@ Let \texttt{t} be a term such that
 ~~ $\tystepone{\texttt{t}}{\tau}{\mathfrak{B}}$ ~ holds. 
 We define term-erasure function by induction on 
 the structure of \texttt{t}\\[0.1cm]
-$ \e_{\top}(\texttt{t}) = \texttt{()}$\\[0.05cm]
+$ \e_{\top}(\texttt{t}_{1}) = \texttt{()}$ where $ \tystepone{\texttt{t}_{1}}{\tau_{1}}{\top}$.\\[0.05cm]
 $\e_{\bot}(\texttt{()}) = \texttt{()}$\\[0.05cm]
 $\e_{\bot}(x_{\tau}^{\bot}) = x_{\e_{\bot}(\tau)}$\\[0.05cm]  
 $\e_{\bot}(\lambda x_{\tau_{2}}^{\mathfrak{B_{2}}}.t) 
