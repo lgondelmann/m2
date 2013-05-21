@@ -1,5 +1,5 @@
 \section{GhostLambda: Lambda-Calculus with Ghost Code}
-%ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+%cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 %Annotating a program with logical formulae predicting statically it dynamic behaviour is a 
 %keystone of the deductive software verification approach.
 %
@@ -28,8 +28,8 @@ The syntax and small-step operational semantics of \glam is summarized below.\vs
   	\grcase{()}{unit}
   	\grcase{\glvar}{variable}
   	\grcase{\lambda \glvar.\texttt{t}}{abstraction}
-%  	\grcase{\texttt{t} \texttt{t}}{application}
-%  	\grcase{\texttt{ghost t}}{ghost term} 
+  	\grcase{\texttt{t} \texttt{t}}{application}
+  	\grcase{\texttt{ghost t}}{ghost term} 
   	\grtitle{\texttt{v}}{\textsc{values:}}
   	\grcase{()}{unit}
   	\grcase{\lambda \glvar.\texttt{t}}{abstraction}
@@ -188,32 +188,39 @@ First off we need to state and prove a few basic lemmas.
 
 
 
-
+%cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Evaluation Preservation}
 \begin{lemma}[Substitution under erasure] ~\\
-	If $\tystepone
-			{\texttt{t}_{1}}
-			{\tau_{1}}
-			{\bot}$  
-	and \mbox{$\tystepone{\texttt{v}_{2}}{\tau_{2}}{\mathfrak{B_{2}}}$}	
-	hold, \\ then
-	$\e_{\bot}
+If $\tystepone
+		{\texttt{t}_{1}}
+		{\tau_{1}}
+		{\bot}$  
+and 
+	\mbox{
+		$\tystepone
+			{\texttt{v}_{2}}
+			{\tau_{2}}
+			{\mathfrak{B_{2}}}$}	
+hold, \\ 
+then
+$\e_{\bot}
 	(\sbst
 		{\texttt{t}_{1}}
 		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
 		{\texttt{v}_{2}})
-	= \sbst
-			{\e_{\bot}(\texttt{t}_{1})}
-			{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
-			{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})}$
+= \sbst
+		{\e_{\bot}(\texttt{t}_{1})}
+		{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
+		{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})}$
 \label{Substitution under erasure}
 \end{lemma}
+
 \begin{proof}
 By induction on the structure of $\texttt{t}_{1}$.  \\
 
 \noindent\textit{Case} 
-$
-\texttt{t}_{1} = x^{\mathfrak{B_{2}}}_{\tau_{2}}$:\\
+$\texttt{t}_{1} = x^{\mathfrak{B_{2}}}_{\tau_{2}}$:\\
 In that case,  we can deduce that $\mathfrak{B_{2}} = \bot$. Therefore:
 
 \begin{center}
@@ -234,8 +241,7 @@ In that case,  we can deduce that $\mathfrak{B_{2}} = \bot$. Therefore:
 \end{center}
 
 \noindent\textit{Case} $
-\texttt{t}_{1} = y^{\bot}_{\tau'_{2}} 
-\neq x^{\mathfrak{B_{2}}}_{\tau_{2}}$:
+\texttt{t}_{1} = y^{\bot}_{\tau'_{2}} \neq x^{\mathfrak{B_{2}}}_{\tau_{2}}$:
 \begin{center}
  $\e_{\bot}
 	(\sbst
@@ -244,28 +250,28 @@ In that case,  we can deduce that $\mathfrak{B_{2}} = \bot$. Therefore:
 		{\texttt{v}_{2}}) 
 	= \e_{\bot}(y^{\bot}_{\tau'_{2}}) 
 	= y_{\e_{\bot}(\tau'_{2})} $ \\[0.08cm]
-	$  = \sbst
+$ = \sbst
 			{y_{\e_{\bot}(\tau'_{2})}}
 			{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
 			{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})}$ 
-	$= \sbst
+$ = \sbst
 			{\e_{\bot}(y^{\bot}_{\tau'_{2}})}
 			{x_{\e_{\mathfrak{B_{2}}(\tau_{2})}}}
 			{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})}$
 \end{center}
 
 \noindent\textit{Case} 
-$\texttt{t}_{1} = \lambda y^{\mathfrak{B'_{2}}}_{\tau'_{2}}. t_{11} \quad
-\text{ with }   y^{\mathfrak{B'_{2}}}_{\tau'_{2}}  
-\not\in \texttt{FV}(\texttt{v}_{2}) \text{ and } \neq 
-x^{\mathfrak{B_{2}}}_{\tau_{2}} : $
+$\texttt{t}_{1} 
+= \lambda y^{\mathfrak{B'_{2}}}_{\tau'_{2}}. t_{11} \quad \text{ with }   
+y^{\mathfrak{B'_{2}}}_{\tau'_{2}} \not\in \texttt{FV}(\texttt{v}_{2}) 
+\text{ and } \neq x^{\mathfrak{B_{2}}}_{\tau_{2}} : $
 \begin{center}
  $\e_{\bot}
 	(\sbst
 		{(\lambda y^{\mathfrak{B'_{2}}}_{\tau'_{2}}. t_{11})}
 		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
-		{\texttt{v}_{2}}) 	$
-	$ = \e_{\bot}[\lambda y^{\mathfrak{B'_{2}}}_{\tau'_{2}}.
+		{\texttt{v}_{2}})
+	= \e_{\bot}[\lambda y^{\mathfrak{B'_{2}}}_{\tau'_{2}}.
 	(\sbst
 		{ t_{11}}
 		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
@@ -276,17 +282,18 @@ $	= \lambda y_{\e_{\mathfrak{B'_{2}}}(\tau'_{2})}.
 			{\texttt{t}_{11}}
 			{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
 			{\texttt{v}_{2}})] $\\[0.08cm]
-	$  \stackrel{Ind.Hyp.}{=} 
+$ \stackrel{Ind.Hyp.}{=} 
 	\lambda y_{\e_{\mathfrak{B'_{2}}}(\tau'_{2})}.		
-		\sbst
+	\sbst
 			{\e_{\bot}(\texttt{t}_{11})}
 			{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
 			{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})}$ \\[0.08cm]
-	$= \sbst
-			{(\lambda y_{\e_{\mathfrak{B'_{2}}}(\tau'_{2})}.\e_{\bot}(\texttt{t}_{11}))}
+$	= \sbst
+			{(\lambda y_{\e_{\mathfrak{B'_{2}}}(\tau'_{2})}.
+				\e_{\bot}(\texttt{t}_{11}))}
 			{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
 			{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})}$ \\[0.08cm]
-	$ = 
+$ = 
 	\sbst
 			{\e_{\bot}(\lambda y^{\mathfrak{B'_{2}}}_{\tau'_{2}}. t_{11}) }
 			{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
@@ -301,7 +308,7 @@ $\texttt{t}_{1} = \texttt{t}_{11}\texttt{t}_{12} $
 		{\texttt{t}_{11}\texttt{t}_{12}}
 		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
 		{\texttt{v}_{2}}) 	$ 
-	$= \e_{\bot}
+$	= \e_{\bot}
 	(\sbst
 		{\texttt{t}_{11}}
 		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
@@ -310,77 +317,91 @@ $\texttt{t}_{1} = \texttt{t}_{11}\texttt{t}_{12} $
 		{\texttt{t}_{12}}
 		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
 		{\texttt{v}_{2}}) 	  $ \\[0.08cm]
-		$= \e_{\bot}
+$ = \e_{\bot}
 	(\sbst
 		{\texttt{t}_{11}}
 		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
 		{\texttt{v}_{2}}) ~
-	\e_{\bot}(\sbst
+	\e_{\bot}
+	(\sbst
 		{\texttt{t}_{12}}
 		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
 		{\texttt{v}_{2}}) 	  $ \\[0.08cm]
-		$ \stackrel{Ind.Hyp.}{=} 
+$ \stackrel{Ind.Hyp.}{=} 
 		(\sbst
 			{\e_{\bot}({\texttt{t}_{11}})}
 			{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
 			{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})})	
-				(\sbst
+		(\sbst
 			{\e_{\bot}({\texttt{t}_{12}})}
 			{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
-			{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})})	
-		 $ \\[0.08cm]
-	$ = 
+			{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})})	$ \\[0.08cm]
+$ = 
 	\sbst
 		{\e_{\bot}(\texttt{t}_{11} \texttt{t}_{12})}
 		{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
-		{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})})	
-	$\\[0.08cm]
-
+		{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})})	$\\[0.08cm]
 \end{center}
  \end{proof}
 
 
 
-
-
-
-
-
 \theoremstyle{remark}
+
 \begin{lemma}[One-step evaluation under erasure]
-	For any closed g$\lambda$-term \texttt{t} such that
-	$\tystepone{\texttt{t}}{\tau}{\bot}$ holds, 
-	if	$\texttt{t} \rightarrow_{g\lambda} \texttt{t}'$ for some term \texttt{t}', then either 
-	 \text{$\e_{\bot}(\texttt{t}) \rightarrow_{\lambda} \e_{\bot}(t')$} 
-	 or $\e_{\bot}(\texttt{t}) = \e_{\bot}(t')$. 
+For any closed g$\lambda$-term \texttt{t} such that
+$\tystepone{\texttt{t}}{\tau}{\bot}$ holds, 
+if	$\texttt{t} \rightarrow_{g\lambda} \texttt{t}'$ 
+for some term \texttt{t}', 
+then either 
+\text{$\e_{\bot}(\texttt{t}) \rightarrow_{\lambda} \e_{\bot}(t')$} 
+or 		$\e_{\bot}(\texttt{t}) = \e_{\bot}(t')$. 
 \end{lemma}
-\begin{proof} By induction on the evaluation relation of $\texttt{t} \rightarrow_{g\lambda} \texttt{t}'$. \\
+
+\begin{proof} 
+By induction on the evaluation relation of 
+$\texttt{t} \rightarrow_{g\lambda} \texttt{t}'$. \\
 
 \noindent\textit{Case} \textsc{E-AppAbs}: \qquad
-$~\texttt{t} = (\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.\texttt{t}_{1})\texttt{v}_{1}$ ~with~
-$(\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.\texttt{t}_{1})\texttt{v}_{1} 
-\stackrel{\epsilon\quad}{\rightarrow_{g\lambda}}  \sbst{\texttt{t}_{1}}{x^{\mathfrak{B_{2}}}_{\tau_{2}}}{\texttt{v}_{1}}$\\
+$ ~\texttt{t} 
+= (\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.
+		\texttt{t}_{1})\texttt{v}_{1}$ ~with~
+$ (\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.
+		\texttt{t}_{1})\texttt{v}_{1} 
+	\stackrel{\epsilon\quad}{\rightarrow_{g\lambda}}  
+	\sbst
+		{\texttt{t}_{1}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{1}}$\\
 \phantom{\noindent\textit{Case} \textsc{E-AppAbs}: \qquad }		
- $\tystepone{(\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.\texttt{t}_{1})\texttt{v}_{1}}{\tau_{1}}{\mathfrak{B_{1}}}, \quad$
-$\tystepone{\texttt{v}_{1}}{\tau_{2}}{\mathfrak{B'_{2}}}, $ \\
+$ \tystepone
+		{(\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.\texttt{t}_{1})\texttt{v}_{1}}	
+		{\tau_{1}}
+		{\mathfrak{B_{1}}}, \quad 
+ 	\tystepone
+ 		{\texttt{v}_{1}}
+ 		{\tau_{2}}
+ 		{\mathfrak{B'_{2}}}, $ \\
 \phantom{\noindent\textit{Case} \textsc{E-AppAbs}: \qquad }		
 $ \mathfrak{B_{1}} = \bot,  \quad 
-\vDash\mathfrak{B_{2}} \Leftrightarrow \mathfrak{B'_{2}} $ 
+	\vDash\mathfrak{B_{2}} \Leftrightarrow \mathfrak{B'_{2}} $ 
+
 \begin{center}
-\begin{tabular}{lll}
-   & $\e_{\bot}[(\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.\texttt{t}_{1})\texttt{v}_{1}]$ &\\
-   & $ = \lambda x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}. \e_{\bot}(\texttt{t}_{1}))\e_{\mathfrak{B'_{2}}}(\texttt{v}_{1})$ 
+	\begin{tabular}{lll}
+   & $ \e_{\bot}
+  [(\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.
+  		\texttt{t}_{1})\texttt{v}_{1}]$ &\\
+   & $ = \lambda x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}. 
+   \e_{\bot}(\texttt{t}_{1}))\e_{\mathfrak{B'_{2}}}(\texttt{v}_{1})$ 
    & (as $ \mathfrak{B_{1}} = \bot $)  \\
-   &  $ \stackrel{\epsilon~~}{\rightarrow_{\lambda}} 
-   \sbst
+&  $ \stackrel{\epsilon~~}{\rightarrow_{\lambda}} 
+	   \sbst
    		{\e_{\bot}(\texttt{t}_{1})}
    		{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
    		{\e_{\mathfrak{B'_{2}}}(\texttt{v}_{1})}$ & (head red.) \\
-   & $ = \e_{\bot}(\sbst{\texttt{t}_{1}}{x^{\mathfrak{B_{2}}}_{\tau_{2}}}{\texttt{v}_{1}}) $ 
-   & (by Substitution under erasure lemma)
-
- \end{tabular}
-  \end{center}
+& $ = \e_{\bot}(\sbst{\texttt{t}_{1}}{x^{\mathfrak{B_{2}}}_{\tau_{2}}}{\texttt{v}_{1}}) $ & (by Substitution under erasure lemma)
+	\end{tabular}
+\end{center}
 
 \noindent\textit{Case} \textsc{E-DeGhost}:  \qquad \\ Trivially verified,
 as for any instance of $\tystepone{ghost \texttt{t}_{1}}{\tau_{1}}{\mathfrak{B_{1}}}$, $\mathfrak{B_{1}} = \top $.\\
@@ -591,3 +612,27 @@ By inversion that $\vDash \mathfrak{B}_{2} \Leftrightarrow \mathfrak{B'}_{2}$. T
   	where a typed term is marked as ghost do not satisfy lemma's requirement, 
   	so these cases are trivially verified.									
 \end{proof}
+
+TODO:
+Extensions:
+- If-then-else
+- rec
+- let in
+- match 
+- constructors
+- ref global mono
+- types polymorphes
+- operators
+
+Potential difficulties:
+- polymorphism
+- schemes
+- non interference
+
+-->(E,E')
+
+règles de typage
+règles d'effacement
+
+
+
