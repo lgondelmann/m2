@@ -12,11 +12,12 @@
 \usepackage{titlesec}
 \usepackage{listings}
 \usepackage[usenames,dvipsnames]{xcolor}
-\usepackage[dvipsnames]{xcolor}
+\usepackage[dvipsnames]{xcolor,colortbl}
 \usepackage{caption} 
 \protect\usepackage{semantic}
 \usepackage{bcprules, proof}
 \usepackage{stmaryrd}
+ \usepackage{float} 
 \titleformat{\section}[hang]% style du titre
   {\normalfont\Large\bfseries}% police du titre + numéro
   {\thesection}% numérotation
@@ -128,8 +129,9 @@ keepspaces=true,
 \newcommand{\stepone}[2]{#1 ~ \stackrel{\epsilon}{\rightarrow}~ #2}
 \newcommand{\tystepone}[3]{\vdash_{g\lambda}  #1 : (#2, #3) }
 \newcommand{\sbst}[3]{#1 [#2 \mapsfrom #3] }
- 
- 
+\newcommand{\gvar}[3]{#1^{\mathfrak{B_{#2}}}_{\tau_{#3}}}
+\newcommand{\gvarT}[2]{#1^{\top}_{\tau_{#2}}}
+\newcommand{\gvarF}[2]{#1^{\bot}_{\tau_{#2}}}
 \input{ghostLambda.tex}
 \input{global_references.tex}
 \bibliographystyle{plain}

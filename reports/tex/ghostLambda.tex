@@ -12,15 +12,30 @@
 % When a correct-by-construction executable code is extracted
 % from the specified program, this , called \textit{ghost code} disappear  together with
 % specification. 
+The goal of this section is to present the idea of \textit{ghost} code,
+its use in program specification and to state some properties about its 
+extraction.
+
+Ghost code is a kind of program annotation that serves 
+as a support for program specification inside logical formulae and assertions.
+
+The main idea about ghost code is that as any other kind of
+ specification it does not affect the program meaning. That is, ghost
+ code does not correspond to any physical entity, and as such can by entirely erased from a program, without altering its formal meaning. 
  
-In this section we describe a language where one can annotate programs with such \textit{ghost code}.
-We start by formalizing \textit{ghost}$\lambda$\textit{-calculus}, a tiny language of simply typed $\lambda$-calculus enriched with ghost variables and ghost expressions.
-We then define ghost code \textit{erasure}, which transforms a well-typed ghostLambda term  to a term of standard  $\lambda$-calculus.
+In this section we describe a language where one can annotate programs 
+with such \textit{ghost code}.
+
+We start by formalizing the \textit{ghost}$\lambda$\textit{-calculus}, 
+a tiny language of simply typed $\lambda$-calculus enriched with ghost variables and ghost expressions.
+
+We then define ghost code \textit{erasure}, which transforms a well-typed g$\lambda $ term  to a term of standard  $\lambda$-calculus.
 Finally we state and proof a few basic preservation properties of such translation.
 
 \subsection{g$\lambda$-calculus syntax and semantics}
-The syntax and small-step operational semantics of \glam is summarized below.\vspace{-0.5cm}
-\begin{figure}[!h]
+
+The syntax of \glam is summarized below.\vspace{-0.5cm}
+\begin{figure}[H]
   	 \begin{flushright}  	 \textbf{Syntax}  	 \end{flushright}
 \begin{displaymath}
  \begin{array}{lll@{\hspace*{2.5cm} }l}
@@ -41,7 +56,18 @@ The syntax and small-step operational semantics of \glam is summarized below.\vs
   	\grcase{\tau^{\mathfrak{B}} \rightarrow \tau}{function type}
   \end{array} 
 \end{displaymath} 
+\end{figure}
 
+As we can see, g$\lambda$-calculus is just an extension of standard simply 
+typed $\lambda$-calculus with \texttt{arrow} and \texttt{unit} enriched
+with a construction \texttt{ghost t} for ghost terms. 
+Moreover, variables and formal arguments in abstraction are annotated with
+their type and \textit{ghost} mark $\mathfrak{B}$ which indicates whether 
+it is ghost ($\top$) or not ($\bot$). \\
+
+The evaluation of g$\lambda$-calculus corresponds as well to the standard SOS call-by-value semantics of $\lambda$-calculus, except for the rule  \makebox{(\textsc{E-DeGhost})}.
+
+\begin{figure}[H]
   	 \begin{flushright}  	 \textbf{Evaluation}  	 \end{flushright}
   	\infax[E-AppFun]    	{\stepone{(\lambda x^{b}_{\tau}.\texttt{t})v}{\sbst{\texttt{t}}{x^{b}_{\tau}}{v}}}
 	\infax[E-DeGhost]	 	{\stepone{\texttt{ghost t}}{\texttt{t}}}
@@ -54,14 +80,28 @@ The syntax and small-step operational semantics of \glam is summarized below.\vs
 \caption{ \textbf{\glam syntax and semantics} \hfill}
 \end{figure}
 
-\subsubsection*{Free variables, scope and equivalence of terms} \textit{Admit}.
+\subsubsection*{Free variables, scope and equivalence of terms} 
+We do not present here the formal definitions of free variables, 
+abstraction scope, $\alpha$-equivalence and substitution: they are exactly 
+the same that those of $\lambda$-calculus.
 
+However, it is important to notice that two variables $x^{\mathfrak{B_{1}}}_{\tau_{1}}$ and  
+$y^{\mathfrak{B_{2}}}_{\tau_{2}}$ are syntactically equal only if 
+$x = y$, $\mathfrak{B_{1}} = \mathfrak{B_{2}}$ and $ \tau_{1} = \tau_{2} $. That is  $\lambda \gvarT{x}{1}. \gvarT{x}{1}$ corresponds to $\tau_{1}$- identity, whilst  $\lambda \gvarT{x}{1}. \gvarF{x}{1}$ corresponds to the constant function that ignores its argument. 
+
+  
 \subsection{Typing Relation}
+In the simply typed $\lambda$-calculus, typing rules out  statically some erroneous programs. For instance, it allows to check that when function is applied to some argument, the type of the formal parameter corresponds to that one of actual parameter.
 
+The typing of the programs containing some ghost code should of course 
+assure the same safety with respect of program evaluation. However, in the presence of ghost code, this should also include the \textit{non-interference} of ghost code with the rest of the program. Intuitively, the \textit{non-interference} means that computation of ghost code must be completely disjoint from the computation of the non-ghost code. 
 
-%	
+To assure that, we define the typing relation as three-argument predicate  
+\fbox{${}{\tystepone{t}{\tau}{\mathfrak{B}}} $} which both carries statically the information about type of term $t$, and indicates whether
+this term is ghost or not. Formally, we define the typing relation inductively over the structure of terms as follows:
+ 
 % 	 	  \hrule
-%  	 \begin{flushright}  	 \textbf{Typing}  	 \end{flushright}
+  	 \begin{flushright}  	 \textbf{Typing}  	 \end{flushright}
 	\infrule[T-Unit]	 	{}{\tystepone{()}{unit}{\bot}} 
 	
 	\infrule[T-Var]	 	{}{\tystepone{x^{\mathfrak{B}}_{\tau}}{\tau}{\mathfrak{B}}}
@@ -77,6 +117,46 @@ The syntax and small-step operational semantics of \glam is summarized below.\vs
 	\qquad \mathfrak{B}_{2} \Rightarrow \mathfrak{B'}_{2}}
 	{\tystepone{\texttt{t}_{1}~ \texttt{t}_{2} }{\tau_{1}}{\mathfrak{B}_{1} \vee (\neg \mathfrak{B}_{2} \wedge \mathfrak{B'}_{2} ) }}
 										
+The rules \textsc{(T-Unit)}, \textsc{(T-Var)} and \textsc{(T-Abs)} are straightforward.
+
+The rule \textsc{(T-Ghost)} states simply that a term of \texttt{ghost t}
+is a ghost code, whether \texttt{t} is ghost or not. That is, if \texttt{t} were a well-typed non-ghost term, once we put inside a ghost code, it becomes ghost itself. 
+
+The more complex rule \textsc{(T-App)} states that formal argument of $\texttt{t}_{1}$ and actual parameter $\texttt{t}_{2}$ must be
+of the same type. Moreover, it forbids the application of normal code
+to a function whose formal argument is ghost.  
+
+However, a function whose formal argument is not ghost is applied to a 
+ghost code, then the application itself becomes ghost, whether function's
+body is ghost or not. We summarized that is the following table:
+
+\begin{figure}[H]
+\begin{center}
+\begin{tabular}{|c|c|c|c|l|}
+\hline
+$\mathfrak{B_{1}}$ & $\mathfrak{B_{2}}$ & $\mathfrak{B'_{2}}$
+ &  \multicolumn{2}{c|}{result} \\
+\hline
+$\bot$ & $\bot$ & $\bot$ & $\bot$ &  normal code application \\ \hline
+$\top$ & $\bot$ & $\top$ & $\bot$ &  ghost-code passing inside normal code
+\\ \hline
+$\top$ & $\top$ & $\top$ & $\top$ &  ghost code application \\ \hline
+$\bot$ & $\top$ & $\bot$ & $\top$ &  normal code passing inside ghost code
+ \\ \hline
+ \rowcolor{lightgray} 
+ $\bot$ & $\top$ & $\top$ & $\top$ &formal parameter contamination \\ \hline
+  \rowcolor{lightgray} 
+ $\bot$ & $\bot$ & $\top$ & $\top$ &function parameter and body contamination \\ \hline
+  $\top$ & $\bot$ & $\bot$ & $-$ & impossible \\ \hline
+ $\top$ & $\top$ & $\bot$ & $-$ & impossible \\ \hline
+ 
+\end{tabular}
+\end{center}
+\end{figure}  
+
+ 
+
+
 
 
 \subsubsection{Properties of typing}
@@ -120,28 +200,52 @@ then $\vDash \mathfrak{B_{2}} \Leftrightarrow \mathfrak{B'_{2}} $.
 Straightforward from definition of the typing relation.
 \end{proof}
 
-\begin{lemma}[Progress] Admit.
+\begin{lemma}[Progress] 
+If \texttt{t} is a closed, well-typed term 
+(that is ${\tystepone{\texttt{t}}{\tau}{\mathfrak{B}}}$ 
+for some $\tau$ and $\mathfrak{B}$, 
+then either \texttt{t} is a value or else there is some \texttt{t}' 
+such that \mbox{\texttt{t} $\rightarrow_{g\lambda}$ \texttt{t}'}.
 \end{lemma}
-\begin{lemma}[Preservation] Admit.
+\begin{proof}
+Admit.
+\end{proof}
+
+Note that the typing preservation works only for well-typed non-ghost terms. Indeed,as the following example shows, the contamination of non-ghost code makes the preservation fail for ghost code: if we evaluate
+ghost code \quad \texttt{ghost} $(\lambda \gvarF{x}{unit}. \gvarF{x}{unit}) 
+\rightarrow_{g\lambda} \lambda \gvarF{x}{unit}. \gvarF{x}{unit}$,  
+then \\
+${\tystepone
+{\texttt{ghost} (\lambda \gvarF{x}{unit}. \gvarF{x}{unit}) }{unit \rightarrow unit}{\top}}$ holds, while the typing relation  ${\tystepone{\gvarF{x}{unit}}{unit}{\top}}$ fails.
+
+
+
+\begin{lemma}[Non-ghost Code Typing Preservation] 
+If ${\tystepone{\texttt{t}}{\tau}{\mathfrak{\bot}}}$ 
+and \mbox{\texttt{t} $\rightarrow_{g\lambda}$ \texttt{t}'},
+then ${\tystepone{\texttt{t'}}{\tau}{\mathfrak{\bot}}}$ 
 \end{lemma}
-\begin{theorem}[Soundness] Admit.
+\begin{proof}
+Admit.
+\end{proof}
+
+\begin{theorem}[Soundness] 
 \end{theorem}
+\begin{proof}
+Admit.
+\end{proof}
 %--------------------------------------------------------------------------%
 \subsection{Ghost Code Erasure}
 \newcommand{\e}{\mathcal{E}}
 \theoremstyle{remark}
 \newtheorem{dfn}[theorem]{Definition}
 
-\qquad Once we formally defined the simply typed lambda-calculus enriched with ghost expressions, our goal is to show that terms which are not ghost 
-themselves have the same computational behaviour as their translation to
-lambda-calculus, which preserves the structure of terms except for ghost sub-expressions. 
+\qquad Once we formally defined the simply typed lambda-calculus enriched with ghost expressions, our goal is to show that the computational meaning
+ of non ghost well typed non-ghost $g\lambda$-terms is preserved by their translation to simply typed lambda-calculus.
 
-Therefore we need to define at first a type-erasure and a term-erasure translations from g$\lambda$-calculus to standard simply typed  
-$\lambda$-calculus. 
+To achieve this, we start by defining the \textit{type-} and \textit{term-} \textit{erasure} functions from g$\lambda$-calculus to simply typed  $\lambda$-calculus. 
 
-%--------------------------------------------------------------------------%
-\subsubsection{Target language} 
-Standard Simply typed lambda calculus. ...
+
 \subsubsection{Ghost Erasure}
 
 
@@ -162,18 +266,37 @@ We define type-erasure by induction on the structure of types : \vspace{0.2cm}
 Let \texttt{t} be a term such that 
 ~~ $\tystepone{\texttt{t}}{\tau}{\mathfrak{B}}$ ~ holds. 
 We define term-erasure function by induction on 
-the structure of \texttt{t}\\[0.1cm]
-$ \e_{\top}(\texttt{t}_{1}) = \texttt{()}$ where $ \tystepone{\texttt{t}_{1}}{\tau_{1}}{\top}$.\\[0.05cm]
+the structure of \texttt{t}, parametrizing it by the value of 
+$ \mathfrak{B}$. \\[0.1cm]
+$ \e_{\top}(\texttt{t}_{1}) = \texttt{()}$ 
+\quad where $ \tystepone{\texttt{t}_{1}}{\tau_{1}}{\top}$.\\[0.05cm]
 $\e_{\bot}(\texttt{()}) = \texttt{()}$\\[0.05cm]
 $\e_{\bot}(x_{\tau}^{\bot}) = x_{\e_{\bot}(\tau)}$\\[0.05cm]  
-$\e_{\bot}(\lambda x_{\tau_{2}}^{\mathfrak{B_{2}}}.t) 
-= \lambda x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}. \e_{\bot}(t)$\\[0.05cm]  
+$\e_{\bot}(\lambda x_{\tau_{2}}^{\mathfrak{B_{2}}}.t_{1}) 
+= \lambda x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}. \e_{\bot}(t_{1})$
+\quad where $ \tystepone{\texttt{t}_{1}}{\tau_{1}}{\bot}$.\\[0.05cm]
 $\e_{\bot}(\texttt{t}_{1} ~ \texttt{t}_{2}) 
 = \e_{\bot}(\texttt{t}_{1})  ~ \e_{\mathfrak{B_{2}}}(\texttt{t}_{2})$
-\quad where $ \tystepone{\texttt{t}_{2}}{\tau_{2}}{\mathfrak{B_{2}}}$.
+\quad 
+where $ \tystepone{\texttt{t}_{1}}{\tau_{1}}{\bot}$
+and $ \tystepone{\texttt{t}_{2}}{\tau_{2}}{\mathfrak{B_{2}}}$.
 \end{dfn}
 As it can be seen, the erasure function is a morphism that preserve
 the structure of operational (not ghost) terms and their types ($\sim\e_{\bot}(\star)$), and sends ghost expressions and types to \texttt{()} and \texttt{unit} respectively ($\sim\e_{\top}(\star)$).
+
+Here is two examples of term erasure:
+
+$ 
+\e_{\top}[
+(\lambda \gvarF{z}{\tau_{1}}.\gvarF{z}{\tau_{1}})(\texttt{ghost }())] 
+= () $
+
+$
+\e{\bot}[
+(\lambda \gvarT{x}{\tau_{1}}. 
+\lambda \gvarF{y}{\tau_{1}}. \gvarF{y}{\tau_{1}}) 
+(\texttt{ghost }())] = 
+(\lambda x_{\texttt{unit}}. \lambda y_{\tau_{1}}.y_{\tau_{1}})() $ 
 
 
 
@@ -404,11 +527,11 @@ $ \mathfrak{B_{1}} = \bot,  \quad
 \end{center}
 
 \noindent\textit{Case} \textsc{E-DeGhost}:  \qquad \\ Trivially verified,
-as for any instance of $\tystepone{ghost \texttt{t}_{1}}{\tau_{1}}{\mathfrak{B_{1}}}$, $\mathfrak{B_{1}} = \top $.\\
+as for any instance of $\tystepone{(ghost ~ \texttt{t}_{1})}{\tau_{1}}{\mathfrak{B_{1}}}$, $\mathfrak{B_{1}} = \top $.\\
 
 \noindent\textit{Case} \textsc{E-AppLeft}: \qquad 
  $\texttt{t} = \texttt{t}_{1} \texttt{t}_{2},\quad
- \texttt{t}^{'} = \texttt{t}_{1} \texttt{t}^{'}_{2}, ~ \text{ with }
+ \texttt{t}^{'} = \texttt{t}^{'}_{1} \texttt{t}_{2}, ~ \text{ with }
  \texttt{t}_{1} \rightarrow_{g\lambda} \texttt{t}^{'}_{1}$ \\
 \phantom{\noindent\textit{Case} \textsc{E-AppLeft}: \qquad}		
 $\tystepone{\texttt{t}_{1}}{\tau_{2}^{\mathfrak{B_{2}}} \rightarrow \tau_{1}}{\mathfrak{B_{1}}}$,  ~
@@ -613,26 +736,26 @@ By inversion that $\vDash \mathfrak{B}_{2} \Leftrightarrow \mathfrak{B'}_{2}$. T
   	so these cases are trivially verified.									
 \end{proof}
 
-TODO:
-Extensions:
-- If-then-else
-- rec
-- let in
-- match 
-- constructors
-- ref global mono
-- types polymorphes
-- operators
-
-Potential difficulties:
-- polymorphism
-- schemes
-- non interference
-
--->(E,E')
-
-règles de typage
-règles d'effacement
+%TODO:
+%Extensions:
+%- If-then-else
+%- rec
+%- let in
+%- match 
+%- constructors
+%- ref global mono
+%- types polymorphes
+%- operators
+%
+%Potential difficulties:
+%- polymorphism
+%- schemes
+%- non interference
+%
+%-->(E,E')
+%
+%règles de typage
+%règles d'effacement
 
 
 
