@@ -34,22 +34,20 @@ Finally we state and proof a few basic preservation properties of such translati
 
 \subsection{g$\lambda$-calculus syntax and semantics}
 
-
-
-
 \renewcommand{\arraystretch}{1.1}
-The syntax of \glam is summarized below.\vspace{-0.5cm}
+The syntax of \gml is summarized below.\vspace{-0.5cm}
 \begin{figure}[H]
+ \begin{adjustwidth}{-3em}{-3em}
 \begin{displaymath}
  \begin{array}{ll@{\hspace*{-0.1cm}}l@{\hspace*{1.5cm} }l|@{\hspace*{0.5cm}}llll}
  \hline
-  
+
    \texttt{p} & ::= &  & \textsc{programs} &  
    \texttt{v} & ::= &  & \textsc{values}   						   \\
  
  
    	&  \mathtt{var}~ \gvar{r}{}{} : v~; \quad p       
-   	& & \textit{global variable declaration} &
+   	& & \textit{reference declaration} &
 	&      \texttt{c}             & & \textit{constant}            \\ 
  
  
@@ -69,7 +67,7 @@ The syntax of \glam is summarized below.\vspace{-0.5cm}
    	
    	
    	&     x^{\mathfrak{B}}_{\tau} & & \textit{variable} &
-	&     0 ~| 1 ~| ... ~| n        & & \textit{integers}          \\   	
+	&     0 ~| 1 ~| ... ~| n        & & \textit{integer}          \\   	
   
   
    	&    \gabst{x}{}{}{t}         & & \textit{abstraction} &   	
@@ -85,41 +83,45 @@ The syntax of \glam is summarized below.\vspace{-0.5cm}
   	
   	
    	& \mathtt{let} ~ \gvar{x}{}{} = t~ \mathtt{in}~ t    & &  
-   								  \textit{local binding}   &       \\
+   								  \textit{local binding}   &
+    &  &  &   						                               \\
    		
    								   
    	&  	\mathtt{if}~t~\mathtt{then}~t~\mathtt{else}~t    & &    
-   								  \textit{if-branching}    &       \\
+   								  \textit{if-branching}    &       
+       \tau & ::= &  & \textsc{types}             \\ 
    		
    								      								   
    	&	\mathtt{rec} ~ \gvar{f}{}{} ~ \gvar{x}{}{}. t    &
-   								   &  \textit{recursive function}  \\
-   	
+   								   &  \textit{recursive function}&
+    &  \mathtt{int}~ | ~\mathtt{bool}~ | ~\mathtt{unit}~  & & 
+    								\textit{built-in types}        \\ 
    	   		
    	   								      								   
-   	&  	\mathtt{!}\gvar{r}{}{} & &  \textit{global variable access}\\   					
+   	&  	\mathtt{!}\gvar{r}{}{} & &  \textit{reference access} &
+   	&     \tau^{\mathfrak{B}}  \rightarrow \tau  & & \textit{function type}        \\    					
+   	 
    	   
-   	&  	\gvar{r}{}{} := t  &    &  \textit{global variable assignment}\\		 \hline						   
-   								   
-% 
-%	\grtitle{\texttt{t}}{\textsc{terms:}} df
-%  	\grcase{()}{unit}
-%  	\grcase{\glvar}{variable}
-%  	\grcase{\lambda \glvar.\texttt{t}}{abstraction}
-%  	\grcase{\texttt{t} \texttt{t}}{application}
-%  	\grcase{\texttt{ghost t}}{ghost term} 
-%  	\grtitle{\texttt{v}}{\textsc{values:}}
-%  	\grcase{()}{unit}
-%  	\grcase{\lambda \glvar.\texttt{t}}{abstraction}
-%  	\grtitle{\mathfrak{B}}{\textsc{ghost status :}}
-%  	\grcase{\top ~~(*true*)}{ghost code} 
-%   	\grcase{\bot~~(*false*)}{physical code} 
-%  	\grtitle{\tau}{\textsc{types:}}
-%  	\grcase{\texttt{unit}}{unit type}
-%  	\grcase{\tau^{\mathfrak{B}} \rightarrow \tau}{function type}
+   	&  	\gvar{r}{}{} := t  &    &  \textit{reference assignment} & 
+    &  &  &   					                                   \\   
+    
+   	
+   &  &  &   &	  \mathfrak{B} & ::= &  & \textsc{ghost indicator}  \\
+       
+   
+   &  &  &   &   &  \bot \mathtt{(* false *)} & & \textit{raw code} \\
+    
+    
+   &  &  &   &   &  \top \mathtt{(* true *)} & & \textit{ghost code} \\ 
+ 
+ \hline						   
   \end{array} 
 \end{displaymath} 
+\caption{ \textbf{\gml syntax} \hfill}
+\end{adjustwidth}
 \end{figure}
+
+Here, the letters \textit{p, t, v, c} are meta-variables for programs, terms, variables and constants respectively. 
 
 As we can see, g$\lambda$-calculus is just an extension of standard simply 
 typed $\lambda$-calculus with \texttt{arrow} and \texttt{unit} enriched
@@ -129,19 +131,57 @@ their type and \textit{ghost} mark $\mathfrak{B}$ which indicates whether
 it is ghost ($\top$) or not ($\bot$). \\
 
 The evaluation of g$\lambda$-calculus corresponds as well to the standard SOS call-by-value semantics of $\lambda$-calculus, except for the rule  \makebox{(\textsc{E-DeGhost})}.
-
 \begin{figure}[H]
-  	 \begin{flushright}  	 \textbf{Evaluation}  	 \end{flushright}
-  	\infax[E-AppFun]    	{\stepone{(\lambda x^{b}_{\tau}.\texttt{t})v}{\sbst{\texttt{t}}{x^{b}_{\tau}}{v}}}
-	\infax[E-DeGhost]	 	{\stepone{\texttt{ghost t}}{\texttt{t}}}
-%	\infrule[E-Context]{{\texttt{t}} \rightarrow {\texttt{t}'}}{{\texttt{E[t]}} \rightarrow {\texttt{E[t']}}}
-%	\begin{center}
-% 	 where ~ \texttt{E}   $::= \square$  | \texttt{E}~\texttt{t} |	 \texttt{v} \texttt{E}
-% 	 \end{center}	 
-	\infrule[T-AppLeft]{{\texttt{t}_{1}} \rightarrow {\texttt{t}'_{1}}}{{\texttt{t}_{1} \texttt{t}_{2} } \rightarrow {\texttt{t}'_{1} \texttt{t}_{2}}}
-	\infrule[T-AppLeft]{{\texttt{t}_{2}} \rightarrow {\texttt{t}'_{2}}}{{\texttt{v}_{1} \texttt{t}_{2} } \rightarrow {\texttt{v}_{1} \texttt{t}'_{2}}}	
-\caption{ \textbf{\glam syntax and semantics} \hfill}
+\begin{spacing}{1.5}
+\begin{multicols}{2}
+\infax[E-AppFun] {\stepone{(\lambda x^{b}_{\tau}.t)v}{\sbst{t}{x^{b}_{\tau}}{v}}} 
+
+\infrule[E-AppRec]{{\texttt{t}_{2}} \rightarrow {\texttt{t}'_{2}}}{{\texttt{v}_{1} \texttt{t}_{2} } \rightarrow {\texttt{v}_{1} \texttt{t}'_{2}}} 
+
+\infax[E-DeGhost]	 	{\stepone{\texttt{ghost t}}{\texttt{t}}} 
+
+
+\infrule[E-AppLeft]{{\texttt{t}_{1}} \rightarrow {\texttt{t}'_{1}}}{{\texttt{t}_{1} \texttt{t}_{2} } \rightarrow {\texttt{t}'_{1} \texttt{t}_{2}}}
+  
+\infrule[E-AppRight]{{\texttt{t}_{2}} \rightarrow {\texttt{t}'_{2}}}{{\texttt{v}_{1} \texttt{t}_{2} } \rightarrow {\texttt{v}_{1} \texttt{t}'_{2}}}  
+
+\end{multicols}
+\end{spacing}
 \end{figure}
+%\begin{adjustwidth}{-22em}{-2em}
+%\begin{spacing}{1.4}
+%
+%
+%\infax[E-AppFun] {\stepone{(\lambda x^{b}_{\tau}.\texttt{t})v}{\sbst{\texttt{t}}{x^{b}_{\tau}}{v}}} 
+%
+%\infax[E-DeGhost]	 	{\stepone{\texttt{ghost t}}{\texttt{t}}}
+%   \end{minipage}
+%\hphantom{....}
+%
+%   \begin{minipage}{0.5\linewidth}
+%  \infrule[T-AppLeft]{{\texttt{t}_{1}} \rightarrow {\texttt{t}'_{1}}}{{\texttt{t}_{1} \texttt{t}_{2} } \rightarrow {\texttt{t}'_{1} \texttt{t}_{2}}}
+%  
+%\infrule[T-AppRight]{{\texttt{t}_{2}} \rightarrow {\texttt{t}'_{2}}}{{\texttt{v}_{1} \texttt{t}_{2} } \rightarrow {\texttt{v}_{1} \texttt{t}'_{2}}}  
+%
+%    
+%   \end{minipage}
+%   
+%\end{spacing}
+%\end{adjustwidth}
+
+
+
+%  	 \begin{flushright}  	 \textbf{Evaluation}  	 \end{flushright}
+%  	\infax[E-AppFun]    	{\stepone{(\lambda x^{b}_{\tau}.\texttt{t})v}{\sbst{\texttt{t}}{x^{b}_{\tau}}{v}}}
+%	\infax[E-DeGhost]	 	{\stepone{\texttt{ghost t}}{\texttt{t}}}
+%%	\infrule[E-Context]{{\texttt{t}} \rightarrow {\texttt{t}'}}{{\texttt{E[t]}} \rightarrow {\texttt{E[t']}}}
+%%	\begin{center}
+%% 	 where ~ \texttt{E}   $::= \square$  | \texttt{E}~\texttt{t} |	 \texttt{v} \texttt{E}
+%% 	 \end{center}	 
+%	\infrule[T-AppLeft]{{\texttt{t}_{1}} \rightarrow {\texttt{t}'_{1}}}{{\texttt{t}_{1} \texttt{t}_{2} } \rightarrow {\texttt{t}'_{1} \texttt{t}_{2}}}
+%	\infrule[T-AppLeft]{{\texttt{t}_{2}} \rightarrow {\texttt{t}'_{2}}}{{\texttt{v}_{1} \texttt{t}_{2} } \rightarrow {\texttt{v}_{1} \texttt{t}'_{2}}}	
+%\caption{ \textbf{\glam syntax and semantics} \hfill}
+
 
 \subsubsection*{Free variables, scope and equivalence of terms} 
 We do not present here the formal definitions of free variables, 
