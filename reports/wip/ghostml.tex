@@ -1,276 +1,824 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\documentclass[a4paper,11pt,oneside]{article}
-\label{packages}
-\usepackage[sc]{mathpazo} \linespread{1.0}
-\usepackage[scaled]{helvet} % ss
-\usepackage[T1]{fontenc}
-\usepackage[francais]{babel}
-\usepackage[a4paper,pdftex,colorlinks=true,
-	urlcolor=blue,pdfstartview=FitH]{hyperref}
-\usepackage{graphicx}
-\usepackage{amssymb,amsfonts,amsthm,amsmath}
-\usepackage{titlesec}
-\usepackage{listings}
-\usepackage[usenames,dvipsnames]{xcolor}
-\usepackage[dvipsnames]{xcolor}
-\usepackage{caption} 
-\protect\usepackage{semantic}
-\usepackage{bcprules}
-\usepackage{stmaryrd}
-\titleformat{\section}[hang]% style du titre
-  {\normalfont\Large\bfseries}% police du titre + numéro
-  {\thesection}% numérotation
-  {0.4in}% espacement numéro/titre <--- valeur à changer
-  {}% police spécifique du titre
-\titlespacing*{\section}
-  {-0.5in}% espacement gauche
-  {0.2in}% espacement avant
-  {0.2in}% espacement après
-  [0.1in]% espacement à droite
-
-\titleformat{\subsection}[hang]% style du titre
-  {\normalfont\large\bfseries}% police du titre + numéro
-  {\thesubsection}% numérotation
-  {0.2in}% espacement numéro/titre <--- valeur à changer
-  {}% police spécifique du titre
-\titlespacing*{\subsection}
-  {-0.44in}% espacement gauche
-  {0.2in}% espacement avant
-  {0.2in}% espacement après
-  [0.1in]% espacement à droite
-
-
-%\titleformat{\subsubsection}[hang]% style du titre
-%  {\normalfont\large\bfseries}% police du titre + numéro
-%  {\thesubsubsection}% numérotation
-%  {0.1in}% espacement numéro/titre <--- valeur à changer
-%  {}% police spécifique du titre
-%\titlespacing*{\subsubsection}
-%  {-0.30in}% espacement gauche
-%  {0.2in}% espacement avant
-%  {0.2in}% espacement après
-%  [0.1in]% espacement à droite
-
-\RequirePackage{listings}
-\RequirePackage{amssymb}
-
-\lstset{basicstyle={\ttfamily}}
-
-\lstdefinelanguage{why3}
-{
-morekeywords=[1]{},%
-%keywordstyle=[1]{\color{blue}},%
-string=[b]",%
-showstringspaces=false,%
-stringstyle=\itshape,%
-commentstyle= \color{gray}\small\texttt, %
-columns=[l]fullflexible,%
-sensitive=true,%
-morecomment=[s]{(*}{*)},%
-escapeinside={*?}{?*},%
-keepspaces=true,
-literate=%
-%{'a}{$\alpha$}{1}%
-%{'b}{$\beta$}{1}%
-%{<}{$<$}{1}%
-%{>}{$>$}{1}%
-%{<=}{$\le$}{1}%
-%{>=}{$\ge$}{1}%
-% {<>}{$\ne$}{1}%
-% {/\\}{$\land$}{1}%
-% {\\/}{ $\lor$ }{3}%
-% {\ or(}{ $\lor$(}{3}%
-% {not\ }{$\lnot$ }{1}%
-% {not(}{$\lnot$(}{1}%
-% {+->}{\texttt{+->}}{2}%
-% % {+->}{$\mapsto$}{2}%
-% {-->}{\texttt{-\relax->}}{2}%
-% %{-->}{$\longrightarrow$}{2}%
-% {->}{$\rightarrow$}{2}%
-% {<->}{$\leftrightarrow$}{2}%
+\section{GhostLambda: Lambda-Calculus with Ghost Code}
+%cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+%Annotating a program with logical formulae predicting statically it dynamic behaviour is a 
+%keystone of the deductive software verification approach.
 %
-%
-}
+%Typically, these logical formulae are assertions about program assigned variables,
+% loop invariants, recursive function variants, etc. 
+% 
+% However,  it is often useful to annotate programs with some data that appear in program 
+%  that appear in assertions but do not affect the program dynamic behaviour in any way. 
+%   
+% When a correct-by-construction executable code is extracted
+% from the specified program, this , called \textit{ghost code} disappear  together with
+% specification. 
+The goal of this section is to present the idea of \textit{ghost} code,
+its use in program specification and to state some properties about its 
+extraction.
 
-\colorlet{notgreen}{ForestGreen!15}
+Ghost code is a kind of program annotation that serves 
+as a support for program specification inside logical formulae and assertions.
 
-\definecolor{cblue}{RGB}{2,4,8}
-\lstset{language=why3,
-    %%% BOUCLE, TEST & Co.
-      emph={add, double, edges, vertices, merge,
-      len,  nand, even, ackermann},
-      emphstyle=\color{
-black}\bf,
-    %%% IMPORT & Co.
-      emph=[2]{namespace,predicate,function,inductive,type,use,clone,%
-import,export,theory,end,in,match,with,%
-goal,axiom,lemma,forall},
-      emphstyle=[2]\color{
-NavyBlue},
- 		emph=[3]{nat, list_nat, tree_nat, int, bool},
-      emphstyle=[3]\color{
-ForestGreen},
-	emph=[4]{S, Cons, O, True, False, true, false, Leaf, Node},
-      emphstyle=[4]\color{
-cblue}
-%    %%% MODULES
-%      emph={[3]mod_1, mod_2},
-%      emphstyle=[3]\color{red!50!green},
-%    %%% FONCTIONS NUMERIQUES
-%      emph={[4]cos, sin, tan, acos, asin, atan},
-%      emphstyle=[4]\color{gray},
-%    %%% CONSTANTES
-%      emph={[5]pi, True, False},
-%      emphstyle=[5]\color{orange}
-}
-
-
-% default language is Why3
-\lstset{language=why3}
-\lstnewenvironment{why3}{\lstset{language=why3}}{}
-\let\why\lstinline
-\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
-
-
-
- \begin{document}
-
-\vspace*{-5cm}
-\begin{small}
-\section*{{\normalsize \begin{center}GhostML : a mini-ML with global references and ghost terms\end{center}}}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newcommand{\grtitle}[1]{ & & &\textbf{[#1]}    \\}
-\newcommand{\grhead}[3]{#1 & ::= & #2 & \text{#3} \\}
-\newcommand{\grcase}[2]{& | & #1 & \text{#2} \\}
-\newpage
-\section*{GhostML syntax}
-\label{GhostML syntax }
-\begin{figure}[!ht]\vspace*{-1cm}
-\begin{displaymath}	 	
-  \begin{array}{lll@{\hspace*{2.5cm} }l}
-		 \grhead{prog}{typedecl^{*} \quad vardecl^{*} \quad t}{program}
-		 \grhead{typedecl}{\texttt{type} ~ id ~ \alpha, ..., \alpha ~ = \tau}{type declaration}
-		 \grhead{vardecl}{\texttt{val} ~ id : \texttt{ref} ~ \tau}{global reference declaration}
-    \end{array} 
-\end{displaymath} \vspace*{-0.5cm}
-\caption*{ \textbf{GhostML Programs} \hfill}
-\end{figure}
-
-\begin{figure}[!ht]\vspace*{-1cm}
-\begin{displaymath}
- \begin{array}{lll@{\hspace*{2.5cm} }l}
-  	\grhead{\tau}{\alpha}{type variable}
-  	\grcase{\varepsilon ~ (\tau,\dots, \tau)}{datatype constructor}
-  	\grcase{\tau \rightarrow \tau}{function type}
-  	\grcase{~\texttt{Unit} ~|~\texttt{int} ~|~ \texttt{bool} ~|~ \texttt{Prop} ~|~ ...}{build-in types}
-	\grhead{\sigma}{\forall \overline{\alpha} . \tau}{type scheme}
-  \end{array} 
-\end{displaymath} \vspace*{-0.5cm}
-\caption*{ \textbf{GhostML   types and schemes} \hfill}
-\end{figure}
-
-\begin{figure}[!h]\vspace*{-0.5cm}
-\begin{displaymath}
-  \begin{array}{rrl@{\hspace*{4cm} }l}
-  \grhead{\varepsilon}{\quad}{data variable}
-  \grcase{\texttt{ghost}}{ghost variable} \\
-  
-  \grhead{v}{x}{variable}
-  \grcase{op}{build-in constants and operands \ ( \textit{1, true, +}, $\vee$, ...)}
-  \grcase{C(v,\dots, v)}{constructor application}
-  \grcase{(\texttt{fun} \ \varepsilon x_{\tau} \rightarrow t)}{function}
-  \grcase{ \texttt{rec} \ f \ \varepsilon x_{\tau}   =  t}{recursive function} \\
-
-  \grhead{t}{v}{value}
-  \grcase{v ~ v}{application}
-  \grcase{\texttt{let}~\varepsilon x_{\sigma} = t \ \texttt{in} \ t}{local binding}
-  \grcase{!~x}{global reference access}
-  \grcase{x := v}{global reference assignment}
-  \grcase{\mathsf{if}~v~\mathsf{then}~t~\mathsf{else}~t }{conditional expression}
-  \grcase{\mathsf{match} ~v ~ \mathsf{with} ~ c	}{pattern-matching}
-  \end{array} 
-\end{displaymath} \vspace*{-0.5cm}
-\caption*{ \textbf{GhostML Values \& Terms} \hfill}
-\end{figure}
-
-\begin{figure}[!h]
-\begin{displaymath}
-  \begin{array}{rrl@{\hspace*{4.5cm}}l}
-  \grhead{c}{p -> t}{base case}
-  \grcase{p -> t  ~|c}{branch case} \\
-  \grhead{p}{x}{variable}
-  \grcase{C(x,\dots, x)}{constructor}
-  \end{array} 
-\end{displaymath} \vspace*{-0.5cm}
-\caption*{ \textbf{GhostML Patterns \& Cases} \hfill}
-\end{figure}
-\end{small}
-\newpage
-
-\label{GhostML operational semantics}
-\section*{GhostML  operational semantics}
-
-
-\definecolor{gray}{gray}{0.2}
-\newcommand{\stepone}[4]{#1{\color{gray}_{|#3}}   ~~\leadsto~~ #2{\color{gray}_{|#4}}}
-\newcommand{\sbst}[3]{#1 [#2 \mapsfrom #3] }
-\reservestyle{\command}{\texttt}
-\command{let[\;let\;], fun[fun\;], rec[rec\;],  ghost[ghost\;],  in[\;in\;],  if[\;if\;],  then[\;then\;],  else[\;else\;],
- unit[\;unit\;], match[\;match\;], with[\;with\;]}
-\typicallabel{E-IF-False-True-Again}
-
-	\infax[E-AppFun]
-		{\stepone{(\<fun> \varepsilon x_{\tau} \rightarrow t)v}{\sbst{t}{x}{v}}{\mu}{\mu}}
-	
-	\infax[E-AppRec]
-		{\stepone{(\<rec> f \ \varepsilon x_{\tau} \rightarrow t)  v}
-		{t [f \mapsfrom (\<rec> f \ \varepsilon x_{\tau} \rightarrow t), x \mapsfrom v]}{\mu}{\mu}}
-		
-	\infax[E-Let]
-		{\stepone{\<let> \varepsilon x_{\sigma} = v_{1} \<in> t}{\sbst{t}{x}{v}}{\mu}{\mu}}	
-	
- 	\infax[E-IF-True]
-  		{\stepone{\<if> \mathtt{true} \<then> t_{1} \<else> t_{2}} {t_{1}}{\mu}{\mu}}
-	
-	\infax[E-IF-False]
-  		{\stepone{\<if> \mathtt{false} \<then> t_{1} \<else> t_{2}} {t_{2}}{\mu}{\mu}}
-
-	\infax[E-Assign]
-  		{\stepone{x := v}{unit}{\mu}{\sbst{\mu}{x}{v}}}
-
-	\infrule[E-Deref] 
-		{\mu(x) = v}
-		{\stepone{x}{v}{\mu}{\mu}} 
-  
-  	\infrule[E-Let-Context]
-   		{\stepone{t_{1}}{t_{1}'}{\mu}{\mu'}}
-    	{\stepone{\<let> \varepsilon x_{\sigma} = t_{1} \<in> t_{2}}{\<let> \varepsilon x_{\sigma} = t_{1} \<in>  t_{2}'}{\mu}{\mu'}}
-   	
-	\infrule[E-Case-Match]
-		{ v_{i}~\mathrm{ filters}~  x_{i}~ \mathrm{for}~  i \in 1 ...  n }
-		{\stepone{\<match> C(v_{1}, \ldots, v_{n}) \<with>  | C(x_{1}, \ldots, x_{n}) \rightarrow t ~| c }
-		{\\ t[x_{i} \mapsfrom v_{i}]^{i \in 1...n}}{\mu}{\mu}}
+The main idea about ghost code is that as any other kind of
+ specification it does not affect the program meaning. That is, ghost
+ code does not correspond to any physical entity, and as such can by entirely erased from a program, without altering its formal meaning. 
  
-\infrule[E-Case-Fail]
-		{ C \neq C' }
-		{\stepone{\<match> C(v_{1}, \ldots, v_{n}) \<with>  | C'(x_{1}, \ldots, x_{n}) \rightarrow t ~| c  }
-		{ \\ \<match> C(v_{1}, \ldots, v_{n})  \<with> c }{ \mu }{ \mu}}
-\newpage
-\label{GhostML typing }
+In this section we describe a language where one can annotate programs 
+with such \textit{ghost code}.
 
-\section{GhostML Typing}
-\newcommand{\tstep}[3]{#1 \vdash  #2 : #3}
+We start by formalizing the \textit{ghost}$\lambda$\textit{-calculus}, 
+a tiny language of simply typed $\lambda$-calculus enriched with ghost variables and ghost expressions.
 
-	\infrule[T-Var]
-		{\Gamma(x) = \forall \overline{\alpha}.\tau}
-		{\tstep{\Gamma}{\varepsilon x}{\sigma[\overline{\alpha}} \mapsfrom \overline{\tau}]}
+We then define ghost code \textit{erasure}, which transforms a well-typed g$\lambda $ term  to a term of standard  $\lambda$-calculus.
+Finally we state and proof a few basic preservation properties of such translation.
 
-    \infrule[T-op]
-		{\Gamma(\texttt{op}) = \forall \overline{\alpha}.\tau}
-		{\tstep{\Gamma}{\texttt{op}}{\sigma[\overline{\alpha}} \mapsfrom \overline{\tau}]}
-		
-		
+\subsection{g$\lambda$-calculus syntax and semantics}
 
-\bibliographystyle{plain}
-\bibliography{abbrevs,demons,demons2,demons3,team,crossrefs,crossrefs2,./biblio}
-\end{document}
+
+
+
+\renewcommand{\arraystretch}{1.1}
+The syntax of \glam is summarized below.\vspace{-0.5cm}
+\begin{figure}[H]
+\begin{displaymath}
+ \begin{array}{ll@{\hspace*{-0.1cm}}l@{\hspace*{1.5cm} }l|@{\hspace*{0.5cm}}llll}
+ \hline
+  
+   \texttt{p} & ::= &  & \textsc{programs} &  
+   \texttt{v} & ::= &  & \textsc{values}   						   \\
+ 
+ 
+   	&  \mathtt{var}~ \gvar{r}{}{} : v~; \quad p       
+   	& & \textit{global variable declaration} &
+	&      \texttt{c}             & & \textit{constant}            \\ 
+ 
+ 
+   	&     t & & \textit{body} &
+	&     \gabst{x}{}{}{t}        & & \textit{abstraction}         \\    
+
+
+	&  &  &   &	 & \mathtt{rec} ~ \gvar{f}{}{} ~ \gvar{x}{}{}. t    
+   								  & &  \textit{recursive function} \\ 
+ 
+   \texttt{t} & ::= &  & \textsc{terms} &  
+    &  &  &   						                               \\
+   
+   
+   	&     \texttt{c}              & & \textit{constant} &
+	\texttt{c} & ::= &  & \textsc{constants}                       \\
+   	
+   	
+   	&     x^{\mathfrak{B}}_{\tau} & & \textit{variable} &
+	&     0 ~| 1 ~| ... ~| n        & & \textit{integers}          \\   	
+  
+  
+   	&    \gabst{x}{}{}{t}         & & \textit{abstraction} &   	
+   	&   \mathtt{true}~|\mathtt{false} & & \textit{boolean}         \\
+     
+     
+   	&    t~t    &                  & \textit{application} &
+   	&    ()                           & & \textit{unit}            \\
+   	
+   	
+   	&   \mathtt{ghost} t  &  & \textit{ghost term} &  
+    &     +|~-|~=        & & \textit{built-in operators}           \\ 
+  	
+  	
+   	& \mathtt{let} ~ \gvar{x}{}{} = t~ \mathtt{in}~ t    & &  
+   								  \textit{local binding}   &       \\
+   		
+   								   
+   	&  	\mathtt{if}~t~\mathtt{then}~t~\mathtt{else}~t    & &    
+   								  \textit{if-branching}    &       \\
+   		
+   								      								   
+   	&	\mathtt{rec} ~ \gvar{f}{}{} ~ \gvar{x}{}{}. t    &
+   								   &  \textit{recursive function}  \\
+   	
+   	   		
+   	   								      								   
+   	&  	\mathtt{!}\gvar{r}{}{} & &  \textit{global variable access}\\   					
+   	   
+   	&  	\gvar{r}{}{} := t  &    &  \textit{global variable assignment}\\		 \hline						   
+   								   
+% 
+%	\grtitle{\texttt{t}}{\textsc{terms:}} df
+%  	\grcase{()}{unit}
+%  	\grcase{\glvar}{variable}
+%  	\grcase{\lambda \glvar.\texttt{t}}{abstraction}
+%  	\grcase{\texttt{t} \texttt{t}}{application}
+%  	\grcase{\texttt{ghost t}}{ghost term} 
+%  	\grtitle{\texttt{v}}{\textsc{values:}}
+%  	\grcase{()}{unit}
+%  	\grcase{\lambda \glvar.\texttt{t}}{abstraction}
+%  	\grtitle{\mathfrak{B}}{\textsc{ghost status :}}
+%  	\grcase{\top ~~(*true*)}{ghost code} 
+%   	\grcase{\bot~~(*false*)}{physical code} 
+%  	\grtitle{\tau}{\textsc{types:}}
+%  	\grcase{\texttt{unit}}{unit type}
+%  	\grcase{\tau^{\mathfrak{B}} \rightarrow \tau}{function type}
+  \end{array} 
+\end{displaymath} 
+\end{figure}
+
+As we can see, g$\lambda$-calculus is just an extension of standard simply 
+typed $\lambda$-calculus with \texttt{arrow} and \texttt{unit} enriched
+with a construction \texttt{ghost t} for ghost terms. 
+Moreover, variables and formal arguments in abstraction are annotated with
+their type and \textit{ghost} mark $\mathfrak{B}$ which indicates whether 
+it is ghost ($\top$) or not ($\bot$). \\
+
+The evaluation of g$\lambda$-calculus corresponds as well to the standard SOS call-by-value semantics of $\lambda$-calculus, except for the rule  \makebox{(\textsc{E-DeGhost})}.
+
+\begin{figure}[H]
+  	 \begin{flushright}  	 \textbf{Evaluation}  	 \end{flushright}
+  	\infax[E-AppFun]    	{\stepone{(\lambda x^{b}_{\tau}.\texttt{t})v}{\sbst{\texttt{t}}{x^{b}_{\tau}}{v}}}
+	\infax[E-DeGhost]	 	{\stepone{\texttt{ghost t}}{\texttt{t}}}
+%	\infrule[E-Context]{{\texttt{t}} \rightarrow {\texttt{t}'}}{{\texttt{E[t]}} \rightarrow {\texttt{E[t']}}}
+%	\begin{center}
+% 	 where ~ \texttt{E}   $::= \square$  | \texttt{E}~\texttt{t} |	 \texttt{v} \texttt{E}
+% 	 \end{center}	 
+	\infrule[T-AppLeft]{{\texttt{t}_{1}} \rightarrow {\texttt{t}'_{1}}}{{\texttt{t}_{1} \texttt{t}_{2} } \rightarrow {\texttt{t}'_{1} \texttt{t}_{2}}}
+	\infrule[T-AppLeft]{{\texttt{t}_{2}} \rightarrow {\texttt{t}'_{2}}}{{\texttt{v}_{1} \texttt{t}_{2} } \rightarrow {\texttt{v}_{1} \texttt{t}'_{2}}}	
+\caption{ \textbf{\glam syntax and semantics} \hfill}
+\end{figure}
+
+\subsubsection*{Free variables, scope and equivalence of terms} 
+We do not present here the formal definitions of free variables, 
+abstraction scope, $\alpha$-equivalence and substitution: they are exactly 
+the same that those of $\lambda$-calculus.
+
+However, it is important to notice that two variables $x^{\mathfrak{B_{1}}}_{\tau_{1}}$ and  
+$y^{\mathfrak{B_{2}}}_{\tau_{2}}$ are syntactically equal only if 
+$x = y$, $\mathfrak{B_{1}} = \mathfrak{B_{2}}$ and $ \tau_{1} = \tau_{2} $. That is  $\lambda \gvarT{x}{1}. \gvarT{x}{1}$ corresponds to $\tau_{1}$- identity, whilst  $\lambda \gvarT{x}{1}. \gvarF{x}{1}$ corresponds to the constant function that ignores its argument. 
+
+  
+\subsection{Typing Relation}
+In the simply typed $\lambda$-calculus, typing rules out  statically some erroneous programs. For instance, it allows to check that when function is applied to some argument, the type of the formal parameter corresponds to that one of actual parameter.
+
+The typing of the programs containing some ghost code should of course 
+assure the same safety with respect of program evaluation. However, in the presence of ghost code, this should also include the \textit{non-interference} of ghost code with the rest of the program. Intuitively, the \textit{non-interference} means that computation of ghost code must be completely disjoint from the computation of the non-ghost code. 
+
+To assure that, we define the typing relation as three-argument predicate  
+\fbox{${}{\tystepone{t}{\tau}{\mathfrak{B}}} $} which both carries statically the information about type of term $t$, and indicates whether
+this term is ghost or not. Formally, we define the typing relation inductively over the structure of terms as follows:
+ 
+% 	 	  \hrule
+  	 \begin{flushright}  	 \textbf{Typing}  	 \end{flushright}
+	\infrule[T-Unit]	 	{}{\tystepone{()}{unit}{\bot}} 
+	
+	\infrule[T-Var]	 	{}{\tystepone{x^{\mathfrak{B}}_{\tau}}{\tau}{\mathfrak{B}}}
+	
+	\infrule[T-Ghost]	 {\tystepone{\texttt{t}}{\tau}{\mathfrak{B}}}{\tystepone{\texttt{ghost t}}{\tau}{\top}}
+	
+	\infrule[T-Abs]	 	 {\tystepone{\texttt{t}}{\tau_{2}}{\mathfrak{B}_{2}}}
+										{\tystepone{\lambda x_{\tau_{1}}^{\mathfrak{B}_{1}}.\texttt{t}}{\tau_{1}^{\mathfrak{B}_{1}} \rightarrow \tau_{2}}{\mathfrak{B}_{2}}}
+										
+	\infrule[T-App]	 
+	{\tystepone{\texttt{t}_{1}}{\tau_{2}^{\mathfrak{B}_{2}} \rightarrow \tau_{1}}{\mathfrak{B}_{1}} 
+	\qquad  {\tystepone{\texttt{t}_{2}}{\tau_{2}}{\mathfrak{B'}_{2}}}
+	\qquad \mathfrak{B}_{2} \Rightarrow \mathfrak{B'}_{2}}
+	{\tystepone{\texttt{t}_{1}~ \texttt{t}_{2} }{\tau_{1}}{\mathfrak{B}_{1} \vee (\neg \mathfrak{B}_{2} \wedge \mathfrak{B'}_{2} ) }}
+										
+The rules \textsc{(T-Unit)}, \textsc{(T-Var)} and \textsc{(T-Abs)} are straightforward.
+
+The rule \textsc{(T-Ghost)} states simply that a term of \texttt{ghost t}
+is a ghost code, whether \texttt{t} is ghost or not. That is, if \texttt{t} were a well-typed non-ghost term, once we put inside a ghost code, it becomes ghost itself. 
+
+The more complex rule \textsc{(T-App)} states that formal argument of $\texttt{t}_{1}$ and actual parameter $\texttt{t}_{2}$ must be
+of the same type. Moreover, it forbids the application of normal code
+to a function whose formal argument is ghost.  
+
+However, a function whose formal argument is not ghost is applied to a 
+ghost code, then the application itself becomes ghost, whether function's
+body is ghost or not. We summarized that is the following table:
+
+\begin{figure}[H]
+\begin{center}
+\begin{tabular}{|c|c|c|c|l|}
+\hline
+$\mathfrak{B_{1}}$ & $\mathfrak{B_{2}}$ & $\mathfrak{B'_{2}}$
+ &  \multicolumn{2}{c|}{result} \\
+\hline
+$\bot$ & $\bot$ & $\bot$ & $\bot$ &  normal code application \\ \hline
+$\top$ & $\bot$ & $\top$ & $\bot$ &  ghost-code passing inside normal code
+\\ \hline
+$\top$ & $\top$ & $\top$ & $\top$ &  ghost code application \\ \hline
+$\bot$ & $\top$ & $\bot$ & $\top$ &  normal code passing inside ghost code
+ \\ \hline
+ \rowcolor{lightgray} 
+ $\bot$ & $\top$ & $\top$ & $\top$ &formal parameter contamination \\ \hline
+  \rowcolor{lightgray} 
+ $\bot$ & $\bot$ & $\top$ & $\top$ &function parameter and body contamination \\ \hline
+  $\top$ & $\bot$ & $\bot$ & $-$ & impossible \\ \hline
+ $\top$ & $\top$ & $\bot$ & $-$ & impossible \\ \hline
+ 
+\end{tabular}
+\end{center}
+\end{figure}  
+
+ 
+
+
+
+
+\subsubsection{Properties of typing}
+\begin{lemma}[Inversion of typing relation]~\\
+\vspace{-0.5cm}
+\begin{enumerate}
+	\item 
+	if $\tystepone{\texttt{ghost t}}{\tau_{1}}{\mathfrak{B_{1}}}$ 
+	then	$ \mathfrak{B_{1}} = \top $ 
+	and $\tystepone{\texttt{t}}{\tau_{1}}{\mathfrak{B_{2}}} $.
+%	with $\mathfrak{B_{2}} = \{\bot, \top\}$.
+	
+ 	\item
+ 	if $\tystepone
+ 			{\lambda x_{\tau_{2}}^{\mathfrak{B}_{2}}.\texttt{t}}
+ 			{\tau_{1}}
+ 			{\mathfrak{B_{1}}}$
+ 	then $\tau_{1} = \tau_{2}^{\mathfrak{B}_{2}} \rightarrow \tau_{11}$
+ 	for some $\tau_{11}$ with \mbox{$\tystepone{\texttt{t}}{\tau_{11}}{\mathfrak{B_{1}}} $}.
+  
+ \item 
+ 	If ${\tystepone{\texttt{t}_{1}~ \texttt{t}_{2} }{\tau_{1}}{\mathfrak{B}_{1}}}$
+	then there exist $\tau_{11}$, $\tau_{2}$, $\mathfrak{B_{2}}$ and 	
+	$\mathfrak{B'_{2}}$
+	such that \\ 
+	$\tystepone
+		{\texttt{t}_{1}}
+		{\tau_{2}^{\mathfrak{B}_{2}} \rightarrow \tau_{11}}
+		{\mathfrak{B_{1}}}$
+		and 
+	${\tystepone{\texttt{t}_{2}}{\tau_{2}}{\mathfrak{B'}_{2}}}$ with \\
+	 \quad
+	\mbox{$\vDash \mathfrak{B}_{1} \vee (\neg \mathfrak{B}_{2} \wedge \mathfrak{B'}_{2} ) \wedge (\mathfrak{B}_{2} \Rightarrow \mathfrak{B'}_{2})$}. 
+	
+	In particular, if 
+ 		${\tystepone{\texttt{t}_{1}~ \texttt{t}_{2} }{\tau_{1}}{\bot}}$
+then $\vDash \mathfrak{B_{2}} \Leftrightarrow \mathfrak{B'_{2}} $.
+\end{enumerate}
+\end{lemma} 
+\begin{proof}
+Straightforward from definition of the typing relation.
+\end{proof}
+
+\begin{lemma}[Progress] 
+If \texttt{t} is a closed, well-typed term 
+(that is ${\tystepone{\texttt{t}}{\tau}{\mathfrak{B}}}$ 
+for some $\tau$ and $\mathfrak{B}$, 
+then either \texttt{t} is a value or else there is some \texttt{t}' 
+such that \mbox{\texttt{t} $\rightarrow_{g\lambda}$ \texttt{t}'}.
+\end{lemma}
+\begin{proof}
+Admit.
+\end{proof}
+
+Note that the typing preservation works only for well-typed non-ghost terms. Indeed,as the following example shows, the contamination of non-ghost code makes the preservation fail for ghost code: if we evaluate
+ghost code \quad \texttt{ghost} $(\lambda \gvarF{x}{unit}. \gvarF{x}{unit}) 
+\rightarrow_{g\lambda} \lambda \gvarF{x}{unit}. \gvarF{x}{unit}$,  
+then \\
+${\tystepone
+{\texttt{ghost} (\lambda \gvarF{x}{unit}. \gvarF{x}{unit}) }{unit \rightarrow unit}{\top}}$ holds, while the typing relation  ${\tystepone{\gvarF{x}{unit}}{unit}{\top}}$ fails.
+
+
+
+\begin{lemma}[Non-ghost Code Typing Preservation] 
+If ${\tystepone{\texttt{t}}{\tau}{\mathfrak{\bot}}}$ 
+and \mbox{\texttt{t} $\rightarrow_{g\lambda}$ \texttt{t}'},
+then ${\tystepone{\texttt{t'}}{\tau}{\mathfrak{\bot}}}$ 
+\end{lemma}
+\begin{proof}
+Admit.
+\end{proof}
+
+\begin{theorem}[Soundness] 
+\end{theorem}
+\begin{proof}
+Admit.
+\end{proof}
+%--------------------------------------------------------------------------%
+\subsection{Ghost Code Erasure}
+\newcommand{\e}{\mathcal{E}}
+\theoremstyle{remark}
+\newtheorem{dfn}[theorem]{Definition}
+
+\qquad Once we formally defined the simply typed lambda-calculus enriched with ghost expressions, our goal is to show that the computational meaning
+ of non ghost well typed non-ghost $g\lambda$-terms is preserved by their translation to simply typed lambda-calculus.
+
+To achieve this, we start by defining the \textit{type-} and \textit{term-} \textit{erasure} functions from g$\lambda$-calculus to simply typed  $\lambda$-calculus. 
+
+
+\subsubsection{Ghost Erasure}
+
+
+\begin{dfn}[Type-Erasure] 
+\label{type-erasure}
+We define type-erasure by induction on the structure of types : \vspace{0.2cm} 
+
+\noindent$ \e_{\top}(\tau) = \texttt{unit} $ 
+
+\noindent$ \e_{\bot}(\texttt{unit}) = \texttt{unit}$ 
+
+\noindent$ \e_{\bot}(\tau_{2}^{\mathfrak{B_{2}}} \rightarrow \tau_{1})  
+= \e_{\mathfrak{B_{2}}}(\tau_{2}) \rightarrow \e_{\bot}(\tau_{1}) $. \\
+\end{dfn} 
+
+\begin{dfn}[Term-Erasure] 
+\label{term-erasure}
+Let \texttt{t} be a term such that 
+~~ $\tystepone{\texttt{t}}{\tau}{\mathfrak{B}}$ ~ holds. 
+We define term-erasure function by induction on 
+the structure of \texttt{t}, parametrizing it by the value of 
+$ \mathfrak{B}$. \\[0.1cm]
+$ \e_{\top}(\texttt{t}_{1}) = \texttt{()}$ 
+\quad where $ \tystepone{\texttt{t}_{1}}{\tau_{1}}{\top}$.\\[0.05cm]
+$\e_{\bot}(\texttt{()}) = \texttt{()}$\\[0.05cm]
+$\e_{\bot}(x_{\tau}^{\bot}) = x_{\e_{\bot}(\tau)}$\\[0.05cm]  
+$\e_{\bot}(\lambda x_{\tau_{2}}^{\mathfrak{B_{2}}}.t_{1}) 
+= \lambda x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}. \e_{\bot}(t_{1})$
+\quad where $ \tystepone{\texttt{t}_{1}}{\tau_{1}}{\bot}$.\\[0.05cm]
+$\e_{\bot}(\texttt{t}_{1} ~ \texttt{t}_{2}) 
+= \e_{\bot}(\texttt{t}_{1})  ~ \e_{\mathfrak{B_{2}}}(\texttt{t}_{2})$
+\quad 
+where $ \tystepone{\texttt{t}_{1}}{\tau_{1}}{\bot}$
+and $ \tystepone{\texttt{t}_{2}}{\tau_{2}}{\mathfrak{B_{2}}}$.
+\end{dfn}
+As it can be seen, the erasure function is a morphism that preserve
+the structure of operational (not ghost) terms and their types ($\sim\e_{\bot}(\star)$), and sends ghost expressions and types to \texttt{()} and \texttt{unit} respectively ($\sim\e_{\top}(\star)$).
+
+Here is two examples of term erasure:
+
+$ 
+\e_{\top}[
+(\lambda \gvarF{z}{\tau_{1}}.\gvarF{z}{\tau_{1}})(\texttt{ghost }())] 
+= () $
+
+$
+\e{\bot}[
+(\lambda \gvarT{x}{\tau_{1}}. 
+\lambda \gvarF{y}{\tau_{1}}. \gvarF{y}{\tau_{1}}) 
+(\texttt{ghost }())] = 
+(\lambda x_{\texttt{unit}}. \lambda y_{\tau_{1}}.y_{\tau_{1}})() $ 
+
+
+
+
+%--------------------------------------------------------------------------%
+\subsection{Properties of ghost erasure}
+
+\quad Now that we defined the erasure-translation of $g\lambda$-calculus to $\lambda$-calculus, our concern is to show that evaluation result of well-typed operational terms as well as their typing  are preserved under erasure. 
+First off we need to state and prove a few basic lemmas. 
+
+
+
+
+
+%cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Evaluation Preservation}
+\begin{lemma}[Substitution under erasure] ~\\
+If $\tystepone
+		{\texttt{t}_{1}}
+		{\tau_{1}}
+		{\bot}$  
+and 
+	\mbox{
+		$\tystepone
+			{\texttt{v}_{2}}
+			{\tau_{2}}
+			{\mathfrak{B_{2}}}$}	
+hold, \\ 
+then
+$\e_{\bot}
+	(\sbst
+		{\texttt{t}_{1}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}})
+= \sbst
+		{\e_{\bot}(\texttt{t}_{1})}
+		{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
+		{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})}$
+\label{Substitution under erasure}
+\end{lemma}
+
+\begin{proof}
+By induction on the structure of $\texttt{t}_{1}$.  \\
+
+\noindent\textit{Case} 
+$\texttt{t}_{1} = x^{\mathfrak{B_{2}}}_{\tau_{2}}$:\\
+In that case,  we can deduce that $\mathfrak{B_{2}} = \bot$. Therefore:
+
+\begin{center}
+ $\e_{\bot}
+	(\sbst
+		{x^{\bot}_{\tau_{2}}}
+		{x^{\bot}_{\tau_{2}}}
+		{\texttt{v}_{2}}) 
+	= \e_{\bot}(\texttt{v}_{2}) $ 
+	$= \sbst
+			{x_{\e_{\bot}(\tau_{2})}}
+			{x_{\e_{\bot}(\tau_{2})}}
+			{\e_{\bot}(\texttt{v}_{2})}$ \\[0.08cm]
+	$= \sbst
+			{\e_{\bot}(x^{\bot}_{\tau_{2}})}
+			{x_{\e_{\bot}(\tau_{2})}}
+			{\e_{\bot}(\texttt{v}_{2})}$
+\end{center}
+
+\noindent\textit{Case} $
+\texttt{t}_{1} = y^{\bot}_{\tau'_{2}} \neq x^{\mathfrak{B_{2}}}_{\tau_{2}}$:
+\begin{center}
+ $\e_{\bot}
+	(\sbst
+		{y^{\bot}_{\tau'_{2}}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}}) 
+	= \e_{\bot}(y^{\bot}_{\tau'_{2}}) 
+	= y_{\e_{\bot}(\tau'_{2})} $ \\[0.08cm]
+$ = \sbst
+			{y_{\e_{\bot}(\tau'_{2})}}
+			{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
+			{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})}$ 
+$ = \sbst
+			{\e_{\bot}(y^{\bot}_{\tau'_{2}})}
+			{x_{\e_{\mathfrak{B_{2}}(\tau_{2})}}}
+			{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})}$
+\end{center}
+
+\noindent\textit{Case} 
+$\texttt{t}_{1} 
+= \lambda y^{\mathfrak{B'_{2}}}_{\tau'_{2}}. t_{11} \quad \text{ with }   
+y^{\mathfrak{B'_{2}}}_{\tau'_{2}} \not\in \texttt{FV}(\texttt{v}_{2}) 
+\text{ and } \neq x^{\mathfrak{B_{2}}}_{\tau_{2}} : $
+\begin{center}
+ $\e_{\bot}
+	(\sbst
+		{(\lambda y^{\mathfrak{B'_{2}}}_{\tau'_{2}}. t_{11})}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}})
+	= \e_{\bot}[\lambda y^{\mathfrak{B'_{2}}}_{\tau'_{2}}.
+	(\sbst
+		{ t_{11}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}})] $\\[0.08cm]
+$	= \lambda y_{\e_{\mathfrak{B'_{2}}}(\tau'_{2})}.
+		\e_{\bot}(
+		\sbst
+			{\texttt{t}_{11}}
+			{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+			{\texttt{v}_{2}})] $\\[0.08cm]
+$ \stackrel{Ind.Hyp.}{=} 
+	\lambda y_{\e_{\mathfrak{B'_{2}}}(\tau'_{2})}.		
+	\sbst
+			{\e_{\bot}(\texttt{t}_{11})}
+			{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
+			{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})}$ \\[0.08cm]
+$	= \sbst
+			{(\lambda y_{\e_{\mathfrak{B'_{2}}}(\tau'_{2})}.
+				\e_{\bot}(\texttt{t}_{11}))}
+			{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
+			{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})}$ \\[0.08cm]
+$ = 
+	\sbst
+			{\e_{\bot}(\lambda y^{\mathfrak{B'_{2}}}_{\tau'_{2}}. t_{11}) }
+			{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
+			{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})}$
+\end{center}
+
+\noindent\textit{Case} 
+$\texttt{t}_{1} = \texttt{t}_{11}\texttt{t}_{12} $
+\begin{center}
+ $\e_{\bot}
+	(\sbst
+		{\texttt{t}_{11}\texttt{t}_{12}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}}) 	$ 
+$	= \e_{\bot}
+	(\sbst
+		{\texttt{t}_{11}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}} ~
+	\sbst
+		{\texttt{t}_{12}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}}) 	  $ \\[0.08cm]
+$ = \e_{\bot}
+	(\sbst
+		{\texttt{t}_{11}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}}) ~
+	\e_{\bot}
+	(\sbst
+		{\texttt{t}_{12}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{2}}) 	  $ \\[0.08cm]
+$ \stackrel{Ind.Hyp.}{=} 
+		(\sbst
+			{\e_{\bot}({\texttt{t}_{11}})}
+			{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
+			{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})})	
+		(\sbst
+			{\e_{\bot}({\texttt{t}_{12}})}
+			{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
+			{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})})	$ \\[0.08cm]
+$ = 
+	\sbst
+		{\e_{\bot}(\texttt{t}_{11} \texttt{t}_{12})}
+		{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
+		{\e_{\mathfrak{B_{2}}}(\texttt{v}_{2})})	$\\[0.08cm]
+\end{center}
+ \end{proof}
+
+
+
+\theoremstyle{remark}
+
+\begin{lemma}[One-step evaluation under erasure]
+For any closed g$\lambda$-term \texttt{t} such that
+$\tystepone{\texttt{t}}{\tau}{\bot}$ holds, 
+if	$\texttt{t} \rightarrow_{g\lambda} \texttt{t}'$ 
+for some term \texttt{t}', 
+then either 
+\text{$\e_{\bot}(\texttt{t}) \rightarrow_{\lambda} \e_{\bot}(t')$} 
+or 		$\e_{\bot}(\texttt{t}) = \e_{\bot}(t')$. 
+\end{lemma}
+
+\begin{proof} 
+By induction on the evaluation relation of 
+$\texttt{t} \rightarrow_{g\lambda} \texttt{t}'$. \\
+
+\noindent\textit{Case} \textsc{E-AppAbs}: \qquad
+$ ~\texttt{t} 
+= (\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.
+		\texttt{t}_{1})\texttt{v}_{1}$ ~with~
+$ (\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.
+		\texttt{t}_{1})\texttt{v}_{1} 
+	\stackrel{\epsilon\quad}{\rightarrow_{g\lambda}}  
+	\sbst
+		{\texttt{t}_{1}}
+		{x^{\mathfrak{B_{2}}}_{\tau_{2}}}
+		{\texttt{v}_{1}}$\\
+\phantom{\noindent\textit{Case} \textsc{E-AppAbs}: \qquad }		
+$ \tystepone
+		{(\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.\texttt{t}_{1})\texttt{v}_{1}}	
+		{\tau_{1}}
+		{\mathfrak{B_{1}}}, \quad 
+ 	\tystepone
+ 		{\texttt{v}_{1}}
+ 		{\tau_{2}}
+ 		{\mathfrak{B'_{2}}}, $ \\
+\phantom{\noindent\textit{Case} \textsc{E-AppAbs}: \qquad }		
+$ \mathfrak{B_{1}} = \bot,  \quad 
+	\vDash\mathfrak{B_{2}} \Leftrightarrow \mathfrak{B'_{2}} $ 
+
+\begin{center}
+	\begin{tabular}{lll}
+   & $ \e_{\bot}
+  [(\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}.
+  		\texttt{t}_{1})\texttt{v}_{1}]$ &\\
+   & $ = \lambda x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}. 
+   \e_{\bot}(\texttt{t}_{1}))\e_{\mathfrak{B'_{2}}}(\texttt{v}_{1})$ 
+   & (as $ \mathfrak{B_{1}} = \bot $)  \\
+&  $ \stackrel{\epsilon~~}{\rightarrow_{\lambda}} 
+	   \sbst
+   		{\e_{\bot}(\texttt{t}_{1})}
+   		{x_{\e_{\mathfrak{B_{2}}}(\tau_{2})}}
+   		{\e_{\mathfrak{B'_{2}}}(\texttt{v}_{1})}$ & (head red.) \\
+& $ = \e_{\bot}(\sbst{\texttt{t}_{1}}{x^{\mathfrak{B_{2}}}_{\tau_{2}}}{\texttt{v}_{1}}) $ & (by Substitution under erasure lemma)
+	\end{tabular}
+\end{center}
+
+\noindent\textit{Case} \textsc{E-DeGhost}:  \qquad \\ Trivially verified,
+as for any instance of $\tystepone{(ghost ~ \texttt{t}_{1})}{\tau_{1}}{\mathfrak{B_{1}}}$, $\mathfrak{B_{1}} = \top $.\\
+
+\noindent\textit{Case} \textsc{E-AppLeft}: \qquad 
+ $\texttt{t} = \texttt{t}_{1} \texttt{t}_{2},\quad
+ \texttt{t}^{'} = \texttt{t}^{'}_{1} \texttt{t}_{2}, ~ \text{ with }
+ \texttt{t}_{1} \rightarrow_{g\lambda} \texttt{t}^{'}_{1}$ \\
+\phantom{\noindent\textit{Case} \textsc{E-AppLeft}: \qquad}		
+$\tystepone{\texttt{t}_{1}}{\tau_{2}^{\mathfrak{B_{2}}} \rightarrow \tau_{1}}{\mathfrak{B_{1}}}$,  ~
+$\tystepone{\texttt{t}_{2}}{\tau_{2}}{\mathfrak{B'_{2}}}, $ \\ 
+\phantom{\noindent\textit{Case} \textsc{E-AppLeft}: \qquad}		
+$ \mathfrak{B_{1}} = \bot,  \quad 
+\vDash\mathfrak{B_{2}} \Leftrightarrow \mathfrak{B'_{2}} $ \\
+
+As $\mathfrak{B_{1}} = \bot$, we can apply induction hypothesis on
+$\texttt{t}_{1}$ which gives  
+$\e_{\bot}(\texttt{t}_{1}) \rightarrow_{\lambda} 
+\e_{\bot}(\texttt{t}_{1}^{'})$.
+Then, applying \textsc{E-AppRight} rule, we obtain:
+$$
+\e_{\bot}(\texttt{t}) 
+= \e_{\bot}(\texttt{t}_{1})\e_{\bot}(\texttt{t}_{2})
+\rightarrow_{\lambda} 
+\e_{\bot}(\texttt{t}^{'}_{1})\e_{\bot}(\texttt{t}_{2})
+= \e_{\bot}(\texttt{t}^{'}).$$
+
+
+
+
+\noindent\textit{Case} \textsc{E-AppRight}: \qquad 
+ $\texttt{t} = \texttt{v}_{1} \texttt{t}_{2},\quad
+ \texttt{t}^{'} = \texttt{v}_{1} \texttt{t}^{'}_{2}, ~ \text{ with }
+ \texttt{t}_{2} \rightarrow_{g\lambda} \texttt{t}^{'}_{2}$ \\
+\phantom{\noindent\textit{Case} \textsc{E-AppRight}: \qquad}		
+$\tystepone{\texttt{v}_{1}}{\tau_{2}^{\mathfrak{B_{2}}} \rightarrow \tau_{1}}{\mathfrak{B_{1}}}$,  ~
+$\tystepone{\texttt{t}_{2}}{\tau_{2}}{\mathfrak{B'_{2}}}, $ \\ 
+\phantom{\noindent\textit{Case} \textsc{E-AppRight}: \qquad}		
+$ \mathfrak{B_{1}} = \bot,  \quad 
+\vDash\mathfrak{B_{2}} \Leftrightarrow \mathfrak{B'_{2}} $ \\
+If $\mathfrak{B_{2}} = \mathfrak{B'_{2}} = \top $, then
+$$\e_{\bot}(\texttt{t}) 
+= \e_{\bot}(\texttt{v}_{1})\e_{\top}(\texttt{t}_{2})
+= (\e_{\bot}(\texttt{v}_{1}))\texttt{()}
+= \e_{\bot}(\texttt{v}_{1})\e_{\top}(\texttt{t}^{'}_{2})
+= \e_{\bot}(\texttt{t}^{'}). $$
+Otherwise, $\mathfrak{B_{2}} = \mathfrak{B'_{2}} = \bot $.
+By induction hypothesis, 
+$\e_{\bot}(\texttt{t}_{2}) \rightarrow_{\lambda} 
+\e_{\bot}(\texttt{t}_{2}^{'})$.
+Then, applying \textsc{E-AppRight} rule, we obtain:
+$$
+\e_{\bot}(\texttt{t}) 
+= \e_{\bot}(\texttt{v}_{1})\e_{\bot}(\texttt{t}_{2})
+\rightarrow_{\lambda} 
+\e_{\bot}(\texttt{v}_{1})\e_{\bot}(\texttt{t}^{'}_{2})
+= \e_{\bot}(\texttt{t}^{'}).$$
+
+
+
+
+%
+%
+%By canonical forms lemma, $\texttt{v}_{2} = 
+%\lambda x^{\mathfrak{B_{2}}}_{\tau_{2}}. \texttt{t}_{2} $.    
+ 
+% $\texttt{t} = \texttt{E t}_{1},\quad
+% \texttt{t'} = \texttt{E t'}_{1}, \quad
+% \texttt{t}_{1} \rightarrow_{g\lambda} \texttt{t'}_{1}$  
+
+\end{proof}
+
+Now we can prove the main theorem.
+\begin{theorem}[Value preservation under erasure]
+	For any closed g$\lambda$-term \texttt{t} such that
+	$\tystepone{\texttt{t}}{\tau}{\bot}$ holds, 
+	if	$\texttt{t} \rightarrow^{\ast}_{g\lambda} \texttt{v}$ for some value \texttt{v}, then
+	 \text{$\e(\texttt{t}) \rightarrow^\ast_{\lambda} \e(v)$}. 
+\end{theorem}
+\begin{proof} By induction on the length of the evaluation of 
+$\texttt{t} \rightarrow^{\ast}_{g\lambda} \texttt{v}$. 
+
+
+We already have proved the base case : indeed, if $\texttt{t} \rightarrow_{g\lambda} \texttt{v}$ then by the one-step evaluation lemma, 
+$\e_{\bot}(\texttt{t}) \rightarrow^{0 | 1}_{\lambda} 
+\e_{\bot}(\texttt{v})$. 
+
+Now, assume that $\texttt{t} \rightarrow^{1}_{g\lambda} 
+\texttt{t}' \rightarrow^{n}_{g\lambda}  \texttt{v}$
+for some arbitrary $n \in \mathbb{N}$.
+By the progress of typing, 
+$ \tystepone{\texttt{t}'}{\tau}{\bot} $, so we can apply induction hypothesis on $\texttt{t}'$ which gives~
+$\e(\texttt{t}') \rightarrow^\ast_{\lambda} \e(\texttt{v})$.
+By the one-step evaluation lemma again, we have 
+$\e_{\bot}(\texttt{t}) \rightarrow^{0 | 1}_{\lambda} 
+\e_{\bot}(\texttt{t}')$. 
+That is, 
+$\e_{\bot}(\texttt{t}) \rightarrow^{\ast}_{\lambda} 
+\e_{\bot}(\texttt{v})$.
+\end{proof}
+
+
+
+
+
+\subsubsection{Typing Erasure}
+\begin{lemma}[Typing relation under erasure]~ \\
+	If  $\tystepone{\texttt{t}}{\tau}{\bot}$  
+	then \text{$\vdash_{\lambda}  \e_{\bot}(\texttt{t}) 
+	~:~\e_{\bot}({\tau})$}.
+\end{lemma}
+\begin{proof}
+By induction on a derivation of the statement 
+\text{$\vdash_{g\lambda}  \e_{\bot}(\texttt{t}) ~:~\e_{\bot}({\tau})$}. 
+For a given derivation, we proceed by case analysis on the final typing rule
+ used in the proof. 
+ 
+ 	\noindent\textit{Case} \textsc{T-Unit}:\quad 
+ 	$\tystepone{\texttt{()}}{\texttt{unit}}{\bot}$
+ 	
+ 	Immediately by definition of $\e_{\bot}$.\\[0.08cm] 
+% 		As  $\e_{\bot}(\texttt{()}) = \texttt{()}$ and $ \e_{\bot}(\texttt{unit}) = \texttt{unit}$
+% 		 we have immediately $\vdash_{\lambda} \texttt{()} : \texttt{unit}$.
+ 	\noindent\textit{Case} \textsc{T-Var}:\quad 
+ 	$\tystepone{x_{\tau}^{\bot}}{\tau}{\bot}$
+ 	 
+ 	 $\e_{\bot}(x_{\tau}^{\bot}) = x_{\e_{\bot}(\tau)}$ gives  immediately 
+ 	 $\vdash_{\lambda} x_{\e_{\bot}(\tau)} : \e(\tau)$.\\[0.08cm] 
+ 	\noindent\textit{Case} \textsc{T-Abs}:\quad
+ 		$\tystepone{\lambda x_{\tau_{2}}^{\mathfrak{B}_{2}}.\texttt{t}_{1}}
+ 		{\tau_{2}^{_{2}} \rightarrow 
+ 		\tau_{1}}{\bot}~ \text{with} \tystepone{\texttt{t}_{1}}{\tau_{1}}{\bot}	$
+ 		
+ 		By induction hypothesis $\vdash_{\lambda} \e_{\bot}(\texttt{t}_{1}) : \e_{\bot}(\tau_{1}) $.
+ 		There are two cases to consider, depending on whether the parameter 
+ 		of the abstraction is ghost or not. If $\mathfrak{B_{2} = \top}$ then 
+ 		$\e_{\bot}(\lambda x_{\tau_{2}}^{\top}. \texttt{t}_{1}) = \lambda x_{\texttt{unit}}. \e(\texttt{t}_{1})$
+ 		and therefore
+ 		\infrule[T-Abs]
+ 		{\vdash_{\lambda} \e_{\bot}(\texttt{t}_{1}) : \e_{\bot}(\tau_{2})}
+ 		{ \vdash_{\lambda} \lambda x_{\texttt{unit}}.\e_{\bot}(\texttt{t}_{1}) : 
+ 		\texttt{unit} \rightarrow 	\e_{\bot}(\tau_{1})} 
+ 	
+ 		Otherwise $\mathfrak{B_{2} = \bot}$ and again by the rule \textsc{T-Abs} 
+ 		we obtain :
+ 		\infrule[T-Abs]
+ 		{\vdash_{\lambda} \e_{\bot}(\texttt{t}_{1}) : \e_{\bot}(\tau_{1})}
+ 		{ \vdash_{\lambda} \lambda x_{\e_{\bot}(\tau_{2})}.\e_{\bot}(\texttt{t}_{1}) : 
+ 		\e_{\bot}(\tau_{2}) \rightarrow 	\e_{\bot}(\tau_{1})}
+ 		
+ 		 	
+ 	\noindent\textit{Case} \textsc{T-App}:\quad
+ 	$\tystepone{\texttt{t}_{1}~\texttt{t}_{2}}{\tau_{1}}{\bot} $ ~
+ 	with sub-derivations: \\
+	\phantom{{Case} \textsc{T-App}: \qquad}
+	$\tystepone{\texttt{t}_{1}}
+	{\tau_{2}^{\mathfrak{B}_{2}} \rightarrow \tau_{1}}{\mathfrak{B}_{1}}$ \\
+	\phantom{\textit{Case} \textsc{T-App}: \qquad}	
+	$ \tystepone{\texttt{t}_{2}}{\tau_{2}}{\mathfrak{B'}_{2}} $, \quad 
+%	and constraints: \\ 
+%	\phantom{\textit{Case} \textsc{T-App}: \qquad}	
+%	$ \mathfrak{B}_{1}\vee (\neg \mathfrak{B}_{2} \wedge \mathfrak{B'}_{2})=\bot,$
+%	$ \mathfrak{B}_{2} \Rightarrow \mathfrak{B'}_{2} = \top $ \\
+	
+%	By lemma's statement, $\texttt{t}_{1}~\texttt{t}_{2}$ 
+%	should not be a ghost term. Therefore
+%	$\mathfrak{B}_{1}\vee (\neg \mathfrak{B}_{2} \wedge \mathfrak{B'}_{2})=\bot$.
+%	From that and from the rule's premise condition 
+%	$ \mathfrak{B}_{2} \Rightarrow \mathfrak{B'}_{2} = \top $ 
+%	we deduce 
+
+As $\tystepone{\texttt{t}_{1}~\texttt{t}_{2}}{\tau_{1}}{\bot} $, the inversion lemma gives as 
+By inversion that $\vDash \mathfrak{B}_{2} \Leftrightarrow \mathfrak{B'}_{2}$. That is, we have two cases to consider.
+	
+	If \text{$ \mathfrak{B}_{2} = \mathfrak{B'}_{2} = \bot $} 
+	then by induction hypotheses \\
+	$\vdash_{\lambda} \e_{\bot}(\texttt{t}_{1}) : 
+	\e_{\bot}(\tau_{2}) \rightarrow \e_{\bot}(\tau_{1}) $ and
+	\text{$\vdash_{\lambda} \e_{\bot}(\texttt{t}_{2}) : \e_{\bot}(\tau_{2}) $}.
+	By  \textsc{T-App} rule,
+	\infrule[T-App]
+	{\vdash_{\lambda} \e_{\bot}(\texttt{t}_{1}) : 
+	\e_{\bot}(\tau_{2}) \rightarrow \e_{\bot}(\tau_{1}) 
+	\qquad
+	\vdash_{\lambda} \e_{\bot}(\texttt{t}_{2}) : \e_{\bot}(\tau_{2}) }
+	{\vdash_{\lambda} \e_{\bot}(\texttt{t}_{1}~\texttt{t}_{2}): \e(\tau_{1})}  
+	
+	If \text{$ \mathfrak{B}_{2} = \mathfrak{B'}_{2} = \top $},
+	then by definition of $\e$ we have $\e(\texttt{t}_{2}) = \texttt{()}$ 
+	and $\e_{\mathfrak{B'_{2}}}(\tau_{2}) = \texttt{unit}$. 
+	By induction hypothesis on $\texttt{t}_{1}$,
+	\text{$\vdash_{\lambda} \e_{\bot}(\texttt{t}_{1}) : 
+	\texttt{unit} \rightarrow \e_{\bot}(\tau_{1}) $}. 
+	Applying \textsc{T-App} rule gives us \\
+
+\hspace*{1.2in}
+\infer[\mbox{\textsc{(T-App)}}]
+ {\vdash_{\lambda} \e_{\bot}(\texttt{t}_{1}~\texttt{t}_{2}): \e_{\bot}(\tau_{1})}
+ {\infer
+   {\vdash_{\lambda} \e_{\bot}(\texttt{t}_{1}~\texttt{t}_{2}): \e(\tau_{1})}
+   {}
+   &
+ \infer[\mbox{\textsc{(T-Unit)}}]
+  {\vdash_{\lambda} \texttt{()} : \texttt{unit}}
+  {}}	\\
+  
+  	The case of (\textsc{T-Ghost}) as well as any other valid derivation  
+  	where a typed term is marked as ghost do not satisfy lemma's requirement, 
+  	so these cases are trivially verified.									
+\end{proof}
+
+%TODO:
+%Extensions:
+%- If-then-else
+%- rec
+%- let in
+%- match 
+%- constructors
+%- ref global mono
+%- types polymorphes
+%- operators
+%
+%Potential difficulties:
+%- polymorphism
+%- schemes
+%- non interference
+%
+%-->(E,E')
+%
+%règles de typage
+%règles d'effacement
+
+
+
