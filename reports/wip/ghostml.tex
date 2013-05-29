@@ -12,30 +12,30 @@
 % When a correct-by-construction executable code is extracted
 % from the specified program, this , called \textit{ghost code} disappear  together with
 % specification. 
-The goal of this section is to present the idea of \textit{ghost} code,
-its use in program specification and to state some properties about its 
-extraction.
-
-Ghost code is a kind of program annotation that serves 
-as a support for program specification inside logical formulae and assertions.
-
-The main idea about ghost code is that as any other kind of
- specification it does not affect the program meaning. That is, ghost
- code does not correspond to any physical entity, and as such can by entirely erased from a program, without altering its formal meaning. 
- 
-In this section we describe a language where one can annotate programs 
-with such \textit{ghost code}.
-
-We start by formalizing the \textit{ghost}$\lambda$\textit{-calculus}, 
-a tiny language of simply typed $\lambda$-calculus enriched with ghost variables and ghost expressions.
-
-We then define ghost code \textit{erasure}, which transforms a well-typed g$\lambda $ term  to a term of standard  $\lambda$-calculus.
-Finally we state and proof a few basic preservation properties of such translation.
+%The goal of this section is to present the idea of \textit{ghost} code,
+%its use in program specification and to state some properties about its 
+%extraction.
+%
+%Ghost code is a kind of program annotation that serves 
+%as a support for program specification inside logical formulae and assertions.
+%
+%The main idea about ghost code is that as any other kind of
+% specification it does not affect the program meaning. That is, ghost
+% code does not correspond to any physical entity, and as such can by entirely erased from a program, without altering its formal meaning. 
+% 
+%In this section we describe a language where one can annotate programs 
+%with such \textit{ghost code}.
+%
+%We start by formalizing the \textit{ghost}$\lambda$\textit{-calculus}, 
+%a tiny language of simply typed $\lambda$-calculus enriched with ghost variables and ghost expressions.
+%
+%We then define ghost code \textit{erasure}, which transforms a well-typed g$\lambda $ term  to a term of standard  $\lambda$-calculus.
+%Finally we state and proof a few basic preservation properties of such translation.
 
 \subsection{g$\lambda$-calculus syntax and semantics}
 
 \renewcommand{\arraystretch}{1.1}
-The syntax of \gml is summarized below.\vspace{-0.5cm}
+%The syntax of \gml is summarized below.\vspace{-0.5cm}
 \begin{figure}[H]
  \begin{adjustwidth}{-3em}{-3em}
 \begin{displaymath}
@@ -64,8 +64,8 @@ The syntax of \gml is summarized below.\vspace{-0.5cm}
    
    	&     \texttt{c}              & & \textit{constant} &
 	\texttt{c} & ::= &  & \textsc{constants}                       \\
-   	
-   	
+   	  
+    	      
    	&     x^{\mathfrak{B}}_{\tau} & & \textit{variable} &
 	&     0 ~| 1 ~| ... ~| n        & & \textit{integer}          \\   	
   
@@ -120,33 +120,100 @@ The syntax of \gml is summarized below.\vspace{-0.5cm}
 \caption{ \textbf{\gml syntax} \hfill}
 \end{adjustwidth}
 \end{figure}
-
-Here, the letters \textit{p, t, v, c} are meta-variables for programs, terms, variables and constants respectively. 
-
-As we can see, g$\lambda$-calculus is just an extension of standard simply 
-typed $\lambda$-calculus with \texttt{arrow} and \texttt{unit} enriched
-with a construction \texttt{ghost t} for ghost terms. 
-Moreover, variables and formal arguments in abstraction are annotated with
-their type and \textit{ghost} mark $\mathfrak{B}$ which indicates whether 
-it is ghost ($\top$) or not ($\bot$). \\
-
-The evaluation of g$\lambda$-calculus corresponds as well to the standard SOS call-by-value semantics of $\lambda$-calculus, except for the rule  \makebox{(\textsc{E-DeGhost})}.
+%
+%Here, the letters \textit{p, t, v, c} are meta-variables for programs, terms, variables and constants respectively. 
+%
+%As we can see, g$\lambda$-calculus is just an extension of standard simply 
+%typed $\lambda$-calculus with \texttt{arrow} and \texttt{unit} enriched
+%with a construction \texttt{ghost t} for ghost terms. 
+%Moreover, variables and formal arguments in abstraction are annotated with
+%their type and \textit{ghost} mark $\mathfrak{B}$ which indicates whether 
+%it is ghost ($\top$) or not ($\bot$). \\
+%
+%The evaluation of g$\lambda$-calculus corresponds as well to the standard SOS call-by-value semantics of $\lambda$-calculus, except for the rule  \makebox{(\textsc{E-DeGhost})}.
+\newcommand{\mem}{_{|\mu}}
+\newcommand{\memp}{_{|\mu'}}
+\smallrulenames
 \begin{figure}[H]
-\begin{spacing}{1.5}
-\begin{multicols}{2}
-\infax[E-AppFun] {\stepone{(\lambda x^{b}_{\tau}.t)v}{\sbst{t}{x^{b}_{\tau}}{v}}} 
+\hrulefill
+	
 
-\infrule[E-AppRec]{{\texttt{t}_{2}} \rightarrow {\texttt{t}'_{2}}}{{\texttt{v}_{1} \texttt{t}_{2} } \rightarrow {\texttt{v}_{1} \texttt{t}'_{2}}} 
+	\begin{spacing}{1.2} 
+	
+	\infax[E-Const] 
+	{\stepone
+		{c~v\mem}
+		{\delta(c,v)}\mem \qquad \text{if } \delta(c,v) \text{ is defined }} 
+	
+	\infax[E-AppFun] 
+	{\stepone
+		{(\lambda x^{b}_{\tau}.t)v\mem}
+		{\sbst{t}{x^{b}_{\tau}}{v}}\mem} 
+	  
 
-\infax[E-DeGhost]	 	{\stepone{\texttt{ghost t}}{\texttt{t}}} 
+	\infax[E-AppRec]
+	{\stepone
+		{(\mathtt{rec}~ \gvar{f}{1}{1} ~ \gvar{x}{2}{2}. t) v\mem}
+		{t[\gvar{x}{2}{2} \mapsfrom v, 
+			 \gvar{f}{1}{1} \mapsfrom 
+			 \mathtt{rec}~ \gvar{f}{1}{1}~\gvar{x}{2}{2}.t]}\mem}		
+	
+	\infax[E-LetV]
+	{\stepone
+	 {\mathtt{let} ~ \gvar{x}{}{} = v_{1} ~ \mathtt{in}~ {t_{2}}\mem}
+	 {\sbst{t_{2}}{x^{b}_{\tau}}{v_{1}}}\mem} 
+	
+	\infax[E-If-true]		
+	{\stepone
+		{\mathtt{if}~\mathtt{true}~\mathtt{then}~t_{1}~\mathtt{else}~t_{2}{\mem}}
+		{t_{1}{\mem}}}
+	
+	\infax[E-If-false]		
+	{\stepone
+		{\mathtt{if}~\mathtt{false}~\mathtt{then}~t_{1}~\mathtt{else}~t_{2}{\mem}}
+		{t_{2}{\mem}}}	
 
+	\infax[E-DeGhost]	 	
+	{\stepone{\text{ghost } t\mem}{t \mem}}
 
-\infrule[E-AppLeft]{{\texttt{t}_{1}} \rightarrow {\texttt{t}'_{1}}}{{\texttt{t}_{1} \texttt{t}_{2} } \rightarrow {\texttt{t}'_{1} \texttt{t}_{2}}}
+	\infax[E-Deref]	 	
+	{\stepone{!\gvar{r}{}{}{\mem}}{\mu_{\mathfrak{B}}(r_{\tau})}}
+
+	\infax[E-Assign]
+	{\stepone
+		{\gvar{r}{}{} := v\mem}
+		{()_{|\mu_{\mathfrak{B}}[\gvar{r}{}{} \mapsfrom v]}}}
+	
+	\hrulefill
+	
+	\infrule[E-Let]
+	{{t_{1}}\mem \rightarrow {{t'}_{1}}\memp}
+	{\mathtt{let} ~ \gvar{x}{}{} = t_{1} ~ \mathtt{in}~ {t_{2}}\mem
+		\rightarrow 
+		\mathtt{let} ~ \gvar{x}{}{} = t_{1}' ~ \mathtt{in}~ {t_{2}}\memp}
   
-\infrule[E-AppRight]{{\texttt{t}_{2}} \rightarrow {\texttt{t}'_{2}}}{{\texttt{v}_{1} \texttt{t}_{2} } \rightarrow {\texttt{v}_{1} \texttt{t}'_{2}}}  
+	\infrule[E-AppLeft]
+	{{t_{1}}\mem \rightarrow {t'_{1}}\memp}
+	{{t_{1} t_{2}}\mem
+						\rightarrow {t'_{1}t_{2}}\memp}
+  
+	\infrule[E-AppRight]
+	{{\texttt{t}_{2}}\mem \rightarrow {\texttt{t}'_{2}}\memp}
+	{{\texttt{v}_{1} \texttt{t}_{2}}\mem 
+	\rightarrow {\texttt{v}_{1}\texttt{t}'_{2}}\memp}  
 
-\end{multicols}
+	\infrule[E-If]
+	{{t_{1}}\mem \rightarrow {t'_{1}}\memp}
+	{\mathtt{if}~t_{1}~\mathtt{then}~t_{2}~\mathtt{else}~t_{3}{\mem}	
+	\rightarrow \mathtt{if}~t'_{1}~\mathtt{then}~t_{2}~\mathtt{else}~t_{3}{\memp}}
+
+	\infrule[E-Assign-Ctx]
+	{{t_{1}}\mem \rightarrow {t'_{1}}\memp}
+	{\stepone
+		{\gvar{r}{}{} := t_{1}{\mem}}
+		{\gvar{r}{}{} := t'_{1}{\memp}}}
 \end{spacing}
+
 \end{figure}
 %\begin{adjustwidth}{-22em}{-2em}
 %\begin{spacing}{1.4}
@@ -182,15 +249,15 @@ The evaluation of g$\lambda$-calculus corresponds as well to the standard SOS ca
 %	\infrule[T-AppLeft]{{\texttt{t}_{2}} \rightarrow {\texttt{t}'_{2}}}{{\texttt{v}_{1} \texttt{t}_{2} } \rightarrow {\texttt{v}_{1} \texttt{t}'_{2}}}	
 %\caption{ \textbf{\glam syntax and semantics} \hfill}
 
-
-\subsubsection*{Free variables, scope and equivalence of terms} 
-We do not present here the formal definitions of free variables, 
-abstraction scope, $\alpha$-equivalence and substitution: they are exactly 
-the same that those of $\lambda$-calculus.
-
-However, it is important to notice that two variables $x^{\mathfrak{B_{1}}}_{\tau_{1}}$ and  
-$y^{\mathfrak{B_{2}}}_{\tau_{2}}$ are syntactically equal only if 
-$x = y$, $\mathfrak{B_{1}} = \mathfrak{B_{2}}$ and $ \tau_{1} = \tau_{2} $. That is  $\lambda \gvarT{x}{1}. \gvarT{x}{1}$ corresponds to $\tau_{1}$- identity, whilst  $\lambda \gvarT{x}{1}. \gvarF{x}{1}$ corresponds to the constant function that ignores its argument. 
+%
+%\subsubsection*{Free variables, scope and equivalence of terms} 
+%We do not present here the formal definitions of free variables, 
+%abstraction scope, $\alpha$-equivalence and substitution: they are exactly 
+%the same that those of $\lambda$-calculus.
+%
+%However, it is important to notice that two variables $x^{\mathfrak{B_{1}}}_{\tau_{1}}$ and  
+%$y^{\mathfrak{B_{2}}}_{\tau_{2}}$ are syntactically equal only if 
+%$x = y$, $\mathfrak{B_{1}} = \mathfrak{B_{2}}$ and $ \tau_{1} = \tau_{2} $. That is  $\lambda \gvarT{x}{1}. \gvarT{x}{1}$ corresponds to $\tau_{1}$- identity, whilst  $\lambda \gvarT{x}{1}. \gvarF{x}{1}$ corresponds to the constant function that ignores its argument. 
 
   
 \subsection{Typing Relation}
