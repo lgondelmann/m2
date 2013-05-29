@@ -137,12 +137,18 @@ keepspaces=true,
 
 \newcommand{\stepone}[2]{#1 ~ {\rightarrow}~ #2}
 \newcommand{\tystepone}[3]{\vdash_{g\lambda}  #1 : (#2, #3) }
+\newcommand{\typrule}[5]{\vdash_{g\lambda}  #1 : (#2, #3, #4) \quad #5 }
 \newcommand{\sbst}[3]{#1 [#2 \mapsfrom #3] }
 \newcommand{\gvar}[3]{#1^{\mathfrak{B_{#2}}}_{\tau_{#3}}}
+
+\newcommand{\gref}[3]
+{#1^{\mathfrak{B_{#2}}}_{\mathtt{ref}~\tau_{#3}}}
+
 \newcommand{\gvarT}[2]{#1^{\top}_{\tau_{#2}}}
 \newcommand{\gvarF}[2]{#1^{\bot}_{\tau_{#2}}}
 \newcommand{\gabst}[4]{\lambda \gvar{#1}{#2}{#3}. #4}
-
+\newcommand{\rvar}[3]
+{#1^{\mathfrak{B_{#2}}}_{\text{ref } \tau_{#3}}}
 \input{ghostml.tex}
 
 \bibliographystyle{plain}
