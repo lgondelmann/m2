@@ -126,33 +126,73 @@ keepspaces=true,
 \addtolength{\textwidth}{1.5cm}
  \begin{document}
 
- 
- 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\glam}{\textit{ghost}-$\lambda$~}
 \newcommand{\gml}{\textit{ghost}-ml~}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\newcommand{\glvar}{\texttt{x}^{\mathfrak{B}}_{\tau}}
-\newcommand{\grtitle}[2]{#1 & ::= &  & \textit{#2} \\}
-\newcommand{\grhead}[3]{#1 & ::= & #2 & \textit{#3} \\}
-\newcommand{\grcase}[2]{&  & #1 & \textit{#2} \\}
-
-\newcommand{\stepone}[2]{#1 ~ {\rightarrow}~ #2}
-\newcommand{\tystepone}[3]{\vdash_{g\lambda}  #1 : (#2, #3) }
-\newcommand{\typrule}[5]{\vdash_{g\lambda}  #1 : (#2, #3, #4) #5}
-\newcommand{\sbst}[3]{#1 [#2 \mapsfrom #3] }
 \newcommand{\var}[3]{#1^{#2}_{#3}}
 \newcommand{\gvar}[3]{#1^{\mathfrak{B_{#2}}}_{\tau_{#3}}}
-
 \newcommand{\gref}[3]
 {#1^{\mathfrak{B_{#2}}}_{\mathtt{ref}~\tau_{#3}}}
-
+\let\rvar\gref
 \newcommand{\gvarT}[2]{#1^{\top}_{\tau_{#2}}}
 \newcommand{\gvarF}[2]{#1^{\bot}_{\tau_{#2}}}
 \newcommand{\gabst}[4]{\lambda \gvar{#1}{#2}{#3}. #4}
-\newcommand{\rvar}[3]
-{#1^{\mathfrak{B_{#2}}}_{\text{ref } \tau_{#3}}}
+\newcommand{\gghost}[1]{\mathtt{ghost}~ #1}
+\newcommand{\glet}[5]
+{\mathtt{let}~\gvar{#1}{#2}{#3} = #4 ~ \mathtt{in}~ #5}    
+\newcommand{\gif}[3]{\mathtt{if}~#1~\mathtt{then}~#2~\mathtt{else}~#3}
+\newcommand{\grech}[6]
+	{\mathtt{rec}~\var{#1}{\mf{B_{#2}}}{}~\gvar{#3}{#4}{#5}~:~\tau_{#6}. t}
+\newcommand{\grec}[4]
+	{\mathtt{rec}~\var{f}{\mf{B_{#1}}}{}~\gvar{x}{#3}{#4}:\tau_{#2}.~t}
+\newcommand{\gread}[3]{!\gref{#1}{#2}{#3}}	
+\newcommand{\gwrite}[4]{\gref{#1}{#2}{#3} := #4}		
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\gstep}[2]{~#1 ~ {\rightarrow}_{g\lambda} ~ #2~}
+\newcommand{\ghead}[2]{~#1~\stackrel{\epsilon}{\rightarrow}~#2~}
+\newcommand{\gstar}[2]{~#1 ~ {\rightarrow}^{\star}_{g\lambda} ~ #2~}
+\newcommand{\glhead}[2]{#1~\stackrel{\epsilon\quad}
+										{\rightarrow_{g\lambda}}~#2}
+\newcommand{\stepone}[2]{#1 ~ {\rightarrow}~ #2}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\tarr}[3]{\tau^{\mf{B}_{#3}}_{#1} \rightarrow \tau_{#2}}
+\newcommand{\tarrS}[4]
+	{\tau^{\mf{B}_{#3}}_{#1} 
+	\stackrel{\Sigma_#4}{\longrightarrow} \tau_{#2}}
+
+\newcommand{\sbst}[3]{#1 [#2 \mapsfrom #3] }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\grtitle}[2]{#1 & ::= &  & \textit{#2} \\}
+\newcommand{\grhead}[3]{#1 & ::= & #2 & \textit{#3} \\}
+\newcommand{\grcase}[2]{&  & #1 & \textit{#2} \\}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\tystepone}[3]{\vdash_{g\lambda}  #1 : (#2, #3) }
+\newcommand{\typrule}[5]{~\vdash_{g\lambda}  #1 : (#2, #3, #4) #5}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\e}{\mathcal{E}}
+\newcommand{\ebot}[1]{\e_{\bot}(#1)}
+\newcommand{\etop}[1]{\e_{\top}(#1)}
+\newcommand{\evar}[2]{\e_{#1}(#2)}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\glvar}{\gvar{x}{}{}}
+\newcommand{\glref}{\gref{r}{}{}}
+\newcommand{\glabst}{\gabst{x}{}{}{t}}
+\newcommand{\glapp}{t_1 ~ t_2}
+\newcommand{\gltyping}{~\typrule{t}{\tau}{\mf{B}}{\Sigma}{}~}
+\newcommand{\vardecl}{\text{var }\glref = v}
+\newcommand{\gllet}{\glet{x}{}{}{t}{t}} 
+\newcommand{\glif}{\gif{t}{t}{t}}
+\newcommand{\glrec}{\grec{}{}{}{}}
+\newcommand{\glread}{!\gref{r}{}{}}	
+\newcommand{\glwrite}{\gref{r}{}{} := t}		
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\levalstar}[2]{~#1 \rightarrow_{\lambda}^{\star} #2 ~}
 
 \input{ghostml.tex}
 
