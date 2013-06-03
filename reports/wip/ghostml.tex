@@ -44,7 +44,7 @@
 							 llll}
 	\hline
 
-  \texttt{p} & ::= 
+  p & ::= 
   & & \textsc{programs} &  
   c & ::= 
 	& & \textsc{constants} \\
@@ -63,7 +63,7 @@
 	&  () 
  	& & \textit{unit} \\  	
  
-  \texttt{t} & ::= 
+  t & ::= 
   & & \textsc{terms} &
   & op
   & & \textit{built-in operators}\\ 
@@ -81,7 +81,7 @@
   
   &    \gabst{x}{}{}{t}         
   & & \textit{abstraction} &   	
-  & +|~-|~= 
+  & +|~-|~=|~\mathtt{not}
   & & \textit{built-in operators}  \\ 
         
   &    t~t    
@@ -153,7 +153,24 @@
 %
 %The evaluation of g$\lambda$-calculus corresponds as well to the standard SOS call-by-value semantics of $\lambda$-calculus, except for the rule  \makebox{(\textsc{E-DeGhost})}.
 
-\newcommand{\mem}{_{|\mu}}\newcommand{\memp}{_{|\mu'}}
+\begin{figure}[H]
+	\hrulefill
+	\begin{spacing}{1.1} 
+
+ $\delta(+, n, m) \triangleq ||n + m||$ 
+ 	(where $n,m$ are integers)\\
+ $\delta(-, n, m) \triangleq  ||n - m||$ 
+ 	(idem)\\
+ $\delta(\mathtt{not}, b) \triangleq  ||\neg b||$ 
+ 	(where b is a boolean)\\
+ $\delta(\mathtt{=}, t, u) \triangleq ||t =_{\tau} u||$ 
+ 	(where $t$ and $u$ are both of the same type $\tau$)\\
+	\end{spacing}
+	\caption{ \textbf{\gml Semantics (Delta Rules)} \hfill}
+	\hrulefill	\\
+\end{figure}
+
+
 \begin{figure}[H]
 	\hrulefill
 	\begin{spacing}{1.1} 
@@ -161,8 +178,8 @@
 	\infax[E-Op] 
 	{\ghead
 		{ op~v_1 \dots v_k}{\mem}
-		{ \delta(c,v)}\mem \quad 
-		\text{if } k = arity(op) \text{ and }\delta(c,v)\text{ is defined }} 
+		{ \delta(c,v_1 \dots v_k)}\mem \quad 
+		\text{if } k = Arity(op) \text{ and }\delta(c,v)\text{ is defined }} 
 	
 	\infax[E-AppFun] 
 	{\ghead
@@ -207,8 +224,14 @@
 		{\gref{r}{}{} := v\mem}
 		{()_{|\mu[\gref{r}{}{} \mapsfrom ~ v]}}}
 	
-\hrulefill	
+\end{spacing}
+\caption{ \textbf{\gml Semantics (Head Reduction Rules)} \hfill}
+\hrulefill	\\
+\end{figure}
 	
+\begin{figure}[H]
+	\hrulefill
+	\begin{spacing}{1.1} 	
 	\infax[E-OPT]
 	{\stepone
 		{{op~v_1 \dots v_k}{\mem}}
@@ -242,9 +265,10 @@
 		{\gref{r}{}{} := t_{1}{\mem}}
 		{\gref{r}{}{} := t'_{1}{\memp}}}
 \end{spacing}
-\caption{ \textbf{\gml Small Step Operational Semantics} \hfill}
+\caption{ \textbf{\gml Semantics Context Rules} \hfill}
 \hrulefill	\\
 \end{figure}
+
 \subsection{Typing Relation}
 \begin{figure}[H]
 \hrulefill
@@ -802,35 +826,79 @@ ghost code inside.
 
 First of all, if our specification predicts statically some dynamic 
 behaviour that \textit{p} does not even have, it is simply unsound.
+\begin{figure}[H]
+\begin{diagram}
+t_{|\mu}	& : (\_, \bot, \_)	 \rTo^\epsilon{g\lambda} & &  
+t'_{|\mu'} & : (\_, \bot, \_) \\
+\dImplies^{\ebot{t_{|\mu}}} & & &   \dImplies_{\ebot{t'_{|\mu'}}} & & \\
+p_{|\mu_0} & \textcolor{red}{\nrepeat{10}\cdot/\nrepeat8\cdot >}   & &  q_{|\mu_1}
+\end{diagram}
+\begin{adjustwidth}{5em}{5em}
+\caption{\scriptsize{\textbf{
+The ghost-ML "\textit{non ghost}" head reduction from a ghostML term $t$ (program $p$'s specification) to $t'$), to $t'$ 
+does not correspond to any of reductions of $p$.}}}
+\end{adjustwidth}
+\end{figure}
 
 On the other hand, if some dynamic behaviour of \textit{p} 
 escapes from the specification, then such a specification does not reflect 
-properly it's meaning, so it is useless for establishing the correctness of \textit{p}.
+properly it's meaning, so it is useless for establishing the correctness of \textit{p}:
+\begin{figure}[H]
+\begin{diagram}
+t_{|\mu}				             &   & \rTo_{g\lambda} &  
+\textcolor{red}{t'_{|\mu'}} \\
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\dImplies^{\ebot{t_{|\mu}}} &   &  &               &
+ \rdImplies(2,2)^{\ebot{t'_{|\mu'}}}  \\
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+{p}_{|\mu_0}                  &   & \rTo_{\lambda}  & 
+{p'}_{|\mu'_0} & \textcolor{red}{\neq} & \textcolor{red}{\_} 
+\end{diagram}
+\begin{adjustwidth}{5em}{5em}
+\caption{\scriptsize{\textbf{
+None of ghost-ML term's $t$ ($p$'s specification) reductions 
+can reflect the reduction step from source program $p$ to $p'$.}}}
+\end{adjustwidth}
+\end{figure}
 
-In this section we prove the absence of those two pathological situations,
-by using a technique called \textit{bi-simulation}, which consists of 
+%\begin{diagram}
+%t_{|\mu} & \textcolor{red}{\dashrightarrow_{g\lambda}} & 
+%\textcolor{red}{t'_{|\mu'}}   \\
+%\qquad \Longdownarrow_{\ebot{t_{|\mu}}}     &  & \qquad  \textcolor{red}{\Longdownarrow_{\ebot{t'_{|\mu'}}}}\\
+%{t_{0}}_{|\mu_0}  & \longrightarrow_{\lambda}  &{t_{1}}_{|\mu_1}
+%\end{diagram}
+
+
+In this section we check the absence of those two pathological situations,
+using a technique called \textit{bi-simulation}, which consists of 
 the following two theorems:
 
 \begin{theorem}[Forward Simulation]
 If t is a closed ghost-ML term, such that\\ 
-$\typrule{t}{\tau}{\bot}{\Sigma}$ ~holds and $\gstar{t\mem}{v\memp}$ 
+$\typrule{t}{\tau}{\bot}{\Sigma}$ ~holds and $\gevalstar{t}{v}{\mu}{\mu'}$ 
 for some value v, then\\ 
-$\levalstar{\ebot{t}_{|\ebot{\mu}}}{\ebot{v}_{|\ebot{\mu'}}}$.
+$\levalstar{\ebot{t}}{\ebot{\mu}}{\ebot{v}}{\ebot{\mu'}}$.
 \end{theorem}
 
 \begin{theorem}[Backward Simulation]
 If t is a closed ghost-ML term, such that 
 \\ $\typrule{t}{\tau}{\bot}{\Sigma}$~holds and 
-$\levalstar{\ebot{t}_{|\ebot{\mu}}}{v\memp}$ 
-for some ML value v and store $\mu'$, 
-then there exist a ghost-ML term t' and a store $\mu_{0}'$~
-such that $v =\ebot{t'}$, $\mu' = \ebot{\mu_{0}'}$ and 
-$\gstar{t{\mem}}{t'_{|\mu_{0}'}}$.
+$\ebot{t}_{|\ebot{\mu}}$ = $\leval{{t_0}}{{\mu_0}}{{t_{1}}}{\mu_1}$ 
+for some ML value $t_1$ and store $\mu_1$, 
+then there exist a ghost-ML term t' and a store $\mu'$~
+such that $t_1 =\ebot{t'}$, $\mu1 = \ebot{\mu'}$ and 
+$\gevalstar{t}{\mu}{t'}{\mu'}$.
 \end{theorem}
 
+We begin by stating auxiliary lemmas which will help us deal with proving these theorems.
+ 
+\subsubsection{Forward simulation}
 
-
-
+\begin{lemma}[One Step Forward Simulation]
+If t is a closed ghost-ML term, such that $\typrule{t}{\tau}{\bot}{\Sigma}$~holds 
+and $\geval{t}{\mem}{v}{\memp}$ for some value v, then\\ 
+$\levalstar{\ebot{t}}{|\ebot{\mu}}{\ebot{v}}{|\ebot{\mu'}}$.
+\end{lemma}
 
 %
 %\quad Now that we defined the erasure-translation of $g\lambda$-calculus to $\lambda$-calculus, our concern is to show that evaluation result of well-typed operational terms as well as their typing  are preserved under erasure. 

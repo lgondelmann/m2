@@ -22,7 +22,8 @@
 \usepackage{setspace}
 \usepackage{pstricks,pstricks-add,pst-math,pst-xkey}
 \usepackage{multicol}
-
+\usepackage[small,nohug,heads=vee]{diagrams}
+\diagramstyle[labelstyle=\scriptstyle]
 
 \titleformat{\section}[hang]% style du titre
   {\normalfont\Large\bfseries}% police du titre + numéro
@@ -124,7 +125,15 @@ keepspaces=true,
 \let\mf\mathfrak
 
 \addtolength{\textwidth}{1.5cm}
+
+
+
+\def\nrepeat#1#2{\count0=#1 \loop \ifnum\count0>0 \advance\count0 by -1 #2\repeat}
+
+
+
  \begin{document}
+\newcommand{\mem}{_{|\mu}}\newcommand{\memp}{_{|\mu'}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\glam}{\textit{ghost}-$\lambda$~}
@@ -150,12 +159,20 @@ keepspaces=true,
 \newcommand{\gread}[3]{!\gref{#1}{#2}{#3}}	
 \newcommand{\gwrite}[4]{\gref{#1}{#2}{#3} := #4}		
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%SEMANTICS
+\newcommand{\leval}[4]{~#1_{|#2} \rightarrow_{\lambda} #3_{|#4} ~}
+\newcommand{\geval}[4]{~#1_{|#2} \rightarrow_{g\lambda} #3_{|#4} ~}
+\newcommand{\levalstar}[4]{~#1_{|#2} \rightarrow_{\lambda}^{\star} #3_{|#4} ~}
+\newcommand{\gevalstar}[4]{~#1_{|#2} \rightarrow_{g\lambda}^{\star} #3_{|#4} ~}
 \newcommand{\gstep}[2]{~#1 ~ {\rightarrow}_{g\lambda} ~ #2~}
 \newcommand{\ghead}[2]{~#1~\stackrel{\epsilon}{\rightarrow}~#2~}
 \newcommand{\gstar}[2]{~#1 ~ {\rightarrow}^{\star}_{g\lambda} ~ #2~}
 \newcommand{\glhead}[2]{#1~\stackrel{\epsilon\quad}
 										{\rightarrow_{g\lambda}}~#2}
 \newcommand{\stepone}[2]{#1 ~ {\rightarrow}~ #2}
+\let\eval\stepone
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\tarr}[3]{\tau^{\mf{B}_{#3}}_{#1} \rightarrow \tau_{#2}}
@@ -170,16 +187,18 @@ keepspaces=true,
 \newcommand{\grcase}[2]{&  & #1 & \textit{#2} \\}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% TYPING
 \newcommand{\tystepone}[3]{\vdash_{g\lambda}  #1 : (#2, #3) }
 \newcommand{\typrule}[5]{~\vdash_{g\lambda}  #1 : (#2, #3, #4) #5}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ERASURE 
 \newcommand{\e}{\mathcal{E}}
 \newcommand{\ebot}[1]{\e_{\bot}(#1)}
 \newcommand{\etop}[1]{\e_{\top}(#1)}
 \newcommand{\evar}[2]{\e_{#1}(#2)}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% CONSTANTS
 \newcommand{\glvar}{\gvar{x}{}{}}
 \newcommand{\glref}{\gref{r}{}{}}
 \newcommand{\glabst}{\gabst{x}{}{}{t}}
@@ -192,7 +211,7 @@ keepspaces=true,
 \newcommand{\glread}{!\gref{r}{}{}}	
 \newcommand{\glwrite}{\gref{r}{}{} := t}		
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newcommand{\levalstar}[2]{~#1 \rightarrow_{\lambda}^{\star} #2 ~}
+\newcommand{\Longdownarrow}{\rotatebox{90}{$\Longleftarrow$}}
 
 \input{ghostml.tex}
 
