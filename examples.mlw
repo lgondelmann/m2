@@ -86,12 +86,32 @@ module Iter
  val a1 : ref int
 
 
+
+  let sum_s (x : int) : unit = 
+      requires { true }
+      ensures  { !s = old !s + x }
+  s := !s + x
+
+
+  let rec iter_42 l (ghost before: list int) =
+    variant  { l }
+    requires { !s = sum before }
+    ensures  { !s = sum ((reverse l) ++ before) }
+    match l with
+      | Nil -> ()
+      | Cons x xs -> sum_s x; iter_0 xs (Cons x before)
+    end
+
+  let test_iter_42 () =
+    s := 0;
+    iter_0 l0 Nil;
+    assert {!s = sum l0}
+
+
 (*
  let test () =
     iter (fun x -> a0:= !a0 + 1; a1 := !a1 - 1) l
     (/| b. /| a. !a0 + !a1 = length b + length a)  *)
-
-
 
  let rec iter_1 l (ghost before: list int) =
     variant  { l }

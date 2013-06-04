@@ -212,6 +212,46 @@ keepspaces=true,
 \newcommand{\glwrite}{\gref{r}{}{} := t}		
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\Longdownarrow}{\rotatebox{90}{$\Longleftarrow$}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\lgvar}[2]{#1_{#2}}
+\newcommand{\lgvarc}{x_{\tau}}
+
+\newcommand{\lgabs}[3]{\lambda \lgvar{#1}{#2}.{#3}}
+\newcommand{\lgabsc}{\lgabs{x}{\tau_2}{t_1}}
+
+\newcommand{\lgapp}[2]{#1~#2}
+\newcommand{\lgappc}{t_1~t_2}
+
+\newcommand{\lglet}[4]{\text{let } \lgvar{#1}{#2} = #3 \text{ in } #4}
+\newcommand{\lgletc}{\lglet{x}{\tau_2}{t_2}{t_1}}
+
+\newcommand{\lgif}[3]{\text{ if } #1 \text{ then } #2 \text{ else } #3}
+\newcommand{\lgifc}{\lgif{t_1}{t_2}{t_3}}
+
+\newcommand{\lgrec}[5]{\text{rec } #1~\lgvar{#3}{#4} : #2 = #5}
+\newcommand{\lgrecc}{\lgrec{g}{\tau_1}{x}{\tau_2}{t_1}}
+
+\newcommand{\lgand}[2]{#1 \wedge #2}
+\newcommand{\lgandc}{\lgand{t_1}{t_2}}
+
+\newcommand{\lgor}[2]{#1 \vee #2}
+\newcommand{\lgorc}{\lgor{t_1}{t_2}}
+
+\newcommand{\lgneg}[1]{\neg #1}
+
+\newcommand{\lgexist}[3]{\exists \glvar{#1}{#2}. #3}
+\newcommand{\lgexistc}{\lgexist{x}{\tau_2}{f_1}}
+
+\newcommand{\lgforall}[3]{\forall \glvar{#1}{#2}. #3}
+\newcommand{\lgforallc}{\lgforall{x}{\tau_2}{f_1}}
+
+
+
+
+
+
+
+
 
 \input{ghostml.tex}
 \input{logic.tex}
