@@ -1,0 +1,172 @@
+\newpage
+\section{logic} 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+ In previous section we described how to define formally ghost terms inside
+ ML-like programs. 
+ 
+ However, the ghost code becomes useful only within a full-featured 
+ specification language.
+ 
+ In this section we define a high-order logic with simple types such as units, 
+ integers, boolean. To make our examples more interesting we also provide 
+ built-in integer lists and trees.
+ 
+ First off, we describe our logic's syntax, semantics and typing. Then
+ we extend the ghost-ML language with specifications such as assertions
+ and functional pre- and post-conditions.
+ 
+	\begin{figure}[H]
+		\begin{adjustwidth}{-7em}{-3em}
+		\begin{displaymath}
+		\hrulefill
+		\begin{array}{ll@{\hspace*{-0.1cm}}
+							 l@{\hspace*{1.5cm} }
+							 l|@{\hspace*{0.5cm}}
+							 llll}
+	\hline		
+
+  \tau & ::= 
+  & & \textsc{types} &  
+  
+  c & ::= 
+	& & \textsc{constants} \\
+
+
+
+	& \text{unit }| \text{ int }| \text{ bool} 
+	& & \textit{built-in simple types} &
+	
+	&     0 ~|~ 1 ~|~ ... ~|~ n        
+	& & \textit{integer} \\    
+	
+	
+	
+	& \text{list int }	| \text{ tree int} 
+	& & \textit{built-in recursive types} &
+	
+	&   \mathtt{true}~|~\mathtt{false} 
+  & & \textit{boolean} \\ 
+	
+	
+	
+	& \tau \rightarrow \tau 
+	& & \textit{function type} &
+
+	&  () 
+	& & \textit{unit} \\  	
+	
+	
+
+  & \mathtt{prop} 
+  & & \textit{proposition} & 
+
+  & \mu \mathtt{l}. \texttt{ Nil | Cons n l }
+  & &  \textit{integer list}  \\ 
+  
+  
+
+	& \ 
+	& & \ &
+	
+	& \mu \mathtt{t}. \texttt{ Empty | Node t n t }
+  & &  \textit{integer binary tree}  \\ 
+	
+	
+
+	t & ::= 
+	& & \textsc{terms} & 
+	
+	& \mathtt{True} ~|~ \mathtt{False} 
+	& & \textit{proposition value} \\
+
+
+
+	& c
+	& & \textit{constant} &
+	
+	&  + ~|~ - ~|~ = | ... 
+	& & \textit{built-in operators} \\
+
+
+
+	& \lgvar{x}{\tau}
+	& & \textit{variable}
+	
+	& \ \\
+
+
+	
+	& \lgabs{x}{\tau}{t}
+	& & \textit{abstraction}  &
+
+  f & ::= 
+	& & \textsc{formulas} \\
+
+	
+	
+	& \lgapp{t}{t}
+	& & \textit{application} &
+	
+	& True ~|~ False 
+	& & \textit{logical truth values} \\
+	
+	
+	
+	& \lglet{x}{\tau}{t}{t}
+	& & \textit{local binding} &
+	
+	& \lgand{t}{t} 
+	& & \textit{conjunction}\\
+	
+	
+	
+	& \lgrec{g}{\tau}{x}{\tau}{t}
+	& & \textit{recursive function} &
+	
+	& \lgor{t}{t} 
+	& & \textit{disjunction} \\
+	
+		
+		
+	& f
+	& & \textit{formula} &
+	
+	& \neg t
+	& & \textit{negation} \\		
+
+
+
+	& \ 
+	& & \ &
+	
+	&  \lgexist{x}{\tau}{f} 
+	& & \textit{existential quantification} \\ 
+
+
+
+	& \ 
+	& & \ &
+	
+	&  \lgforall{x}{\tau}{f} 
+	& & \textit{universal quantification} \\ 
+	
+	
+	
+	& \ 
+	& & \ &
+	
+	&  f = f
+	& & \textit{equality} \\ 
+
+	\hline			   
+  	\end{array} 
+		\end{displaymath} 
+ 		\caption{Logic Syntax}
+ 		\end{adjustwidth}
+	\end{figure}
+ 
