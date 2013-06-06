@@ -169,4 +169,30 @@
  		\caption{Logic Syntax}
  		\end{adjustwidth}
 	\end{figure}
+	
+\newpage
+\newcommand{\paragraphred}[1]{\paragraph{\textcolor{red}{#1}}}
+\section{Inlining}
+	
+\paragraphred{Motivation:}  
+instantiate higher-order iterators with previously defined or anonymous functions, in order to obtain a first-order function, whose proof obligation is of the same complexity as p.o. of equivalent loop statement. 
+
+\paragraphred{Goal:} 
+\quad reduce every application of a higher-order function to a term that
+is not a bound variable.
+
+\paragraphred{Input:}  
+a higher-order language in \textit{A-normal} form with functions whose codomain is of some base type, and whose formal parameters is partially ordered (the higher order parameters come before lesser order parameters)   
+ 
+\paragraphred{Output:}  a language where the only high-order applications are those where
+argument of application is a bound variable. That is, a language where
+higher-order applications can occur only under \textbf{inside} high-order functions. \\
+
+\noindent\textbf{Input Language Syntax:} \\
+
+$ t ::= v | f $
+
+ 
+
+
  
