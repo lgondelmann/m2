@@ -1,3 +1,21 @@
+module ForArray
+  use import int.Int
+  use import array.Array
+  use import array.ArraySum
+  use import ref.Ref 
+
+  let stmt_for () (a : array int) = 
+    ensures {sum a 0 (length a) = sum (old a) 0 (length (old a)) }
+    'L:
+    for i = 0 to (length a) - 1 do
+     invariant { forall j: int. 0 <= j < i -> sum a 0 (j+1) = sum (at a 'L) 0 (j+1) + j}
+     invariant { forall j: int. 0 <= j < i -> a[j] = (at a 'L)[j] + 1}
+     invariant { forall j: int. i <= j < (length a) ->  a[j] = (at a 'L)[j]}
+     a[i] <- a[i] + 1 
+    done
+
+end
+
 (******************************************************************************)
 module Sum
   use import list.List
@@ -19,6 +37,113 @@ module Sum
 
   lemma mem_reverse :
     forall l1: list int, x: int. mem x l1 <-> mem x (reverse l1)
+
+end
+
+module Sum_m
+  use import list.List
+  use import int.Int
+  use import list.Append
+  use import list.Reverse
+  use import list.Mem
+  use import Sum
+
+  function sum_m (ll: list (list int)) : int =
+     match ll with
+       | Nil -> 0
+       | Cons l ql -> sum l + sum_m ql
+     end
+  
+  lemma sum_append:
+    forall l1 l2 : list (list int). sum_m (l2 ++ l1) = (sum_m l1) + (sum_m l2)
+
+  lemma sum_reverse:
+    forall l1 : list (list int). sum_m (reverse l1) = sum_m l1
+
+  function flatten (ll : list (list int)) : list int =
+    match ll with
+      | Nil -> Nil
+      | Cons l ql -> l ++ flatten ql
+    end
+ 
+  lemma sum_flatten:
+   forall l1 : list (list int). sum_m l1 = sum (flatten l1) 
+
+end
+
+
+(******************************************************************************)
+
+module Iter_ll 
+ use import int.Int
+  use import int.MinMax
+  use import list.List
+  use import ref.Ref
+  use import list.Mem
+  use import list.Reverse
+  use import list.Append
+  use import list.Length
+  use import Sum
+  use import Sum_m
+
+  val s : ref int
+  val ll0 : list (list int)
+
+(*
+
+let iter_l = 
+    fun (f: int -> unit) (inv: int list -> int list -> prop).
+    	rec iter_l0 (l : list int) (ghost b: list int)  =
+    requires { inv b l}
+    ensures  { inv ((reverse l) ++ b) }
+      match l with
+        | Nil -> ()
+        | Cons x xs -> f x; iter_l0 xs (Cons x b)
+      end
+
+let iter_m = 
+    fun  
+     (f_l   : int -> unit) 
+     (inv_m : list (list int) -> list (list int) -> prop)
+     (inv_l : int list -> int list -> prop) 
+      rec iter_m0 (ll : list int) (ghost bl: list int)  =
+      requires { inv_m bl ll}
+      ensures  { inv_m ((reverse ll) ++ bl) }
+     	 match l with
+          | Nil -> ()
+          | Cons l ql -> iter_l f_l inv_l l (flatten bl); iter_m0 ql (Cons l bl)
+         end
+
+let test () = 
+    s := 0;
+    iter_m  (fun x -> s := !s + x) (\b.\a. !s = sum_m b) (\b.\a. !s = sum b) ll0 Nil
+     
+
+*)
+
+
+  let rec iter_l (l : list int) (ghost b: list int) =
+    requires { !s = sum b }
+    ensures  { !s = sum ((reverse l) ++ b) }
+    match l with
+      | Nil -> ()
+      | Cons x xs -> s := x + !s; iter_l xs (Cons x b)
+    end
+
+
+  let rec iter_m (ll : list (list int)) (ghost bl : list (list int)) =
+    requires {!s = sum_m bl}
+    ensures  {!s = sum_m ((reverse ll) ++ bl)} 
+  match ll with
+    | Nil -> ()
+    | Cons l ql -> iter_l l (flatten bl); iter_m ql (Cons l bl)
+  end
+ 
+  let test () =
+    s := 0;
+    iter_m ll0 Nil;
+    assert {!s = sum_m ll0}
+
 
 end
 

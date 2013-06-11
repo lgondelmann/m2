@@ -69,7 +69,7 @@
   & & \textit{built-in operators}\\ 
 
      
-  &     \texttt{c}
+  &    c
   & & \textit{constant} & \\
    	  
     	      
@@ -84,7 +84,7 @@
   & +|~-|~=|~\mathtt{not}
   & & \textit{built-in operators}  \\ 
         
-  &    t~t    
+  &    v~v    
   & & \textit{application}
   & & & & \\		 	
    	
@@ -98,7 +98,7 @@
  	&  \mathtt{int}~ | ~\mathtt{bool}~ | ~\mathtt{unit}~  
   & & \textit{built-in types} \\ 	
    								   
-  & \glif
+  & \gif{v}{t}{t}
   & & \textit{if-branching}  &  
   &     \tau^{\mf{B}}  \rightarrow \tau  
   & & \textit{function type} \\  
@@ -113,7 +113,7 @@
   \mathtt{ref}~\tau  &
 	& & \textsc{reference's type}  \\      					
  	   
-	&  	\glwrite 
+	&  	\gwrite{r}{B}{\tau}{v} 
 	& &  \textit{reference assignment} & \\
 	
 	& & & & \mf{B} & ::= 
@@ -124,13 +124,24 @@
   & & \textit{raw code} \\ 
 	
 	
-	&   \texttt{c}
+	&   c
   & & \textit{constant} & 
+  
   & \top \mathtt{(* true *)} 
   & & \textit{ghost code} \\ 
+
+
+
+	&		\glvar
+	& & \textit{variable} & \\
+	
+
 	
   &   \glabst
   & & \textit{abstraction} &	\\
+	
+	
+	
 	
 	&   \glrec
   & & \textit{recursive function} &	\\
@@ -180,6 +191,12 @@
 		{ op~v_1 \dots v_k}{\mem}
 		{ \delta(c,v_1 \dots v_k)}\mem \quad 
 		\text{if } k = Arity(op) \text{ and }\delta(c,v)\text{ is defined }} 
+	
+  \infax[E-Clo]
+	{\ghead
+		{{op~v_1 \dots v_k}{\mem}}
+		{\gabst{x}{}{}{op~v_1 \dots v_k ~ \glvar}\quad 
+		\text{if } 1 \leq k < arity(op)}}		
 	
 	\infax[E-AppFun] 
 	{\ghead
@@ -232,38 +249,38 @@
 \begin{figure}[H]
 	\hrulefill
 	\begin{spacing}{1.1} 	
-	\infax[E-OPT]
-	{\stepone
-		{{op~v_1 \dots v_k}{\mem}}
-		{\gabst{x}{}{}{op~v_1 \dots v_k ~ \glvar}\quad 
-		\text{if } 1 \leq k < arity(op)}}	
 	
-	\infrule[E-LetT]
+	\infrule[E-Head]
+	{\gevalh{t}{\mu}{t'}{\mu'}}
+	{\geval{t}{\mu}{t'}{\mu'}}
+	
+	\infrule[E-Context]
 	{{t_{1}}\mem \rightarrow {{t'}_{1}}\memp}
 	{\mathtt{let} ~ \gvar{x}{}{} = t_{1} ~ \mathtt{in}~ {t_{2}}\mem
 		\rightarrow 
 		\mathtt{let} ~ \gvar{x}{}{} = t_{1}' ~ \mathtt{in}~ {t_{2}}\memp}
   
-	\infrule[E-AppLeft]
-	{{t_{1}}\mem \rightarrow {t'_{1}}\memp}
-	{{t_{1} t_{2}}\mem
-						\rightarrow {t'_{1}t_{2}}\memp}
-  
-	\infrule[E-AppRight]
-	{{\texttt{t}_{2}}\mem \rightarrow {\texttt{t}'_{2}}\memp}
-	{{\texttt{v}_{1} \texttt{t}_{2}}\mem 
-	\rightarrow {\texttt{v}_{1}\texttt{t}'_{2}}\memp}  
-
-	\infrule[E-IfT]
-	{{t_{1}}\mem \rightarrow {t'_{1}}\memp}
-	{\mathtt{if}~t_{1}~\mathtt{then}~t_{2}~\mathtt{else}~t_{3}{\mem}	
-	\rightarrow \mathtt{if}~t'_{1}~\mathtt{then}~t_{2}~\mathtt{else}~t_{3}{\memp}}
-
-	\infrule[E-AssignT]
-	{{t_{1}}\mem \rightarrow {t'_{1}}\memp}
-	{\stepone
-		{\gref{r}{}{} := t_{1}{\mem}}
-		{\gref{r}{}{} := t'_{1}{\memp}}}
+%  
+%	\infrule[E-AppLeft]
+%	{{t_{1}}\mem \rightarrow {t'_{1}}\memp}
+%	{{t_{1} t_{2}}\mem
+%						\rightarrow {t'_{1}t_{2}}\memp}
+%  
+%	\infrule[E-AppRight]
+%	{{\texttt{t}_{2}}\mem \rightarrow {\texttt{t}'_{2}}\memp}
+%	{{\texttt{v}_{1} \texttt{t}_{2}}\mem 
+%	\rightarrow {\texttt{v}_{1}\texttt{t}'_{2}}\memp}  
+%
+%	\infrule[E-IfT]
+%	{{t_{1}}\mem \rightarrow {t'_{1}}\memp}
+%	{\mathtt{if}~t_{1}~\mathtt{then}~t_{2}~\mathtt{else}~t_{3}{\mem}	
+%	\rightarrow \mathtt{if}~t'_{1}~\mathtt{then}~t_{2}~\mathtt{else}~t_{3}{\memp}}
+%
+%	\infrule[E-AssignT]
+%	{{t_{1}}\mem \rightarrow {t'_{1}}\memp}
+%	{\stepone
+%		{\gref{r}{}{} := t_{1}{\mem}}
+%		{\gref{r}{}{} := t'_{1}{\memp}}}
 \end{spacing}
 \caption{ \textbf{\gml Semantics Context Rules} \hfill}
 \hrulefill	\\
@@ -896,15 +913,49 @@ We begin by stating auxiliary lemmas which will help us deal with proving these 
 
 \begin{lemma}[One Step Forward Simulation]
 If t is a closed ghost-ML term, such that $\typrule{t}{\tau}{\bot}{\Sigma}$~holds 
-and $\geval{t}{\mem}{v}{\memp}$ for some value v, then\\ 
-$\levalstar{\ebot{t}}{|\ebot{\mu}}{\ebot{v}}{|\ebot{\mu'}}$.
+and $\geval{t}{\mu}{t'}{\mu'}$, then 
+${\ebot{t}}_{\ebot{\mu}} \rightarrow^{0|1} {\ebot{t'}}_{\ebot{\mu'}}$.
 \end{lemma}
 
-%
-%\quad Now that we defined the erasure-translation of $g\lambda$-calculus to $\lambda$-calculus, our concern is to show that evaluation result of well-typed operational terms as well as their typing  are preserved under erasure. 
-%First off we need to state and prove a few basic lemmas. 
-%
-%
+
+
+
+
+
+
+\begin{theorem}[Forward Simulation]
+If t is a closed ghost-ML term, such that\\ 
+$\typrule{t}{\tau}{\bot}{\Sigma}$ ~holds and $\gevalstar{t}{\mu}{v}{\mu'}$ 
+for some value v, then\\ 
+$\levalstar{\ebot{t}}{\ebot{\mu}}{\ebot{v}}{\ebot{\mu'}}$.
+\end{theorem}
+
+
+
+
+
+\begin{proof}
+By induction on the length of the evaluation of 
+$\gevalstar{t}{\mu}{v}{\mu'}$.
+\begin{adjustwidth}{1em}{-3em}
+
+\noindent ($\alpha$) \quad 
+ if $\gevalh{t}{\mu}{v}{\mu'}$ then 	
+ by \textit{one-step} forward simulation lemma,\\ 
+$${\ebot{t}}_{\ebot{\mu}} \rightarrow^{0|1} {\ebot{v}}_{\ebot{\mu'}}.$$ 
+
+\noindent ($\beta$) \quad Assume now that 
+$\geval{t}{\mu}{t^{''}}{\mu^{''}}$ and  $t^{''}_{\mu^{''}} \rightarrow^{n} v_{\mu'}$
+for some arbitrary $n \in \mathbb{N}$.
+By the progress of Ghost-ML typing, 
+$ \typrule{t''}{\tau}{\bot}{\Sigma''}$ (for some $\Sigma$ with $\Sigma \Rightarrow \Sigma''$ and some store $\mu^{''}$). By induction hypothesis 
+on $t^{''}$, and by \textit{one step} forward lemma applied to $t$, 
+we have that  
+$${\ebot{t}}_{\ebot{\mu}} \rightarrow^{0|1} {\ebot{t''}}_{\ebot{\mu''}}
+\rightarrow^{n} {\ebot{v}}_{\ebot{\mu'}}.$$ That is, for any $n \in \mathbb{N}$, $\gevalstar{\ebot{t}}{\ebot{\mu}}{\ebot{v}}{\ebot{\mu'}}$.
+\end{adjustwidth}
+\end{proof}
+
 
 
 
