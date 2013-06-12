@@ -1,0 +1,122 @@
+
+\newpage
+\begin{figure}[H]
+\begin{adjustwidth}{-6em}{-4em}
+\begin{displaymath}
+\begin{array}{ll@{\hspace*{-0.1cm}}
+							 l@{\hspace*{1.5cm} }
+							 l|@{\hspace*{0.5cm}}
+							 llll}
+	\hline
+
+  p & ::= 
+  & & \textsc{programs} &  
+  c & ::= 
+	& & \textsc{constants} \\
+
+	&  \vardecl ; \quad p       
+	& & \textit{reference declaration} &
+	&     0 ~| 1 ~| ... ~| n        
+	& & \textit{integer} \\    
+ 
+  & t 
+  & & \textit{body} &
+	&   \mathtt{true}~|\mathtt{false} 
+  & & \textit{boolean} \\ 
+
+	& & & &	 
+	&  () 
+ 	& & \textit{unit} \\  	
+ 
+  t & ::= 
+  & & \textsc{terms} &
+  & op
+  & & \textit{built-in operators}\\ 
+
+     
+  &    c
+  & & \textit{constant} & \\
+   	  
+    	      
+  &     x^{\mf{B}}_{\tau} 
+  & & \textit{variable} &
+	op & :=       
+	& & \textsc{built-in operators} \\   	
+  
+  
+  &    \gabst{x}{}{}{t}         
+  & & \textit{abstraction} &   	
+  & +|~-|~=|~\mathtt{not}
+  & & \textit{built-in operators}  \\ 
+        
+  &    v~v    
+  & & \textit{application}
+  & & & & \\		 	
+   	
+  & \gghost{t} 
+  & & \textit{ghost~ term}   
+  &  \tau & ::= 
+  & & \textsc{types} \\ 
+   	
+  & \gllet    
+  & & \textit{local binding} &
+ 	&  \mathtt{int}~ | ~\mathtt{bool}~ | ~\mathtt{unit}~  
+  & & \textit{built-in types} \\ 	
+   								   
+  & \gif{v}{t}{t}
+  & & \textit{if-branching}  &  
+  &     \tau^{\mf{B}}  \rightarrow \tau  
+  & & \textit{function type} \\  
+   		 								      								   
+  &	\glrec
+  & &  \textit{recursive function}
+  & & & & \\
+   	   		
+   	   								      								   
+  &  	\glread
+  & &  \textit{reference access} &
+  \mathtt{ref}~\tau  &
+	& & \textsc{reference's type}  \\      					
+ 	   
+	&  	\gwrite{r}{B}{\tau}{v} 
+	& &  \textit{reference assignment} & \\
+	
+	& & & & \mf{B} & ::= 
+  & & \textsc{ghost indicator} \\
+	
+	{v} & ::= & & \textsc{values} &
+	& \bot \mathtt{(* false *)} 
+  & & \textit{raw code} \\ 
+	
+	
+	&   c
+  & & \textit{constant} & 
+  
+  & \top \mathtt{(* true *)} 
+  & & \textit{ghost code} \\ 
+
+
+
+	&		\glvar
+	& & \textit{variable} & \\
+	
+
+	
+  &   \glabst
+  & & \textit{abstraction} &	\\
+	
+	
+	
+	
+	&   \glrec
+  & & \textit{recursive function} &	\\
+	
+ \hline						   
+  \end{array} 
+\end{displaymath} 
+
+\caption{ \textbf{\gml Syntax} \hfill}
+\label{gml-syntax}
+\end{adjustwidth}
+\end{figure}
+\newpage

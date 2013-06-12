@@ -34,124 +34,50 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{g$\lambda$-Calculus Syntax and Semantics}
 \renewcommand{\arraystretch}{1.1}
-%The syntax of \gml is summarized below.\vspace{-0.5cm}
-\begin{figure}[H]
-\begin{adjustwidth}{-6em}{-4em}
-\begin{displaymath}
-\begin{array}{ll@{\hspace*{-0.1cm}}
-							 l@{\hspace*{1.5cm} }
-							 l|@{\hspace*{0.5cm}}
-							 llll}
-	\hline
-
-  p & ::= 
-  & & \textsc{programs} &  
-  c & ::= 
-	& & \textsc{constants} \\
-
-	&  \vardecl ; \quad p       
-	& & \textit{reference declaration} &
-	&     0 ~| 1 ~| ... ~| n        
-	& & \textit{integer} \\    
- 
-  & t 
-  & & \textit{body} &
-	&   \mathtt{true}~|\mathtt{false} 
-  & & \textit{boolean} \\ 
-
-	& & & &	 
-	&  () 
- 	& & \textit{unit} \\  	
- 
-  t & ::= 
-  & & \textsc{terms} &
-  & op
-  & & \textit{built-in operators}\\ 
-
-     
-  &    c
-  & & \textit{constant} & \\
-   	  
-    	      
-  &     x^{\mf{B}}_{\tau} 
-  & & \textit{variable} &
-	op & :=       
-	& & \textsc{built-in operators} \\   	
-  
-  
-  &    \gabst{x}{}{}{t}         
-  & & \textit{abstraction} &   	
-  & +|~-|~=|~\mathtt{not}
-  & & \textit{built-in operators}  \\ 
-        
-  &    v~v    
-  & & \textit{application}
-  & & & & \\		 	
-   	
-  & \gghost{t} 
-  & & \textit{ghost~ term}   
-  &  \tau & ::= 
-  & & \textsc{types} \\ 
-   	
-  & \gllet    
-  & & \textit{local binding} &
- 	&  \mathtt{int}~ | ~\mathtt{bool}~ | ~\mathtt{unit}~  
-  & & \textit{built-in types} \\ 	
-   								   
-  & \gif{v}{t}{t}
-  & & \textit{if-branching}  &  
-  &     \tau^{\mf{B}}  \rightarrow \tau  
-  & & \textit{function type} \\  
-   		 								      								   
-  &	\glrec
-  & &  \textit{recursive function}
-  & & & & \\
-   	   		
-   	   								      								   
-  &  	\glread
-  & &  \textit{reference access} &
-  \mathtt{ref}~\tau  &
-	& & \textsc{reference's type}  \\      					
- 	   
-	&  	\gwrite{r}{B}{\tau}{v} 
-	& &  \textit{reference assignment} & \\
-	
-	& & & & \mf{B} & ::= 
-  & & \textsc{ghost indicator} \\
-	
-	{v} & ::= & & \textsc{values} &
-	& \bot \mathtt{(* false *)} 
-  & & \textit{raw code} \\ 
-	
-	
-	&   c
-  & & \textit{constant} & 
-  
-  & \top \mathtt{(* true *)} 
-  & & \textit{ghost code} \\ 
+%%The syntax of \gml is summarized below.\vspace{-0.5cm}
+%
+%Ghost code is a form of program specification that help to reason about 
+%its correctness. 
+%
+%For instance, in the example below, the fold function uses ghost parameters
+%both inside the function's body and specification:
+% 
+%at each recursive call of \texttt{fold_left}, the parameter \texttt{inv} expresses some invariant about function's \texttt{s} behaviour with respect to list's portion seen before the current call (\texttt{b}), 
+%and the remaining portion that is parameter \texttt{l} itself. 
+%Both \texttt{inv} and \texttt{b} are not used by the program, but only inside its specification. For example, once we have instantiated \texttt{f} 
+% proved fold_left correct,
+%
+%
+%
+%
+%
+%\begin{itemize}
+%\item[-] the invariant \texttt{inv} of \texttt{f} inside the precondition and postcondition depends on \texttt{ghost b}, the part of list \texttt{l} that has already been already explored, and \texttt{l}, the part that remains to explore when texttt{fold_left} is called.
+%
+%\item[-] 
+%
+%
+%of \texttt{f} inside the precondition and postcondition depends on \texttt{ghost b}
+%
+%\end{itemize}
+%\begin{whycode}
+% let rec fold_left (f: int -> int -> int) (acc: int) (l: list int) 
+%    (ghost b: list int) (ghost inv : list int -> list int -> int -> prop) 
+%    : int
+%      requires  { inv b                l   acc    }
+%      ensures   { inv (rev_append l b) Nil result }
+%    = match l with
+%       | Nil -> acc
+%       | Cons x xs -> fold_left f (f acc x) xs (Cons x b) inv
+%      end
+%\end{whycode}
+%
+%
+% \hyperref[gml-syntax]{GhostML syntax}.
+\input{gml-syntax}
 
 
 
-	&		\glvar
-	& & \textit{variable} & \\
-	
-
-	
-  &   \glabst
-  & & \textit{abstraction} &	\\
-	
-	
-	
-	
-	&   \glrec
-  & & \textit{recursive function} &	\\
-	
- \hline						   
-  \end{array} 
-\end{displaymath} 
-\caption{ \textbf{\gml Syntax} \hfill}
-\end{adjustwidth}
-\end{figure}
 %
 %Here, the letters \textit{p, t, v, c} are meta-variables for programs, terms, variables and constants respectively. 
 %
@@ -917,6 +843,76 @@ and $\geval{t}{\mu}{t'}{\mu'}$, then
 ${\ebot{t}}_{\ebot{\mu}} \rightarrow^{0|1} {\ebot{t'}}_{\ebot{\mu'}}$.
 \end{lemma}
 
+
+
+
+\begin{proof}
+	\begin{adjustwidth}{1em}{-3em}
+	By induction on the evaluation relation $\geval{t}{\mu}{t'}{\mu'}$.  \\ 
+	\noindent ($\alpha$) \quad 
+
+	
+	\noindent ($\beta$)  \quad Otherwise, \textit{t} is of the form 
+	$\glet{x}{2}{2}{t_2}{t_1}$ and the only case to consider is:
+ \infrule[E-Context]
+	{{t_{2}}\mem \rightarrow {{t'}_{2}}\memp}
+	{\mathtt{let} ~ \gvar{x}{2}{} = t_{2} ~ \mathtt{in}~ {t_{1}}\mem
+		\rightarrow 
+		\mathtt{let} ~ \gvar{x}{2}{} = t_{2}' ~ \mathtt{in}~ {t_{1}}\memp}
+	
+	with the typing 
+	\infrule[T-Let]
+		{
+		\typrule
+			{t_{1}}
+			{\tau_{1}}
+			{\mf{B_{1}}}
+			{\Sigma_{1}}\quad
+		{\typrule
+			{t_{2}}
+			{\tau_{2}}
+			{\mf{B'_{2}}}
+			{\Sigma_{2}}\quad}
+			\textcolor{BrickRed}{\mf{B}_{2}	\Rightarrow \mf{B'}_{2}}}
+		{\typrule
+			{\text{let }\gvar{x}{2}{2}=t_{2}\text{ in }t_{1}}
+			{\tau_{1}}
+			{\mf{B}_{1} \vee 
+			(\overline{\mf{B}_{2}}\wedge
+			\mf{B'}_{2})}
+			{\Sigma_{1}\vee\Sigma_{2}}}
+			
+	By hypothesis, $t$ itself is not ghost, so looking 
+	at the typing of $\mathtt{let}$, we can deduce that either 
+	$\mathfrak{B_2} = \mathfrak{B'_2} = \top$ or
+	$\mathfrak{B_2} = \mathfrak{B'_2} = \bot$. 
+	 	
+	\noindent ($\beta_1$)  \quad If term $t_2$ is ghost, then 
+$$\e_{\bot}(\mathtt{let}~\gvarT{x}{2}= t_2~\mathtt{in}~t_1) = 
+\mathtt{let}~x_{\mathtt{unit}} = ()~\mathtt{in}~\ebot{~t_1} = \e_{\bot}(\mathtt{let}~\gvarT{x}{2}= t'_2~\mathtt{in}~t_1) $$
+That is, $\ebot{t}_{|\ebot{\mu}} \rightarrow^{0} \ebot{t'}_{|\ebot{\mu'}}$.
+	
+	\noindent ($\beta_2$) Otherwise, the binding of $\gvar{x}{2}{2}$
+	is non-ghost and we can apply the induction hypothesis on  
+	$\geval{{t_2}}{\mu}{{t'_2}}{\mu'}$: 
+	  $$ {\ebot{t_2}}_{|\ebot{\mu}} \rightarrow^{0|1} 
+	  \ebot{t'_2}_{|\ebot{\mu'}} $$ and conclude in both cases 
+($\ebot{t_2}_{|\ebot{\mu}} = \ebot{t'_2}_{|\ebot{\mu'}}$ or 
+	$\ebot{t_2}_{|\ebot{\mu}} \rightarrow 
+	  \ebot{t'_2}_{|\ebot{\mu'}}$)	  
+	   with application of 
+	  \textsc{E-Context} rule in ML :
+	  
+	  \infrule[E-Context]
+	{{\ebot{t_2}}_{|\ebot{\mu}} \rightarrow^{0|1} {\ebot{t_2'}}_{|\ebot{\mu'}}}
+	{{\ebot{t}}_{|\ebot{\mu}} \rightarrow^{0|1} {\ebot{t'}}_{|\ebot{\mu'}}}
+%	{\mathtt{let}~x_{\ebot{\tau_2}}={\ebot{t_2}}~\mathtt{in}~\ebot{~t_1}
+%\rightarrow^{0|1}
+%\mathtt{let}~x_{\ebot{\tau_2}}={\ebot{t'_2}}~\mathtt{in}~\ebot{~t_1}}
+	
+
+\end{adjustwidth}	
+\end{proof}
 
 
 
