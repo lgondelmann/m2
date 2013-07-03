@@ -1,0 +1,132 @@
+
+
+  module Forall
+    use import bool.Bool
+    use import int.Int
+    use import ref.Ref 
+    use import array.Array
+    
+  
+
+    predicate pair (a: int) =
+      exists m:int. a = 2 * m
+
+    predicate impair (a : int) = 
+      exists m:int. a = 2 * m + 1
+ 
+
+   (*** source programs ***)
+
+   (*
+   let imperative_forall_pair (m n: int) (t: array int) = 
+      let b = ref False in 	
+      for i = m to n do 
+        b := andb !b (pair t[i])
+      done;
+      !b *)
+
+   (*
+   let functional_forall_pair (m n: int) (t: array int)    
+    =
+      let rec aux (i: int) 
+      = if i >= n then True else andb (pair t[i]) (aux (i + 1))
+      in aux m *)
+
+   (*** specified programs ***)
+
+
+    let imperative_forall_pair (m n: int) (t: array int) 
+      requires { 0 <= m <= t.length /\ 0 <= n <= t.length } 
+      ensures  { result = True <-> forall j: int. m <= j < n -> pair t[j] }
+    = let b = ref True in 	
+      for i = m to n - 1 do 
+        invariant {!b = True <-> forall j:int. m <= j < i -> pair t[j] }
+        b := andb !b (pair t[i])
+      done;
+      !b
+ 
+  let rec functional_forall_pair (m n: int) (t: array int)      
+      requires { 0 <= m <= t.length /\ 0 <= n <= t.length } 
+      ensures  { result = True <-> forall j: int. m <= j < n -> pair t[j] }
+      = if m >= n then True 
+        else andb (pair t[m]) (functional_forall_pair (m + 1) n t)
+
+
+  (*** inlining ***)
+
+
+
+
+
+  (*** proof obligations ***)
+
+
+  (*
+  goal WP_parameter_imperative_forall_pair :
+    (m > o -> (forall j:int. m <= j /\ j < n -> pair (get t1 j))) /\
+     (m <= o ->
+       (forall j:int. m <= j /\ j < m -> pair (get t1 j)) /\
+        (forall b:bool.
+          (forall i:int.
+            m <= i /\ i <= o ->
+             (b = True <-> (forall j:int. m <= j /\ j < i -> pair (get t1 j))) ->
+              (0 <= i /\ i < t) &&
+               (forall b1:bool.
+                 b1 =
+                  match b with
+                  | True -> if pair (get t1 i) then True else False
+                  | False -> False
+                  end ->
+                  b1 = True <->
+                   (forall j:int. m <= j /\ j < (i + 1) -> pair (get t1 j)))) /\
+           ((b = True <->
+              (forall j:int. m <= j /\ j < (o + 1) -> pair (get t1 j))) ->
+             b = True <-> (forall j:int. m <= j /\ j < n -> pair (get t1 j)))))
+ 
+
+goal WP_parameter_functional_forall_pair :
+    if m >= n then forall j:int. m <= j /\ j < n -> pair (get t1 j)
+    else let o = m + 1 in
+    ((0 <= o /\ o <= t) /\ 0 <= n /\ n <= t) &&
+     (forall o1:bool.
+       (o1 = True <-> (forall j:int. o <= j /\ j < n -> pair (get t1 j))) ->
+        (0 <= m /\ m < t) &&
+         ((if pair (get t1 m) then o1 else False) = True <->
+           (forall j:int. m <= j /\ j < n -> pair (get t1 j))))
+
+
+
+ let functional_forall_pair_version (m n: int) (t: array int)      
+      requires { 0 <= m <= t.length /\ 0 <= n <= t.length } 
+      ensures  { result = True <-> forall j: int. m <= j < n -> pair t[j] }
+    =
+      let rec aux (i: int) 
+        requires { 0 <= i <= t.length} 
+        ensures  { result = True <-> forall j: int. i <= j < n -> pair t[j] }
+      = if i >= n then True else andb (pair t[i]) (aux (i + 1))
+      in aux m
+
+
+ goal WP_parameter_functional_forall_pair_version :
+    (forall i:int.
+      forall t2:map int int.
+       0 <= t && 0 <= i /\ i <= t ->
+        (if i >= n then forall j:int. i <= j /\ j < n -> pair (get t2 j)
+        else let o = i + 1 in
+        (0 <= o /\ o <= t) &&
+         (forall o1:bool.
+           (o1 = True <-> (forall j:int. o <= j /\ j < n -> pair (get t2 j))) ->
+            (0 <= i /\ i < t) &&
+             ((if pair (get t2 i) then o1 else False) = True <->
+               (forall j:int. i <= j /\ j < n -> pair (get t2 j)))))) /\
+     (0 <= m /\ m <= t) &&
+      (forall result:bool.
+        (result = True <-> (forall j:int. m <= j /\ j < n -> pair (get t1 j))) ->
+         result = True <-> (forall j:int. m <= j /\ j < n -> pair (get t1 j)))
+end
+
+
+  *)
+
+
+  end
