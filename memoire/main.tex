@@ -1,0 +1,324 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[a4paper,12pt,oneside]{report}
+\label{packages}
+\usepackage[sc]{mathpazo}
+\usepackage[scaled]{helvet} % ss
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage[a4paper,pdftex,colorlinks=true,
+	urlcolor=blue,pdfstartview=FitH]{hyperref}
+\usepackage{graphicx}
+\usepackage{amssymb,amsfonts,amsthm,amsmath}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage[dvipsnames]{xcolor,colortbl}
+\usepackage{caption}
+\protect\usepackage{semantic}
+\usepackage{bcprules, proof}
+\usepackage{stmaryrd}
+ \usepackage{float}
+\usepackage{changepage}
+\usepackage{setspace}
+\usepackage{pstricks,pstricks-add,pst-math,pst-xkey}
+\usepackage{multicol}
+\usepackage[small,nohug,heads=vee]{diagrams}
+\usepackage{cleveref}
+\crefname{enumi}{position}{positions}
+
+\diagramstyle[labelstyle=\scriptstyle]
+
+\titleformat{\section}[hang]% style du titre
+  {\normalfont\Large\bfseries}% police du titre + numéro
+  {\thesection}% numérotation
+  {0.4in}% espacement numéro/titre <--- valeur à changer
+  {}% police spécifique du titre
+\titlespacing*{\section}
+  {-0.5in}% espacement gauche
+  {0.2in}% espacement avant
+  {0.2in}% espacement après
+  [0.1in]% espacement à droite
+
+\titleformat{\subsection}[hang]% style du titre
+  {\normalfont\large\bfseries}% police du titre + numéro
+  {\thesubsection}% numérotation
+  {0.2in}% espacement numéro/titre <--- valeur à changer
+  {}% police spécifique du titre
+\titlespacing*{\subsection}
+  {-0.44in}% espacement gauche
+  {0.2in}% espacement avant
+  {0.2in}% espacement après
+  [0.1in]% espacement à droite
+
+
+%\titleformat{\subsubsection}[hang]% style du titre
+%  {\normalfont\large\bfseries}% police du titre + numéro
+%  {\thesubsubsection}% numérotation
+%  {0.1in}% espacement numéro/titre <--- valeur à changer
+%  {}% police spécifique du titre
+%\titlespacing*{\subsubsection}
+%  {-0.30in}% espacement gauche
+%  {0.2in}% espacement avant
+%  {0.2in}% espacement après
+%  [0.1in]% espacement à droite
+
+
+\RequirePackage{listings}
+\RequirePackage{amssymb}
+
+\lstset{
+  basicstyle={\ttfamily},
+  framesep=2pt,
+  frame=single,
+  keywordstyle={\color{blue}},
+  stringstyle=\itshape,
+  commentstyle=\itshape,
+  columns=[l]fullflexible,
+  showstringspaces=false,
+}
+
+\lstdefinelanguage{why3}
+{
+morekeywords={namespace,predicate,function,inductive,type,use,clone,%
+import,export,theory,module,end,in,with,%
+let,rec,for,to,do,done,match,if,then,else,while,try,invariant,variant,%
+absurd,raise,assert,exception,private,abstract,mutable,ghost,%
+downto,raises,writes,reads,requires,ensures,returns,val,model,%
+goal,axiom,lemma,forall},%
+string=[b]",%
+sensitive=true,%
+morecomment=[s]{(*}{*)},%
+keepspaces=true,
+}
+%literate=%
+%{'a}{$\alpha$}{1}%
+%{'b}{$\beta$}{1}%
+%{<}{$<$}{1}%
+%{>}{$>$}{1}%
+%{<=}{$\le$}{1}%
+%{>=}{$\ge$}{1}%
+% {<>}{$\ne$}{1}%
+% {/\\}{$\land$}{1}%
+% {\\/}{ $\lor$ }{3}%
+% {\ or(}{ $\lor$(}{3}%
+% {not\ }{$\lnot$ }{1}%
+% {not(}{$\lnot$(}{1}%
+% {+->}{\texttt{+->}}{2}%
+% % {+->}{$\mapsto$}{2}%
+% {-->}{\texttt{-\relax->}}{2}%
+% %{-->}{$\longrightarrow$}{2}%
+% {->}{$\rightarrow$}{2}%
+% {<->}{$\leftrightarrow$}{2}%
+
+\lstnewenvironment{whycode}{\lstset{language=why3}}{}
+\lstnewenvironment{ocamlcode}{\lstset{language={[Objective]Caml}}}{}
+
+%\lstset{basicstyle={\ttfamily}}
+\let\why\lstinline
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}{Lemma}[section]
+\newtheoremstyle{plain}
+{\topsep}
+{\topsep}{\itshape}{}{}{.}{ }{\textit{#1 #2} [\textsc{#3}]}
+
+\let\mf\mathfrak
+
+\addtolength{\textwidth}{1.5cm}
+
+\def\nrepeat#1#2{\count0=#1 \loop \ifnum\count0>0 \advance\count0 by -1 #2\repeat}
+
+\newcommand{\mem}{_{|\mu}}\newcommand{\memp}{_{|\mu'}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\glam}{\textit{ghost}-$\lambda$~}
+\newcommand{\gml}{\textit{ghost}-ml~}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\var}[3]{#1^{#2}_{#3}}
+\newcommand{\gvar}[3]{#1^{\mathfrak{B_{#2}}}_{\tau_{#3}}}
+\newcommand{\gref}[3]
+{#1^{\mathfrak{B_{#2}}}_{\mathtt{ref}~\tau_{#3}}}
+\let\rvar\gref
+\newcommand{\gvarT}[2]{#1^{\top}_{\tau_{#2}}}
+\newcommand{\gvarF}[2]{#1^{\bot}_{\tau_{#2}}}
+\newcommand{\gabst}[4]{\lambda \gvar{#1}{#2}{#3}. #4}
+\newcommand{\gghost}[1]{\mathtt{ghost}~ #1}
+\newcommand{\glet}[5]
+{\mathtt{let}~\gvar{#1}{#2}{#3} = #4 ~ \mathtt{in}~ #5}
+\newcommand{\gif}[3]{\mathtt{if}~#1~\mathtt{then}~#2~\mathtt{else}~#3}
+\newcommand{\grech}[6]
+	{\mathtt{rec}~\var{#1}{\mf{B_{#2}}}{}~\gvar{#3}{#4}{#5}~:~\tau_{#6}. t}
+\newcommand{\grec}[4]
+	{\mathtt{rec}~\var{f}{\mf{B_{#1}}}{}~\gvar{x}{#3}{#4}:\tau_{#2}.~t}
+\newcommand{\gread}[3]{!\gref{#1}{#2}{#3}}
+\newcommand{\gwrite}[4]{\gref{#1}{#2}{#3} := #4}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%SEMANTICS
+\newcommand{\leval}[4]{~#1_{|#2} \rightarrow_{\lambda} #3_{|#4} ~}
+\newcommand{\geval}[4]{~#1_{|#2} \rightarrow_{g\lambda} #3_{|#4} ~}
+
+\newcommand{\levalh}[4]{~#1_{|#2} \stackrel{\epsilon}{\rightarrow}_{\lambda} #3_{|#4} ~}
+\newcommand{\gevalh}[4]{~#1_{|#2} \stackrel{\epsilon}{\rightarrow}_{g\lambda} #3_{|#4} ~}
+
+\newcommand{\levalstar}[4]{~#1_{|#2} \rightarrow_{\lambda}^{\star} #3_{|#4} ~}
+\newcommand{\gevalstar}[4]{~#1_{|#2} \rightarrow_{g\lambda}^{\star} #3_{|#4} ~}
+\newcommand{\gstep}[2]{~#1 ~ {\rightarrow}_{g\lambda} ~ #2~}
+\newcommand{\ghead}[2]{~#1~\stackrel{\epsilon}{\rightarrow}~#2~}
+\newcommand{\gstar}[2]{~#1 ~ {\rightarrow}^{\star}_{g\lambda} ~ #2~}
+\newcommand{\glhead}[2]{#1~\stackrel{\epsilon\quad}
+										{\rightarrow_{g\lambda}}~#2}
+\newcommand{\stepone}[2]{#1 ~ {\rightarrow}~ #2}
+\let\eval\stepone
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\tarr}[3]{\tau^{\mf{B}_{#3}}_{#1} \rightarrow \tau_{#2}}
+\newcommand{\tarrS}[4]
+	{\tau^{\mf{B}_{#3}}_{#1}
+	\stackrel{\Sigma_#4}{\longrightarrow} \tau_{#2}}
+
+\newcommand{\sbst}[3]{#1 [#2 \mapsfrom #3] }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\grtitle}[2]{#1 & ::= &  & \textit{#2} \\}
+\newcommand{\grhead}[3]{#1 & ::= & #2 & \textit{#3} \\}
+\newcommand{\grcase}[2]{&  & #1 & \textit{#2} \\}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% TYPING
+\newcommand{\tystepone}[3]{\vdash_{g\lambda}  #1 : (#2, #3) }
+\newcommand{\typrule}[5]{~\vdash_{g\lambda}  #1 : (#2, #3, #4) #5}
+
+% ERASURE
+\newcommand{\e}{\mathcal{E}}
+\newcommand{\ebot}[1]{\e_{\bot}(#1)}
+\newcommand{\etop}[1]{\e_{\top}(#1)}
+\newcommand{\evar}[2]{\e_{#1}(#2)}
+
+
+% CONSTANTS
+\newcommand{\glvar}{\gvar{x}{}{}}
+\newcommand{\glref}{\gref{r}{}{}}
+\newcommand{\glabst}{\gabst{x}{}{}{t}}
+\newcommand{\glapp}{t_1 ~ t_2}
+\newcommand{\gltyping}{~\typrule{t}{\tau}{\mf{B}}{\Sigma}{}~}
+\newcommand{\vardecl}{\text{var }\glref = v}
+\newcommand{\gllet}{\glet{x}{}{}{t}{t}}
+\newcommand{\glif}{\gif{t}{t}{t}}
+\newcommand{\glrec}{\grec{}{}{}{}}
+\newcommand{\glread}{!\gref{r}{}{}}
+\newcommand{\glwrite}{\gref{r}{}{} := t}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\Longdownarrow}{\rotatebox{90}{$\Longleftarrow$}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\lgvar}[2]{#1_{#2}}
+\newcommand{\lgvarc}{x_{\tau}}
+
+\newcommand{\lgabs}[3]{\lambda \lgvar{#1}{#2}.{#3}}
+\newcommand{\lgabsc}{\lgabs{x}{\tau_2}{t_1}}
+
+\newcommand{\lgapp}[2]{#1~#2}
+\newcommand{\lgappc}{t_1~t_2}
+
+\newcommand{\lglet}[4]{\text{let } \lgvar{#1}{#2} = #3 \text{ in } #4}
+\newcommand{\lgletc}{\lglet{x}{\tau_2}{t_2}{t_1}}
+
+\newcommand{\lgif}[3]{\text{ if } #1 \text{ then } #2 \text{ else } #3}
+\newcommand{\lgifc}{\lgif{t_1}{t_2}{t_3}}
+
+\newcommand{\lgrec}[5]{\text{rec } #1~\lgvar{#3}{#4} : #2 = #5}
+\newcommand{\lgrecc}{\lgrec{g}{\tau_1}{x}{\tau_2}{t_1}}
+
+\newcommand{\lgand}[2]{#1 \wedge #2}
+\newcommand{\lgandc}{\lgand{t_1}{t_2}}
+
+\newcommand{\lgor}[2]{#1 \vee #2}
+\newcommand{\lgorc}{\lgor{t_1}{t_2}}
+
+\newcommand{\lgneg}[1]{\neg #1}
+
+\newcommand{\lgexist}[3]{\exists \glvar{#1}{#2}. #3}
+\newcommand{\lgexistc}{\lgexist{x}{\tau_2}{f_1}}
+
+\newcommand{\lgforall}[3]{\forall \glvar{#1}{#2}. #3}
+\newcommand{\lgforallc}{\lgforall{x}{\tau_2}{f_1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{TITLE}
+\author{Léon}
+%\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\begin{abstract}
+  This is the abstract...
+\end{abstract}
+
+\chapter{Introduction}
+
+context: deductive program verification~\cite{filliatre11sttt}
+
+main idea = if a program is using a HO function to write a loop, its
+proof of correctness should not be more difficult than its imperative
+counterpart using a for/while loop
+
+motivating examples
+
+related work 
+
+\chapter{Programming Language}
+
+mini-ML + global references + recursive functions
+
+\section{Syntax}
+
+\section{Semantics}
+
+\section{Type System with Effects}
+
+side effects + termination, independently
+
+\chapter{Inlining}
+
+definition, correctness
+
+\chapter{Specification Language}
+
+\section{Ghost Code}
+
+type system, erasure, proof of correctness of erasure
+
+\section{Annotations}
+
+requires, ensures, assert
+
+\chapter{Putting Pieces Together}
+
+\section{Orthogonality}
+
+inlining adapted to specification language
+
+\section{Experimental Evaluation}
+
+\chapter{Conclusion and Perspectives}
+
+blah blah
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliographystyle{plain}
+\bibliography{abbrevs,demons,demons2,demons3,team,crossrefs}
+
+\end{document}
+
+(*
+Local Variables:
+compile-command: "rubber -d main"
+End:
+*)
