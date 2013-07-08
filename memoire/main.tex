@@ -1,5 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \documentclass[a4paper,12pt,oneside]{report}
+\pagestyle{headings}
 \label{packages}
 \usepackage[sc]{mathpazo}
 \usepackage[scaled]{helvet} % ss
@@ -26,9 +27,7 @@
 \usepackage[small,nohug,heads=vee]{diagrams}
 \usepackage{cleveref}
 \crefname{enumi}{position}{positions}
-
 \diagramstyle[labelstyle=\scriptstyle]
-
 \titleformat{\section}[hang]% style du titre
   {\normalfont\Large\bfseries}% police du titre + numéro
   {\thesection}% numérotation
@@ -117,17 +116,56 @@ keepspaces=true,
 %\lstset{basicstyle={\ttfamily}}
 \let\why\lstinline
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
-\newtheorem{theorem}{Theorem}[section]
-\newtheorem{lemma}{Lemma}[section]
+
+
+\label{proclamations}
 \newtheoremstyle{plain}
-{\topsep}
-{\topsep}{\itshape}{}{}{.}{ }{\textit{#1 #2} [\textsc{#3}]}
+{\topsep}{\topsep}{\upshape}{}{}{:~}{ }
+{\textsc{\hspace{-1.55cm} #2 \quad #1} \textsc{#3}}
+\theoremstyle{plain}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{lemma}[definition]{Lemma}
+\newtheorem{theorem}[definition]{Theorem}
+\newtheorem{corr}[definition]{Corrolary}
+
+
+\label{ML-Terms marcos}
+\newcommand{\mlt}[1]{#1}
+\newcommand{\tmapp}[2]{(#1 ~ #2)}
+
+\label{ML-Types marcros}
+\newcommand{\ty}[1]{\tau_{#1}}
+\newcommand{\tyarr}[3]
+{\tau_{#1}\hspace*{-0.2cm}\stackrel{#3}{\Rightarrow}\hspace*{-0.2cm}\tau_{#2}}
+
+
+
+%
+%\newcommand{\tarrS}[4]
+%	{\tau^{\mf{B}_{#3}}_{#1}
+%	\stackrel{\Sigma_#4}{\longrightarrow} \tau_{#2}}
+
+\label{ML-Typing marcos}
+\newcommand{\typerule}[5]{~\vdash  #1 : (#2, #3, #4) #5}
+
+\label{Semantics marcos}
+\newcommand{\evalstep}[4]{~#1_{|\mu_#2} \rightarrow #3_{|\mu_#4} ~}
+\newcommand{\evalstar}[4]{~#1_{|\mu_#2} \rightarrow^{\star} #3_{|\mu_#4} ~}
+\newcommand{\evalinfty}[2]{~#1_{|#2} \rightarrow \infty ~}
+\newcommand{\eqv}[2]{#1 \thicksim #2}
+
 
 \let\mf\mathfrak
+
 
 \addtolength{\textwidth}{1.5cm}
 
 \def\nrepeat#1#2{\count0=#1 \loop \ifnum\count0>0 \advance\count0 by -1 #2\repeat}
+
+%\swapnumbers
+
+
+
 
 \newcommand{\mem}{_{|\mu}}\newcommand{\memp}{_{|\mu'}}
 
@@ -172,6 +210,9 @@ keepspaces=true,
 										{\rightarrow_{g\lambda}}~#2}
 \newcommand{\stepone}[2]{#1 ~ {\rightarrow}~ #2}
 \let\eval\stepone
+
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -286,11 +327,168 @@ side effects + termination, independently
 
 \chapter{Inlining}
 
-definition, correctness
+	present general idea of inlining in two phases and a brief description of 
+	required tools.
+
+
+\section{Semantic Equivalence Between Terms}
+
+
+\label{semantic equivalence}
+\begin{definition}[(Semantic Equivalence)]
+	Let $t$ and $t'$ be two well-typed closed terms of the source language
+	such that 
+	
+	$$
+		\typerule{t}{\tau}{\theta}{\rho}{} \quad \typerule{t'}{\tau}{\theta}{\rho}{} 
+	$$
+
+	We define $\eqv{t}{t'}$, the \textit{semantic equivalence} between $t$
+	and $t'$, by induction on the structure of type $\tau$ :
+	
+	\begin{itemize}
+	 	\item[$(\alpha)$] whenever the evaluation of any term among the $t$ and $t'$ 
+	 	diverges, so does the evaluation of the other term: 
+	 	$$\forall \mu.~ \evalinfty{t}{\mu} \Leftrightarrow \evalinfty{t'}{\mu}$$ 	 	
+	 	
+		\item[$(\beta)$] and if the evaluation of both $t$ and $t'$ converges, 
+		then 
+		
+		\begin{itemize}
+		\item[$(\beta_1)$]
+			if $\ty{} = \ty{}^0$ for some base type $\ty{}^0$, then
+			$$ \forall \mu_0 \exists \mu_1 \exists v: 
+			\evalstar{t}{0}{v}{1} \wedge \evalstar{t'}{0}{v}{1}$$
+		
+		
+		\item[$(\beta_2)$]
+			if $\ty{} = \tyarr{1}{2}{(\theta,\rho)}$ for some types $\ty{1}, \ty{2}$,
+			then\\[0.2cm]
+			$\hspace*{1em}\forall v_0, v'_0. ~ \eqv{v_0}{v'_0} ~ 
+			\wedge \typerule{v_0}{\ty{1}}{\theta_1}{\rho_1}{} \Rightarrow$ \\[0.2cm]		
+			$\hspace*{2em}\quad \forall \mu_0 \exists \mu_1 \exists v_1, v'_1 : 
+			 	\evalstar{\tmapp{t}{v_0}}{0}{{v_1}}{1} 
+				\wedge \evalstar{\tmapp{t'}{v'_0}}{0}{{v'_1}}{1}
+				\wedge\eqv{v_1}{v'_1}$	
+	
+		\end{itemize}
+	\end{itemize}		
+	\end{definition}
+
+
+
+	\begin{lemma} 
+		The semantic equivalence 	terms, $\thicksim$, is reflexive, 	
+		symmetric and transitive relation.
+	\end{lemma}
+	
+	\begin{proof}
+		By straightforward induction on the structure of type of the terms, using 
+		the fact that $\rightarrow^\star$ is an evaluation strategy, thus 
+		deterministic.
+	\end{proof}
+
+
+
+	\begin{lemma}
+		For any pair of states $\mu_0$, $\mu_1$ such that
+		$\evalstar{{t_0}}{0}{{t_1}}{1}$ and $\evalstar{{t'_0}}{0}{{t'_1}}{1}$
+		if $\eqv{t_0}{t'_0}$ then $\eqv{t_1}{t'_1}$.
+	\end{lemma}
+	
+	\begin{proof}
+		By induction on the structure of type of $t_0$.
+		\begin{itemize}
+			\item[$(\alpha)$] if $t_0$ diverges, then $t'_0$ diverges too,
+				by definition of $\eqv{t_0}{t'_0}$. 
+				But then, $\rightarrow^\star$ being deterministic, both $t_1$ and $t'_1$
+				diverge, Symmetrically, if $t'_0$, $t_1$ and $t'_1$ diverge as well.
+			
+			\item[$(\beta)$] Otherwise, neither $t_0$ or $t_{0}'$ diverge. Then
+			\begin{itemize}
+				\item[$(\beta_1)$] 
+				if $\ty{} = \ty{}^0$ for some base type $\ty{}^0$ 
+				then, as $\eqv{t_0}{t'_0}$ by hypothesis, it follows that 
+					$$ \exists \mu_2 \exists v: 
+					\evalstar{{t_0}}{0}{v}{2} \wedge \evalstar{{t'_0}}{0}{v}{2}.$$
+				The evaluation $\rightarrow^\star$ being deterministic, 
+				we have necessarily that
+					$$\evalstar{{t_1}}{1}{v}{2} \wedge \evalstar{{t'_1}}{1}{v}{2}.$$
+				Finally, the state $\mu_1$ being chosen arbitrary, we deduce 
+				immediately that $$\eqv{t_1}{t'_1}.$$				
+			
+			
+				\item[$(\beta_2)$] 
+				if $\ty{}$ is an arrow type $\tyarr{1}{2}{(\theta,\rho)}$ for some types 
+				$\ty{1}, \ty{2}$,	let $v_0, v'_0$ be two arbitrary values satisfying:
+				  $$~\eqv{v_0}{v'_0}~\wedge \typerule{v_0}{\ty{1}}{\theta_1}{\rho_1}{}$$
+				for some $\theta_1, \rho_1$.
+				By hypothesis, we have the reduction steps:
+					$$\evalstar{{t_0}}{0}{{t_1}}{1}\quad\evalstar{{t'_0}}{0}{{t'_1}}{1}$$						which induce respectively: 
+					$$\evalstar{\tmapp{t_0}{v_0}}{0}{\tmapp{t_1}{v_0}}{1} \quad
+						\evalstar{\tmapp{t'_0}{v'_0}}{0}{\tmapp{t'_1}{v'_0}}{1}$$	
+				From the definition of $\eqv{t_0}{t'_0}$, it follows that
+					$$ \eqv{\tmapp{t_0}{v_0}}{\tmapp{t'_0}{v'_0}}.$$
+				Therefore, as $\tau_{\tmapp{t_0}{v_0}} = \tau_2$, the
+				induction hypothesis on $\tau_2$ yields 
+					$$ \eqv{\tmapp{t_1}{v_0}}{\tmapp{t'_1}{v'_0}}.$$
+				Finally, as $v_0, v'_0$ were chosen arbitrary values (satisfying the
+				 two conditions above), the result holds for any such values, and by
+				 definition of $\thicksim$ that means that $$\eqv{t_1}{t'_1}.$$		
+			\end{itemize}
+		\end{itemize}
+	\end{proof}		
+
+
+
+	\begin{lemma}
+		For any state $\mu_0$, if $\evalstep{{t_0}}{0}{{t_1}}{0}$, then
+		$\eqv{t_0}{t_1}$.
+	\end{lemma}	
+	\begin{proof}
+		Straightforward, observing that $\rightarrow$ is an evaluation
+		strategy, thus deterministic.
+	\end{proof}		
+
+	\begin{corr} 
+		For any state $\mu_0$, if $\evalstar{{t}}{0}{{v}}{0}$, then		
+		$\eqv{t}{v}$.
+	\end{corr}
+
+
+%\begin{theorem}[blah] 
+%blah
+%\end{theorem}
+%
+%\begin{lemma}[blah blah blah]
+%blah
+%\end{lemma}
+
+\section{Equivalence Between Parallel Substitutions}
+
+
+\begin{theorem}[blah] 
+blah
+\end{theorem}
+
+\begin{lemma}[blah blah blah]
+blah
+\end{lemma}
 
 \chapter{Specification Language}
 
 \section{Ghost Code}
+
+\begin{definition}[blah blah] blah
+\end{definition}
+
+\begin{theorem}[blah] 
+blah
+\end{theorem}
+
+\begin{lemma}[blah blah blah]
+blah
+\end{lemma}
 
 type system, erasure, proof of correctness of erasure
 
