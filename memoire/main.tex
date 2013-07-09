@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\documentclass[a4paper,12pt,oneside]{report}
+\documentclass[a4paper,11pt,oneside]{article}
 \pagestyle{headings}
 \label{packages}
 \usepackage[sc]{mathpazo}
@@ -26,41 +26,42 @@
 \usepackage{multicol}
 \usepackage[small,nohug,heads=vee]{diagrams}
 \usepackage{cleveref}
+\usepackage{xargs}
 \crefname{enumi}{position}{positions}
 \diagramstyle[labelstyle=\scriptstyle]
 \titleformat{\section}[hang]% style du titre
-  {\normalfont\Large\bfseries}% police du titre + numéro
+  {\normalfont\LARGE\bfseries}% police du titre + numéro
   {\thesection}% numérotation
   {0.4in}% espacement numéro/titre <--- valeur à changer
   {}% police spécifique du titre
 \titlespacing*{\section}
-  {-0.5in}% espacement gauche
+  {-0.9in}% espacement gauche
   {0.2in}% espacement avant
   {0.2in}% espacement après
   [0.1in]% espacement à droite
 
 \titleformat{\subsection}[hang]% style du titre
-  {\normalfont\large\bfseries}% police du titre + numéro
+  {\normalfont\Large\bfseries}% police du titre + numéro
   {\thesubsection}% numérotation
   {0.2in}% espacement numéro/titre <--- valeur à changer
   {}% police spécifique du titre
 \titlespacing*{\subsection}
-  {-0.44in}% espacement gauche
+  {-0.7in}% espacement gauche
   {0.2in}% espacement avant
   {0.2in}% espacement après
   [0.1in]% espacement à droite
 
 
-%\titleformat{\subsubsection}[hang]% style du titre
-%  {\normalfont\large\bfseries}% police du titre + numéro
-%  {\thesubsubsection}% numérotation
-%  {0.1in}% espacement numéro/titre <--- valeur à changer
-%  {}% police spécifique du titre
-%\titlespacing*{\subsubsection}
-%  {-0.30in}% espacement gauche
-%  {0.2in}% espacement avant
-%  {0.2in}% espacement après
-%  [0.1in]% espacement à droite
+\titleformat{\subsubsection}[hang]% style du titre
+  {\normalfont\large\bfseries}% police du titre + numéro
+  {\thesubsubsection}% numérotation
+  {0.1in}% espacement numéro/titre <--- valeur à changer
+  {}% police spécifique du titre
+\titlespacing*{\subsubsection}
+  {-0.6in}% espacement gauche
+  {0.2in}% espacement avant
+  {0.2in}% espacement après
+  [0.1in]% espacement à droite
 
 
 \RequirePackage{listings}
@@ -123,7 +124,7 @@ keepspaces=true,
 {\topsep}{\topsep}{\upshape}{}{}{:~}{ }
 {\textsc{\hspace{-1.55cm} #2 \quad #1} \textsc{#3}}
 \theoremstyle{plain}
-\newtheorem{definition}{Definition}[section]
+\newtheorem{definition}{Definition}[subsection]
 \newtheorem{lemma}[definition]{Lemma}
 \newtheorem{theorem}[definition]{Theorem}
 \newtheorem{corr}[definition]{Corrolary}
@@ -134,26 +135,29 @@ keepspaces=true,
 \newcommand{\tmapp}[2]{(#1 ~ #2)}
 
 \label{ML-Types marcros}
-\newcommand{\ty}[1]{\tau_{#1}}
-\newcommand{\tyarr}[3]
-{\tau_{#1}\hspace*{-0.2cm}\stackrel{#3}{\Rightarrow}\hspace*{-0.2cm}\tau_{#2}}
-
-
+\newcommand{\ty}[1][]{\tau_{#1}}
+\newcommandx{\tyarr}[4][1=1, 2=2, 3=\theta, 4=\rho]
+	{\tau_{#1}\hspace*{-0.2cm}\stackrel{(#3,#4)}
+	{\Rightarrow}\hspace*{-0.2cm}\tau_{#2}}
+\newcommandx{\tyord}[2][2=]{\ty[#2]^{#1}}
 
 %
 %\newcommand{\tarrS}[4]
 %	{\tau^{\mf{B}_{#3}}_{#1}
 %	\stackrel{\Sigma_#4}{\longrightarrow} \tau_{#2}}
 
+
+\newcommand{\bwedge}{\boldsymbol{\wedge}}
+\newcommand{\bvee}{\boldsymbol{\vee}}
 \label{ML-Typing marcos}
-\newcommand{\typerule}[5]{~\vdash  #1 : (#2, #3, #4) #5}
+\newcommandx{\typerule}[5]{~\vdash  #1 : (#2, #3, #4) #5}
 
 \label{Semantics marcos}
 \newcommand{\evalstep}[4]{~#1_{|\mu_#2} \rightarrow #3_{|\mu_#4} ~}
 \newcommand{\evalstar}[4]{~#1_{|\mu_#2} \rightarrow^{\star} #3_{|\mu_#4} ~}
 \newcommand{\evalinfty}[2]{~#1_{|#2} \rightarrow \infty ~}
-\newcommand{\eqv}[2]{#1 \thicksim #2}
-
+\newcommand{\eqv}[1]{#1 \thicksim #1'}
+\newcommand{\eqvsbst}[2]{#1 \thicksim_{#2} #1'}
 
 \let\mf\mathfrak
 
@@ -275,7 +279,7 @@ keepspaces=true,
 \newcommand{\lgand}[2]{#1 \wedge #2}
 \newcommand{\lgandc}{\lgand{t_1}{t_2}}
 
-\newcommand{\lgor}[2]{#1 \vee #2}
+\newcommand{\lgor}[2]{#1 \bvee #2}
 \newcommand{\lgorc}{\lgor{t_1}{t_2}}
 
 \newcommand{\lgneg}[1]{\neg #1}
@@ -286,7 +290,7 @@ keepspaces=true,
 \newcommand{\lgforall}[3]{\forall \glvar{#1}{#2}. #3}
 \newcommand{\lgforallc}{\lgforall{x}{\tau_2}{f_1}}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \title{TITLE}
 \author{Léon}
 %\date{\today}
@@ -301,7 +305,7 @@ keepspaces=true,
   This is the abstract...
 \end{abstract}
 
-\chapter{Introduction}
+\section{Introduction}
 
 context: deductive program verification~\cite{filliatre11sttt}
 
@@ -313,70 +317,69 @@ motivating examples
 
 related work 
 
-\chapter{Programming Language}
+\section{Programming Language}
 
 mini-ML + global references + recursive functions
 
-\section{Syntax}
+\subsection{Syntax}
 
-\section{Semantics}
+\subsection{Semantics}
 
-\section{Type System with Effects}
+\subsection{Type System with Effects}
 
 side effects + termination, independently
-
-\chapter{Inlining}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Inlining}
 
 	present general idea of inlining in two phases and a brief description of 
 	required tools.
+	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Semantic Equivalence Relation}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{Semantic Equivalence Between Closed Terms}
 
-\section{Semantic Equivalence Between Terms}
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{semantic equivalence}
 \begin{definition}[(Semantic Equivalence)]
-	Let $t$ and $t'$ be two well-typed closed terms of the source language
-	such that 
+	Let $t$ and $t'$ be two well-typed closed terms of the source 
+	language such that 
 	
 	$$
 		\typerule{t}{\tau}{\theta}{\rho}{} \quad \typerule{t'}{\tau}{\theta}{\rho}{} 
 	$$
 
-	We define $\eqv{t}{t'}$, the \textit{semantic equivalence} between $t$
-	and $t'$, by induction on the structure of type $\tau$ :
+	We define $\eqv{t}$, the \textit{semantic equivalence} between $t$ and $t'$, 
+	by induction on the structure of type $\ty$ :
 	
 	\begin{itemize}
-	 	\item[$(\alpha)$] whenever the evaluation of any term among the $t$ and $t'$ 
-	 	diverges, so does the evaluation of the other term: 
-	 	$$\forall \mu.~ \evalinfty{t}{\mu} \Leftrightarrow \evalinfty{t'}{\mu}$$ 	 	
-	 	
-		\item[$(\beta)$] and if the evaluation of both $t$ and $t'$ converges, 
-		then 
+		\item[$(\alpha)$]
+
+			if $\ty{} = \ty{}^0$ for some base type $\ty{}^0$, then $\eqv{t}$ iff
+			$$	\forall \mu_0.(\evalinfty{t}{\mu_0} \bwedge \evalinfty{t'}{\mu_0})~
+					\bvee ~ \exists \mu_1 \exists v: 
+					\evalstar{t}{0}{v}{1} \bwedge \evalstar{t'}{0}{v}{1} $$
 		
-		\begin{itemize}
-		\item[$(\beta_1)$]
-			if $\ty{} = \ty{}^0$ for some base type $\ty{}^0$, then
-			$$ \forall \mu_0 \exists \mu_1 \exists v: 
-			\evalstar{t}{0}{v}{1} \wedge \evalstar{t'}{0}{v}{1}$$
-		
-		
-		\item[$(\beta_2)$]
-			if $\ty{} = \tyarr{1}{2}{(\theta,\rho)}$ for some types $\ty{1}, \ty{2}$,
+		\item[$(\beta)$]
+			if $\ty = \tyarr$ for some types $\ty[1], \ty[2]$,
 			then\\[0.2cm]
-			$\hspace*{1em}\forall v_0, v'_0. ~ \eqv{v_0}{v'_0} ~ 
-			\wedge \typerule{v_0}{\ty{1}}{\theta_1}{\rho_1}{} \Rightarrow$ \\[0.2cm]		
-			$\hspace*{2em}\quad \forall \mu_0 \exists \mu_1 \exists v_1, v'_1 : 
+			$\hspace*{0em}\forall v_0, v'_0. ~ \eqv{v_0} ~ 
+			\bwedge \typerule{v_0}{\ty[1]}{\bot_\theta}{\bot_\rho}{} ~~
+			\bwedge \typerule{v'_0}{\ty[1]}{\bot_\theta}{\bot_\rho}{} $ \\[0.2cm]
+			$\hspace*{1em}
+			\Rightarrow \forall\mu_0.(\evalinfty{\tmapp{t}{v_0}}{\mu_0}
+			\bwedge\evalinfty{\tmapp{t'}{v'_0}}{\mu_0})$\\[0.2cm]
+			$\hspace*{2em}\bvee~(\exists \mu_1 \exists v_1, v'_1 : 
 			 	\evalstar{\tmapp{t}{v_0}}{0}{{v_1}}{1} 
-				\wedge \evalstar{\tmapp{t'}{v'_0}}{0}{{v'_1}}{1}
-				\wedge\eqv{v_1}{v'_1}$	
-	
-		\end{itemize}
-	\end{itemize}		
+				\bwedge \evalstar{\tmapp{t'}{v'_0}}{0}{{v'_1}}{1}
+				\bwedge~\eqv{v_1})$				
+	\end{itemize}
 	\end{definition}
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	\begin{lemma} 
 		The semantic equivalence 	terms, $\thicksim$, is reflexive, 	
 		symmetric and transitive relation.
@@ -388,96 +391,104 @@ side effects + termination, independently
 		deterministic.
 	\end{proof}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	\begin{lemma}
+		$\forall t,t'.~ \eqv{t} \Leftrightarrow 
+			(\forall v, v'.~\eqv{v}~\Rightarrow
+			\tmapp{t}{v} \thicksim \tmapp{t'}{v'})$
+	\label{equiv-def-l}
+	\end{lemma}
+	
+	\begin{proof} By induction on the structure of type $\ty[t]$.
+	For Detailed proof, see \ref{equiv-def-p}.
+	\end{proof}
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	
 	\begin{lemma}
 		For any pair of states $\mu_0$, $\mu_1$ such that
 		$\evalstar{{t_0}}{0}{{t_1}}{1}$ and $\evalstar{{t'_0}}{0}{{t'_1}}{1}$
-		if $\eqv{t_0}{t'_0}$ then $\eqv{t_1}{t'_1}$.
+		if $\eqv{t_0}$ then $\eqv{t_1}$.
+		\label{equiv-red2-l}
 	\end{lemma}
 	
 	\begin{proof}
-		By induction on the structure of type of $t_0$.
-		\begin{itemize}
-			\item[$(\alpha)$] if $t_0$ diverges, then $t'_0$ diverges too,
-				by definition of $\eqv{t_0}{t'_0}$. 
-				But then, $\rightarrow^\star$ being deterministic, both $t_1$ and $t'_1$
-				diverge, Symmetrically, if $t'_0$, $t_1$ and $t'_1$ diverge as well.
-			
-			\item[$(\beta)$] Otherwise, neither $t_0$ or $t_{0}'$ diverge. Then
-			\begin{itemize}
-				\item[$(\beta_1)$] 
-				if $\ty{} = \ty{}^0$ for some base type $\ty{}^0$ 
-				then, as $\eqv{t_0}{t'_0}$ by hypothesis, it follows that 
-					$$ \exists \mu_2 \exists v: 
-					\evalstar{{t_0}}{0}{v}{2} \wedge \evalstar{{t'_0}}{0}{v}{2}.$$
-				The evaluation $\rightarrow^\star$ being deterministic, 
-				we have necessarily that
-					$$\evalstar{{t_1}}{1}{v}{2} \wedge \evalstar{{t'_1}}{1}{v}{2}.$$
-				Finally, the state $\mu_1$ being chosen arbitrary, we deduce 
-				immediately that $$\eqv{t_1}{t'_1}.$$				
-			
-			
-				\item[$(\beta_2)$] 
-				if $\ty{}$ is an arrow type $\tyarr{1}{2}{(\theta,\rho)}$ for some types 
-				$\ty{1}, \ty{2}$,	let $v_0, v'_0$ be two arbitrary values satisfying:
-				  $$~\eqv{v_0}{v'_0}~\wedge \typerule{v_0}{\ty{1}}{\theta_1}{\rho_1}{}$$
-				for some $\theta_1, \rho_1$.
-				By hypothesis, we have the reduction steps:
-					$$\evalstar{{t_0}}{0}{{t_1}}{1}\quad\evalstar{{t'_0}}{0}{{t'_1}}{1}$$						which induce respectively: 
-					$$\evalstar{\tmapp{t_0}{v_0}}{0}{\tmapp{t_1}{v_0}}{1} \quad
-						\evalstar{\tmapp{t'_0}{v'_0}}{0}{\tmapp{t'_1}{v'_0}}{1}$$	
-				From the definition of $\eqv{t_0}{t'_0}$, it follows that
-					$$ \eqv{\tmapp{t_0}{v_0}}{\tmapp{t'_0}{v'_0}}.$$
-				Therefore, as $\tau_{\tmapp{t_0}{v_0}} = \tau_2$, the
-				induction hypothesis on $\tau_2$ yields 
-					$$ \eqv{\tmapp{t_1}{v_0}}{\tmapp{t'_1}{v'_0}}.$$
-				Finally, as $v_0, v'_0$ were chosen arbitrary values (satisfying the
-				 two conditions above), the result holds for any such values, and by
-				 definition of $\thicksim$ that means that $$\eqv{t_1}{t'_1}.$$		
-			\end{itemize}
-		\end{itemize}
+		By induction on the structure of type of $t_0$. 
+		For Detailed proof, see \ref{equiv-red2-p}.
 	\end{proof}		
 
-
-
+	\begin{corr} 
+		For any pair of states $\mu_0$, $\mu_1$ such that
+		$\evalstar{{t}}{0}{{v}}{1}$ and \mbox{$\evalstar{{t'}}{0}{{v'}}{1}$},
+		if $\eqv{t}$ then $\eqv{v_1}$.
+		\label{equivalence parallel preservation corr}
+	\end{corr}
+	
+	
+	
 	\begin{lemma}
 		For any state $\mu_0$, if $\evalstep{{t_0}}{0}{{t_1}}{0}$, then
-		$\eqv{t_0}{t_1}$.
+		$t_0 \thicksim t_1$.
 	\end{lemma}	
 	\begin{proof}
-		Straightforward, observing that $\rightarrow$ is an evaluation
+		By Straightforward observation that $\rightarrow$ is an evaluation
 		strategy, thus deterministic.
 	\end{proof}		
 
 	\begin{corr} 
 		For any state $\mu_0$, if $\evalstar{{t}}{0}{{v}}{0}$, then		
-		$\eqv{t}{v}$.
+		$t \thicksim v$.
 	\end{corr}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{Semantics Equivalence Between Parallel Substitutions}
 
+	\begin{definition}[(parallel substitutions)]
+	
+	\label{}
+	\end{definition}
 
-%\begin{theorem}[blah] 
-%blah
-%\end{theorem}
-%
-%\begin{lemma}[blah blah blah]
-%blah
-%\end{lemma}
+	\begin{definition}[(equivalent parallel substitutions)]
 
-\section{Equivalence Between Parallel Substitutions}
+	\label{}
+	\end{definition}
 
+	\begin{lemma} 
+		$\forall t. \forall (\sigma, \sigma'). ~\eqvsbst{\sigma}{t}
+		\Rightarrow \tmapp{t}{\sigma} \thicksim \tmapp{t}{\sigma'}.$ 
+	\label{equiv-subst-l}
+	\end{lemma}
 
-\begin{theorem}[blah] 
-blah
-\end{theorem}
+	\begin{proof}
+		By induction on the structure of term $t$. For detailed proof, see
+		\ref{equiv-subst-p}.
+	\end{proof}
 
-\begin{lemma}[blah blah blah]
-blah
-\end{lemma}
+\subsection{Inlining As Rewriting Strategy}
 
-\chapter{Specification Language}
+Short description of two steps
 
-\section{Ghost Code}
+\subsubsection*{Inlining Second-Order Local Bindings}
+
+- output language subset
+- sos definition
+- theorem 1
+
+\subsubsection*{Inlining Second-Order Applications}
+
+- output language subset
+- sos definition
+- theorem 2
+
+\subsubsection*{Output Language}
+TODO: Nice figure 
+
+%\subsection{Inlining Higher-Order Programs}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Specification Language}
+
+\subsection{Ghost Code}
 
 \begin{definition}[blah blah] blah
 \end{definition}
@@ -492,24 +503,166 @@ blah
 
 type system, erasure, proof of correctness of erasure
 
-\section{Annotations}
+\subsection{Annotations}
 
 requires, ensures, assert
 
-\chapter{Putting Pieces Together}
+\section{Putting Pieces Together}
 
-\section{Orthogonality}
+\subsection{Orthogonality}
 
 inlining adapted to specification language
 
-\section{Experimental Evaluation}
+\subsection{Experimental Evaluation}
 
-\chapter{Conclusion and Perspectives}
+\section{Conclusion and Perspectives}
 
 blah blah
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\addcontentsline{toc}{chapter}{Bibliography}
+\newpage
+\section*{Appendices}
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+\section{Detailed proofs} 
+	\subsection{Semantic Equivalence Relation}
+	\begin{lemma}
+		$\forall t,t'.~ \eqv{t} \Leftrightarrow 
+			(\forall v, v'.~\eqv{v}~\Rightarrow
+			\tmapp{t}{v} \thicksim \tmapp{t'}{v'})$
+	\label{equiv-def-p}
+	\end{lemma}
+
+	\begin{proof}
+		Let $v, v'$ be two arbitrary values satisfying $\eqv{v}$.
+		From the formulation of lemma, it follows that
+		$$	\typerule{t}{\tyarr[1][2][\theta_0][\rho_0]}{\theta}{\rho}{} ~~ 
+				\typerule{t'}{\tyarr[1][2][\theta_0][\rho_0]}{\theta}{\rho}{}.$$
+		where $\ty[2]$ can be either the some first-order type $\tyord{0}[2]$ or
+		some arrow type $\tyarr[21][22][\theta_1][\rho_1].$ 
+		We prove the lemma by induction on the structure of type $\ty[t]$.
+	\begin{itemize}		
+	
+		\item[$(\Rightarrow)$] Assume $\eqv{t}$. Thus 		
+		
+		\begin{itemize}
+		
+		\item[$(\alpha)$] if $\ty[\tmapp{t'}{v'}] = \tyord{0}[2]$, then
+		by definition of $\eqv{t}$, for any initial state $\mu_0$ either 
+		$\tmapp{t'}{v'}$ and $\tmapp{t'}{v'}$ diverge both, 
+		or there is some pair of values $v_1, v'_1$ and a state $\mu_1$ such that 
+		$$\evalstar{\tmapp{t}{v}}{0}{{v_1}}{1} 
+			\bwedge \evalstar{\tmapp{t'}{v'}}{0}{{v'_1}}{1} \bwedge~\eqv{v_1}.$$
+		
+		By the preservation of typing, $v_1$ and $v'_1$ are of some base 
+		type $\tyord{0}[2]$, and from the fact that they are values, we deduce
+		that $v_1 = v'_1$. Therefore,  $\tmapp{t}{v} \thicksim \tmapp{t'}{v'})$.
+			
+		\item[$(\beta)$] Otherwise, 
+		$\ty[\tmapp{t}{v}] = \tyarr[21][22][\theta_1][\rho_1]$.
+		Let $v_0, v'_0$ be two arbitrary values satisfying $\eqv{v_0}$ and 
+		$\ty[v_0] = \ty[21]$. We must show that for any initial state $\mu_0$,
+		either both 
+		$\tmapp{\tmapp{t}{v}}{v_0}$ and $\tmapp{\tmapp{t'}{v'}}{v'_0}$ diverge
+		or there is a pair of values $v_1, v'_1$ and a state $\mu_1$ such that 
+		$$\evalstar{\tmapp{\tmapp{t}{v}}{v_0}}{0}{{v_1}}{1} \bwedge
+		\evalstar{\tmapp{\tmapp{t'}{v'}}{v'_0}}{0}{{v'_1}}{1} \bwedge~\eqv{v_1}.$$
+		
+		Obviously, if both $t$ and $t'$ both diverge,
+		then so do $\tmapp{t}{v}$ and $\tmapp{t'}{v'}$, and consequently 
+		$\tmapp{\tmapp{t'}{v'}}{v'_0}$ and $\tmapp{\tmapp{t'}{v'}}{v'_0}$.
+		Otherwise, from the equivalence $\eqv{t}$ we can deduce that there are
+		some values $v_2$, $v'_2$ and some intermediate state $\mu_2$ such that
+		$$\evalstar{\tmapp{\tmapp{t}{v}}{v_0}}{0}{\tmapp{v_2}{v_0}}{2} \bwedge
+		\evalstar{\tmapp{\tmapp{t'}{v'}}{v'_0}}{0}{\tmapp{v'_2}{v'_0}}{2} 
+		\bwedge~\eqv{v_2}$$	
+		By induction hypothesis on $\ty[\tmapp{t}{v}]=\ty[v]$, as $\eqv{v_2}$, we 
+		get	$$ \tmapp{v_2}{v_0} \thicksim \tmapp{v'_2}{v'_0}.$$ Therefore, 
+		$\tmapp{v_2}{v_0}$ diverges if and only if $\tmapp{v_2'}{v_0'}$ diverges 
+		too, so again, $\tmapp{\tmapp{t'}{v'}}{v'_0}$ diverges if and only if 
+		$\tmapp{\tmapp{t'}{v'}}{v'_0}$ diverges (by determinism of 
+		$\rightarrow^\star$). Otherwise for some values $v_1, v'_1$ and a state
+		$\mu_1$:
+		$$\evalstar{\tmapp{v_2}{v_0}}{2}{{v_1}}{1} \bwedge
+		\evalstar{\tmapp{v_2}{v'_0}}{2}{{v'_1}}{1} 
+		\bwedge~\eqv{v_1}.$$ There, putting reduction chains together allow us to 
+		conclude that $\tmapp{t}{v} \thicksim \tmapp{t'}{v'}.$ 
+		\end{itemize}
+		
+	
+		\item[$(\Leftarrow)$] Assume $(\forall v_0, v'.~\eqv{v}~\Rightarrow
+		\tmapp{t}{v} \thicksim \tmapp{t'}{v'})$. From the definition of 
+		\mbox{$\tmapp{t}{v}\thicksim\tmapp{t'}{v'}$} we almost immediate have 
+		that $\eqv{t}$. Back to \ref{equiv-def-l}.
+				
+		\end{itemize}	
+	\end{proof}
+
+	\begin{lemma}
+		For any pair of states $\mu_0$, $\mu_1$ such that
+		$\evalstar{{t_0}}{0}{{t_1}}{1}$ and $\evalstar{{t'_0}}{0}{{t'_1}}{1}$
+		if $\eqv{t_0}$ then $\eqv{t_1}$.
+		\label{equiv-red2-p}
+	\end{lemma}
+	
+	\begin{proof}
+		By induction on the structure of type of $t_0$. 
+		\begin{itemize}
+		\item[$(\alpha)$] if $\ty = \ty^0$ for some base type $\ty^0$, then
+		
+			\begin{itemize}
+			\item[$(\alpha_1)$] if $t_0$ diverges, then by definition of 
+			$\eqv{t_0}$, $t'_0$ diverges too. Also, $\rightarrow^\star$ being 
+			deterministic, both $t_1$ and $t'_1$ diverge. Symmetrically, if 
+			$t'_0$ diverges, $t_1$ and $t'_1$ diverge both as well. Therefore,
+			$$\eqv{t_1}.$$
+						
+			\item[$(\alpha_2)$] Otherwise, neither $t_0$ or $t_{0}'$ diverge. Then
+				as $\eqv{t_0}$ by hypothesis, it follows that 
+					$$ \exists \mu_2 \exists v: 
+					\evalstar{{t_0}}{0}{v}{2} \bwedge \evalstar{{t'_0}}{0}{v}{2}.$$
+				The evaluation $\rightarrow^\star$ being deterministic, we have 
+				necessarily that
+					$$\evalstar{{t_1}}{1}{v}{2} \bwedge \evalstar{{t'_1}}{1}{v}{2}.$$
+				As the state $\mu_1$ depends uniquely on the arbitrarily chosen 
+				$\mu_0$, we deduce again that $$\eqv{t_1}.$$					
+			\end{itemize}			
+			
+		\item[$(\beta)$] if $\ty$ is an arrow type $\tyarr$ for some types 
+		$\ty[1], \ty[2]$,	let $v_0, v'_0$ be two arbitrary values satisfying:
+		$$~\eqv{v_0}~\bwedge \typerule{v_0}{\ty[1]}{\bot_\theta}{\bot_\rho}{}.$$
+		By hypothesis, we have the reduction steps:
+		$$\evalstar{{t_0}}{0}{{t_1}}{1}\quad\evalstar{{t'_0}}{0}{{t'_1}}{1}$$						which induce respectively: 
+		$$\evalstar{\tmapp{t_0}{v_0}}{0}{\tmapp{t_1}{v_0}}{1} \quad
+		\evalstar{\tmapp{t'_0}{v'_0}}{0}{\tmapp{t'_1}{v'_0}}{1}$$	
+		From the definition of $\eqv{t_0}$, it follows that
+		$${\tmapp{t_0}{v_0}} \thicksim {\tmapp{t'_0}{v'_0}}.$$
+		Therefore, the induction hypothesis on $\ty[2]$ yields 
+		$${\tmapp{t_1}{v_0}}\thicksim{\tmapp{t'_1}{v'_0}}.$$
+		Finally, as $v_0, v'_0$ are arbitrary chosen values (satisfying the
+		two conditions above), the result holds for any such values, 
+		therefore by lemma \ref{equiv-def-l},
+		$$\eqv{t_1}.$$ Back to \ref{equiv-red2-l}.	
+		\end{itemize}	
+	\end{proof}		
+
+	\begin{lemma}
+
+	\label{equiv-subst-p}
+	\end{lemma}
+
+	\begin{proof}
+	Back to \ref{equiv-subst-l}.
+	\end{proof}
+	
+	\subsection{Inlining Second-Order Local Bindings}
+	\subsection{Inlining Second-Order Applications}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{References} 
+%\addcontentsline{toc}{chapter}{Bibliography}
 \bibliographystyle{plain}
 \bibliography{abbrevs,demons,demons2,demons3,team,crossrefs}
 
