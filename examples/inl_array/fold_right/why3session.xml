@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE why3session PUBLIC "-//Why3//proof session v2//EN" "http://why3.lri.fr/why3session.dtd">
+<why3session shape_version="2">
+ <prover
+  id="0"
+  name="Alt-Ergo"
+  version="0.95.1"/>
+ <prover
+  id="1"
+  name="Z3"
+  version="4.3.1"/>
+ <file
+  name="../fold_right.mlw"
+  verified="true"
+  expanded="true">
+  <theory
+   name="Array_fold_right"
+   locfile="../fold_right.mlw"
+   loclnum="3" loccnumb="9" loccnume="25"
+   verified="true"
+   expanded="true">
+   <goal
+    name="WP_parameter imperative_horner"
+    locfile="../fold_right.mlw"
+    loclnum="23" loccnumb="6" loccnume="23"
+    expl="VC for imperative_horner"
+    sum="995ec8e98693fb800e91c84d426ceeb2"
+    proved="true"
+    expanded="true"
+    shape="ainfix =V5aevalV3V1c0Iainfix =V5aevalV3V1ainfix +ainfix -c0c1c1Aainfix =V7aevalV3V1ainfix +ainfix -V6c1c1Iainfix =V7ainfix +ainfix *V1V5agetV2V6FAainfix &lt;V6V0Aainfix &lt;=c0V6Iainfix =V5aevalV3V1ainfix +V6c1Iainfix &gt;=V6c0Aainfix &gt;=V4V6FFAainfix =c0aevalV3V1ainfix +V4c1Iainfix &gt;=V4c0Aainfix =c0aevalV3V1c0Iainfix &lt;V4c0Lainfix -V0c1Iainfix &lt;=c0V0Lamk arrayV0V2FF">
+    <label
+     name="expl:VC for imperative_horner"/>
+    <transf
+     name="split_goal_wp"
+     proved="true"
+     expanded="false">
+     <goal
+      name="WP_parameter imperative_horner.1"
+      locfile="../fold_right.mlw"
+      loclnum="23" loccnumb="6" loccnume="23"
+      expl="1. postcondition"
+      sum="3ec7486365b36ddb2c822b78ab3260b9"
+      proved="true"
+      expanded="false"
+      shape="ainfix =c0aevalV3V1c0Iainfix &lt;V4c0Lainfix -V0c1Iainfix &lt;=c0V0Lamk arrayV0V2FF">
+      <label
+       name="expl:VC for imperative_horner"/>
+      <proof
+       prover="1"
+       timelimit="5"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.01"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter imperative_horner.2"
+      locfile="../fold_right.mlw"
+      loclnum="23" loccnumb="6" loccnume="23"
+      expl="2. loop invariant init"
+      sum="6c0f7839cb88f1b9da644c9a01e87460"
+      proved="true"
+      expanded="false"
+      shape="ainfix =c0aevalV3V1ainfix +V4c1Iainfix &gt;=V4c0Lainfix -V0c1Iainfix &lt;=c0V0Lamk arrayV0V2FF">
+      <label
+       name="expl:VC for imperative_horner"/>
+      <proof
+       prover="1"
+       timelimit="5"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.00"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter imperative_horner.3"
+      locfile="../fold_right.mlw"
+      loclnum="23" loccnumb="6" loccnume="23"
+      expl="3. precondition"
+      sum="b1c5ee25246f2c3cbbf0b566169f95ee"
+      proved="true"
+      expanded="false"
+      shape="ainfix &lt;V6V0Aainfix &lt;=c0V6Iainfix =V5aevalV3V1ainfix +V6c1Iainfix &gt;=V6c0Aainfix &gt;=V4V6FFIainfix &gt;=V4c0Lainfix -V0c1Iainfix &lt;=c0V0Lamk arrayV0V2FF">
+      <label
+       name="expl:VC for imperative_horner"/>
+      <proof
+       prover="1"
+       timelimit="5"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.02"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter imperative_horner.4"
+      locfile="../fold_right.mlw"
+      loclnum="23" loccnumb="6" loccnume="23"
+      expl="4. loop invariant preservation"
+      sum="9d2ddc9d086623d9e30b888c8443d3c0"
+      proved="true"
+      expanded="false"
+      shape="ainfix =V7aevalV3V1ainfix +ainfix -V6c1c1Iainfix =V7ainfix +ainfix *V1V5agetV2V6FIainfix &lt;V6V0Aainfix &lt;=c0V6Iainfix =V5aevalV3V1ainfix +V6c1Iainfix &gt;=V6c0Aainfix &gt;=V4V6FFIainfix &gt;=V4c0Lainfix -V0c1Iainfix &lt;=c0V0Lamk arrayV0V2FF">
+      <label
+       name="expl:VC for imperative_horner"/>
+      <proof
+       prover="0"
+       timelimit="5"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.02"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter imperative_horner.5"
+      locfile="../fold_right.mlw"
+      loclnum="23" loccnumb="6" loccnume="23"
+      expl="5. postcondition"
+      sum="2e8ab91863e23831b9953499ca108bce"
+      proved="true"
+      expanded="false"
+      shape="ainfix =V5aevalV3V1c0Iainfix =V5aevalV3V1ainfix +ainfix -c0c1c1FIainfix &gt;=V4c0Lainfix -V0c1Iainfix &lt;=c0V0Lamk arrayV0V2FF">
+      <label
+       name="expl:VC for imperative_horner"/>
+      <proof
+       prover="1"
+       timelimit="5"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.00"/>
+      </proof>
+     </goal>
+    </transf>
+   </goal>
+   <goal
+    name="WP_parameter horner"
+    locfile="../fold_right.mlw"
+    loclnum="69" loccnumb="6" loccnume="12"
+    expl="VC for horner"
+    sum="1c996294983844028e21e1a2a086d5a4"
+    proved="true"
+    expanded="true"
+    shape="ainfix =c0aevalamk arrayV0V2V1V0Aainfix =aevalV6V1c0aevalV6V1c0Aainfix =V4aevalV6V1V3Aainfix &lt;=V3V3Aainfix &lt;=c0V3Aiainfix =V8c0ainfix =V9aevalV11V1c0ainfix =ainfix +ainfix *V1V9agetV10V12aevalV11V1V13Aainfix &lt;=V13V7Aainfix &lt;=c0V13Lainfix -V8c1Aainfix &lt;V12V7Aainfix &lt;=c0V12Lainfix -V8c1Iainfix =V9aevalV11V1V8Aainfix &lt;=V8V7Aainfix &lt;=c0V8Aainfix &lt;=c0V7Lamk arrayV7V10FFIainfix =V4aevalV6V1V3Aainfix &lt;=c0V3Lamk arrayV3V5FFIainfix &lt;=c0V0FF">
+    <label
+     name="expl:VC for horner"/>
+    <proof
+     prover="0"
+     timelimit="3"
+     memlimit="1000"
+     obsolete="false"
+     archived="false">
+     <result status="valid" time="0.09"/>
+    </proof>
+   </goal>
+  </theory>
+ </file>
+</why3session>
