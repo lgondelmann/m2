@@ -25,8 +25,9 @@
 \usepackage{pstricks,pstricks-add,pst-math,pst-xkey}
 \usepackage{multicol}
 \usepackage[small,nohug,heads=vee]{diagrams}
-\usepackage{cleveref}
+\usepackage[capitalise,noabbrev,nameinlink]{cleveref}
 \usepackage{xargs}
+\usepackage{chngcntr}
 \crefname{enumi}{position}{positions}
 \diagramstyle[labelstyle=\scriptstyle]
 \titleformat{\section}[hang]% style du titre
@@ -63,6 +64,17 @@
   {0.2in}% espacement après
   [0.1in]% espacement à droite
 
+
+\titleformat{\paragraph}[hang]% style du titre
+  {\normalfont\large\bfseries}% police du titre + numéro
+  {\paragraph}% numérotation
+  {0.1in}% espacement numéro/titre <--- valeur à changer
+  {}% police spécifique du titre
+\titlespacing*{\paragraph}
+  {-0.4in}% espacement gauche
+  {0.2in}% espacement avant
+  {0.2in}% espacement après
+  [0.1in]% espacement à droite
 
 \RequirePackage{listings}
 \RequirePackage{amssymb}
@@ -133,7 +145,10 @@ keepspaces=true,
 \label{ML-Terms marcos}
 \newcommand{\mlt}[1]{#1}
 \newcommand{\tmapp}[2]{(#1 ~ #2)}
-
+\newcommand{\tmlet}[3]{let~#1=#2~in~#3}
+\newcommandx{\tmrec}[5][5=]{rec~#1_{#5}~#2 : #3.#4}
+\newcommand{\varslash}[2]{#1 / #2}
+\newcommand{\tmsbst}[3]{#1 [#2 \mapsfrom #3] }
 \label{ML-Types marcros}
 \newcommand{\ty}[1][]{\tau_{#1}}
 \newcommandx{\tyarr}[4][1=1, 2=2, 3=\theta, 4=\rho]
@@ -158,7 +173,12 @@ keepspaces=true,
 \newcommand{\evalinfty}[2]{~#1_{|#2} \rightarrow \infty ~}
 \newcommand{\eqv}[1]{#1 \thicksim #1'}
 \newcommand{\eqvsbst}[2]{#1 \thicksim_{#2} #1'}
+\label{Inlining macros}
+\newcommand{\hookdownarrow}{\mathrel{\rotatebox[origin=c]{180}{$\hookleftarrow$}}}
+\newcommand{\inlletarr}{\hookdownarrow}
 
+
+\newcommand{\inllet}[2]{#1 \hookdownarrow #2}
 \let\mf\mathfrak
 
 
@@ -294,7 +314,7 @@ keepspaces=true,
 \title{TITLE}
 \author{Léon}
 %\date{\today}
-
+\counterwithin{figure}{subsection}
 \begin{document}
 
 \maketitle
@@ -334,6 +354,105 @@ side effects + termination, independently
 
 	present general idea of inlining in two phases and a brief description of 
 	required tools.
+	
+\subsection{Restrictions On The Source Language}
+	
+
+\subsection{Inlining As Rewriting Strategy}
+
+Short description of two steps
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{Inlining Second-Order Local Bindings}
+
+
+output language descriptions = normal forms for first inlining
+
+\begin{definition}[(Inlining local bindings, $\hookdownarrow$)]
+   Let $t$ be a term of the source language $T$ such that $t$ contains at least one local binding of some second-order variable $F$ (thus, introduced by $\tmlet{F}{t_0}{t_1}$ construction).
+
+Then the inlining of local bindings of $t$, is defined as a rewriting strategy
+$\inllet{t}{t'}$ by the set of inference rules of \cref{fig:inl-let-d}.
+
+\label{inlletrule-macro}
+\newcommandx{\inlletrule}[5]
+{\infrule[$I_1$-#1]
+	{\inllet{\boldsymbol{#2}}{\boldsymbol{#3}}}
+	{\inllet{#4}{#5}}}
+
+	\begin{figure}[H]
+	\begin{spacing}{1.01}
+	\hrulefill
+	\begin{adjustwidth}{6em}{-14em}
+		\begin{multicols}{2}
+		\infrule[Let$_0$]{}{\boldsymbol{\tmlet{F}{s_1}{s_2} \hookdownarrow 				
+			\tmsbst{s_2}{F}{s_1}}}
+		\end{multicols}
+	\end{adjustwidth}
+	\begin{adjustwidth}{-8em}{0em}
+		\begin{multicols}{2}
+
+		\inlletrule{Fun}{t_1}{t'_1}
+ 			{\lambda l. \boldsymbol{t_1}}{\lambda l.\boldsymbol{t'_1}}
+ 		
+		\inlletrule{Rec}{t_1}{t'_1}
+ 			{\tmrec{f}{x}{\tau}{\boldsymbol{t_1}}}
+ 			{\tmrec{f}{x}{\tau}{\boldsymbol{t'_1}}}
+ 		
+		\inlletrule{App$_1$}{t_1}{t'_1}{(\boldsymbol{t_1}v)}{(\boldsymbol{t'_1}v)}
+
+		\inlletrule{App$_2$}{v}{v'}{(s\boldsymbol{v})}{(s\boldsymbol{v'})}
+	
+		\inlletrule{Let$_1$}{t_1}{t'_1}
+			{\tmlet{\varslash{l}{F}}{\boldsymbol{t_1}}{t_2}}
+			{\tmlet{\varslash{l}{F}}{\boldsymbol{t'_1}}{t_2}}
+	
+		\inlletrule{Let$_2$}{t_2}{t'_2}
+			{\tmlet{\varslash{l}{F}}{t_1}{\boldsymbol{t_2}}}
+			{\tmlet{\varslash{l}{F}}{t_1}{\boldsymbol{t'_2}}}
+		\end{multicols}
+	\end{adjustwidth}	
+	\hrulefill
+	\end{spacing}
+	\caption{ \textbf{Inlining of Second-Order Local Bindings}\hfill}
+ 	\label{fig:inl-let-d}
+	\end{figure}
+\end{definition}
+
+\begin{lemma}[($\inlletarr$, determinism)] 
+$\forall t,t_1,t_2.(\inllet{t}{t_1}\bwedge\inllet{t}{t_2})\Rightarrow t_1=t_2$
+\end{lemma}
+
+\begin{proof}
+ By case analysis, for each possible form of $t$, on the leftmost immediate sub-term of $t$ which contains an occurrence of some second-order variable.
+\end{proof}
+
+\begin{lemma}[($\inlletarr$, free variables)] 
+ If $\inllet{t}{t'}$, then $FV(t') \subseteq FV(t)$.
+ \label{inllet-fv-l}
+\end{lemma}
+
+\begin{proof}
+ By induction on the derivation of $\inllet{t}{t'}$. For detailed proof see
+ \ref{inllet-fv-p}.
+ \end{proof}
+
+\begin{lemma}[($\inlletarr$, typing preservation)] For any well-typed term $t$
+ such that \mbox{$\typerule{t}{\tau}{\theta}{\rho}$}, if $\inllet{t}{t'}$
+ then $\typerule{t'}{\tau}{\theta}{\rho}$.
+ \label{inllet-ty-l}
+\end{lemma}
+
+\begin{proof} By induction on the derivation of $\inllet{t}{t'}$. For detailed proof see \ref{inllet-ty-p}.
+\end{proof}
+- output language subset+
+- lemmas TERMINATION
+- examples
+
+\subsubsection*{Inlining Second-Order Applications}
+
+- output language subset
+- sos definition
+- theorem 2	
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Semantic Equivalence Relation}
@@ -442,16 +561,60 @@ side effects + termination, independently
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{Semantics Equivalence Between Parallel Substitutions}
 
+  
+
+
+
 	\begin{definition}[(parallel substitutions)]
-	
+	Let $t$ be any well-typed term, $t_1, \dots t_n$ well-typed 
+	\textit{\textbf{closed}} terms, and $x_1, \dots, x_n$ distinct variables.
+	To fix the notation, 
+	let $\sigma = [x_1 \mapsfrom t_1, \dots, x_n \mapsfrom t_n] $ be
+	a finite map such that :  	
+	$$\forall x\in\mathfrak{Dom}(\sigma).~x\notin BV(t)\bwedge\tau_x=
+	\tau_{\sigma(x)}$$
+
+	Then the parallel substitution $(t\sigma)$ is defined by induction on $t$ 
+	as follows :
+	\begin{displaymath}
+	\begin{array}{lll}
+	 (x_i\sigma)& \triangleq & \sigma(x_i)\\
+	 (y\sigma)& \triangleq & y \\
+	 ((t_1t_2)\sigma) & \triangleq & ((t_1\sigma)(t_2\sigma))\\
+	 (\lambda y_{\tau}. t)\sigma & \triangleq & \lambda y_\tau. (t\sigma)\\
+	 (rec~f~y_{\tau_1} : \tau_2 = t)\sigma & \triangleq 
+	   & rec~f~y_{\tau_1} : \tau_2 = (t\sigma) \\
+	 ((let~y_\tau = t_1~ in~ t_2)\sigma) & \triangleq 
+	   & let~y_\tau = (t_1\sigma)~in~ (t_2\sigma)\\
+	  (r_\tau := v)\sigma)	& \triangleq & r_\tau := (v\sigma) \\
+	 (!r_\tau\sigma) & \triangleq & !r_\tau \\
+	     	 
+	\end{array}
+	\end{displaymath}
 	\label{}
 	\end{definition}
 
 	\begin{definition}[(equivalent parallel substitutions)]
-
-	\label{}
+	Let $t$ be a well-typed term. Then we define the semantic equivalence
+	between two parallel substitutions $\sigma$ and $\sigma'$, 
+	$\sigma \thicksim_t \sigma'$ as follows:
+	\begin{itemize}
+	\item[(1)] 
+	  $(t\sigma)$ and $(t\sigma')$ are well-defined parallel substitutions
+	\item[(2)]
+	  $ \mathfrak{Dom}_\sigma = \mathfrak{Dom}_\sigma' = FV(t)$
+	\item[(3)]
+		$ \forall x \in \mathfrak{Dom}_\sigma.~ \sigma(x) \thicksim_t \sigma'(x)$
+	\end{itemize}	 
+	\label{equiv-subst-d}
 	\end{definition}
 
+	Note that from (1) it follows, that both $(t\sigma)$ and 
+	$(t\sigma')$ are terms that well-typed, and from (2) and (3) it follows 
+	that both $(t\sigma)$ and	 $(t\sigma')$ are \textit{\textbf{closed}} terms.
+	
+	The next lemma captures the intuition that plugging free variables inside a term by semantically equivalent, even thought syntactically different programs gives two programs for which the semantic equivalence is preserved:
+	
 	\begin{lemma} 
 		$\forall t. \forall (\sigma, \sigma'). ~\eqvsbst{\sigma}{t}
 		\Rightarrow \tmapp{t}{\sigma} \thicksim \tmapp{t}{\sigma'}.$ 
@@ -463,21 +626,6 @@ side effects + termination, independently
 		\ref{equiv-subst-p}.
 	\end{proof}
 
-\subsection{Inlining As Rewriting Strategy}
-
-Short description of two steps
-
-\subsubsection*{Inlining Second-Order Local Bindings}
-
-- output language subset
-- sos definition
-- theorem 1
-
-\subsubsection*{Inlining Second-Order Applications}
-
-- output language subset
-- sos definition
-- theorem 2
 
 \subsubsection*{Output Language}
 TODO: Nice figure 
@@ -526,6 +674,41 @@ blah blah
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \appendix
 \section{Detailed proofs} 
+
+
+	\subsection{Inlining Second-Order Local Bindings}
+	
+  \begin{lemma}
+ 	If $\inllet{t}{t'}$, then $FV(t') \subseteq FV(t)$.
+ 	\label{inllet-fv-p}
+  \end{lemma}
+
+\begin{proof}
+ By induction on the derivation of $\inllet{t}{t'}$.  \\
+ 	\noindent\textit{Case} \textsc{(Let$_0$)}\quad 
+ 	$\tmlet{F}{s_1}{s_2} \hookdownarrow \tmsbst{s_2}{F}{s_1}$. 
+ 	If $F \in FV(s_2)$, then 
+ 	$$FV(t) = FV(s_1) \cup (FV(s_2) \backslash \{F\}) = FV(t') $$ 
+ 	Otherwise  
+ 	$$ FV(t') =  FV(s_2) \backslash \{F\} \subseteq (FV(s_1) \cup FV(s_2) \backslash \{F\}) =  FV(t)$$.
+ Other cases are hold by straightforward induction. Back to \ref{inllet-fv-l}.
+\end{proof}	
+	
+	\begin{lemma}[($\inlletarr$, typing preservation)] For any well-typed term $t$
+ such that \mbox{$\typerule{t}{\tau}{\theta}{\rho}$}, if $\inllet{t}{t'}$
+ then $\typerule{t'}{\tau}{\theta}{\rho}$.
+ \label{inllet-ty-p}
+\end{lemma}
+
+\begin{proof} Observe that for the base case:
+$$\tmlet{F}{s_1}{s_2} \hookdownarrow \tmsbst{s_2}{F}{s_1} \quad \textsc{(Let$_0$)},$$ the restriction typing for term $s_1$, $\typerule{s_1}{\tau_{s_1}}{\bot_\theta}{\bot_\rho}$ guarantees that the only source of side effects or potential non-termination of $t$ is $s_2$, and the result follows immediately by LEMMA \label{TODO:typ-subst-lemma}. Other cases follow by straightforward induction on 
+the derivation of $\inllet{t}{t'}$. Back to \ref{inllet-ty-l}.
+\end{proof}
+	
+	\subsection{Inlining Second-Order Applications}
+
+
+
 	\subsection{Semantic Equivalence Relation}
 	\begin{lemma}
 		$\forall t,t'.~ \eqv{t} \Leftrightarrow 
@@ -656,9 +839,6 @@ blah blah
 	Back to \ref{equiv-subst-l}.
 	\end{proof}
 	
-	\subsection{Inlining Second-Order Local Bindings}
-	\subsection{Inlining Second-Order Applications}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{References} 
