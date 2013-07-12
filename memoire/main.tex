@@ -19,6 +19,7 @@
 \protect\usepackage{semantic}
 \usepackage{bcprules, proof}
 \usepackage{stmaryrd}
+\SetSymbolFont{stmry}{bold}{U}{stmry}{m}{n}
  \usepackage{float}
 \usepackage{changepage}
 \usepackage{setspace}
@@ -28,6 +29,8 @@
 \usepackage[capitalise,noabbrev,nameinlink]{cleveref}
 \usepackage{xargs}
 \usepackage{chngcntr}
+\usepackage{ulem}
+\usepackage{cancel}
 \crefname{enumi}{position}{positions}
 \diagramstyle[labelstyle=\scriptstyle]
 \titleformat{\section}[hang]% style du titre
@@ -162,8 +165,9 @@ keepspaces=true,
 %	\stackrel{\Sigma_#4}{\longrightarrow} \tau_{#2}}
 
 
-\newcommand{\bwedge}{\boldsymbol{\wedge}}
-\newcommand{\bvee}{\boldsymbol{\vee}}
+\newcommand{\bwedge}{\boldsymbol{~\wedge~}}
+\newcommand{\bvee}{\boldsymbol{~\vee~}}
+\newcommand{\brarr}{\boldsymbol{~\Rightarrow~}}
 \label{ML-Typing marcos}
 \newcommandx{\typerule}[5]{~\vdash  #1 : (#2, #3, #4) #5}
 
@@ -176,9 +180,14 @@ keepspaces=true,
 \label{Inlining macros}
 \newcommand{\hookdownarrow}{\mathrel{\rotatebox[origin=c]{180}{$\hookleftarrow$}}}
 \newcommand{\inlletarr}{\hookdownarrow}
-
-
+\newcommand{\inlletplus}{\hookdownarrow^{+}}
+\newcommand{\inlletNF}{\overset{\inlletplus}{NF}}
 \newcommand{\inllet}[2]{#1 \hookdownarrow #2}
+\newcommand{\inllett}[2]{#1 \inlletplus #2}
+\newcommand{\inlT}{\mathcal{T}}
+\newcommand{\inlS}{\mathcal{S}}
+\newcommand{\inlU}{\mathcal{U}}
+
 \let\mf\mathfrak
 
 
@@ -315,6 +324,7 @@ keepspaces=true,
 \author{Léon}
 %\date{\today}
 \counterwithin{figure}{subsection}
+\sloppy 
 \begin{document}
 
 \maketitle
@@ -352,6 +362,8 @@ side effects + termination, independently
 \newpage
 \section{Inlining}
 
+
+
 	present general idea of inlining in two phases and a brief description of 
 	required tools.
 	
@@ -363,12 +375,12 @@ side effects + termination, independently
 Short description of two steps
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{Inlining Second-Order Local Bindings}
-
+- output language subset+
 
 output language descriptions = normal forms for first inlining
 
-\begin{definition}[(Inlining local bindings, $\hookdownarrow$)]
-   Let $t$ be a term of the source language $T$ such that $t$ contains at least one local binding of some second-order variable $F$ (thus, introduced by $\tmlet{F}{t_0}{t_1}$ construction).
+\begin{definition}[(One Step local bindings Inlining, $\hookdownarrow$)]
+   Let $t$ be a term of the source language $\inlT$  such that $t \not\in \inlS$ and $t \neq F $. Thus $t$ contains at least one local binding of some second-order variable $F$ introduced by $\tmlet{F}{t_0}{t_1}$ construction.
 
 Then the inlining of local bindings of $t$, is defined as a rewriting strategy
 $\inllet{t}{t'}$ by the set of inference rules of \cref{fig:inl-let-d}.
@@ -378,13 +390,20 @@ $\inllet{t}{t'}$ by the set of inference rules of \cref{fig:inl-let-d}.
 {\infrule[$I_1$-#1]
 	{\inllet{\boldsymbol{#2}}{\boldsymbol{#3}}}
 	{\inllet{#4}{#5}}}
+	
+\label{inllettrulet-macro}	
+	\newcommandx{\inllettrule}[5]
+{\infrule[$I_1$-#1]
+	{\inllett{\boldsymbol{#2}}{\boldsymbol{#3}}}
+	{\inllett{#4}{#5}}}
 
 	\begin{figure}[H]
 	\begin{spacing}{1.01}
 	\hrulefill
 	\begin{adjustwidth}{6em}{-14em}
 		\begin{multicols}{2}
-		\infrule[Let$_0$]{}{\boldsymbol{\tmlet{F}{s_1}{s_2} \hookdownarrow 				
+		\infrule[$I_1$-Let$_0$]{}
+			{\boldsymbol{\tmlet{F}{s_1}{s_2} \hookdownarrow 				
 			\tmsbst{s_2}{F}{s_1}}}
 		\end{multicols}
 	\end{adjustwidth}
@@ -418,34 +437,139 @@ $\inllet{t}{t'}$ by the set of inference rules of \cref{fig:inl-let-d}.
 	\end{figure}
 \end{definition}
 
-\begin{lemma}[($\inlletarr$, determinism)] 
-$\forall t,t_1,t_2.(\inllet{t}{t_1}\bwedge\inllet{t}{t_2})\Rightarrow t_1=t_2$
-\end{lemma}
+\begin{definition}([Multi-Step Inlining, $\inlletplus$]) The multi-step inlining $\inlletplus$ is the transitive closure of one-step inlining. That is, it is the smallest relation defined by the following inference rules:
+
+%\begin{figure}[H]
+%	\begin{spacing}{1.01}
+%	\hrulefill
+%	\begin{adjustwidth}{-8em}{0em}
+%
+%		\begin{multicols}{3}
+%		\infrule[$I_1$-Step]{\inllet{t}{t'}{\inllett{t}{t'} 			
+%			\tmsbst{s_2}{F}{s_1}}}
+%		\inllettrule{$I_1$-Trans}{t_2}{t'_2}
+%			{\tmlet{\varslash{l}{F}}{t_1}{\boldsymbol{t_2}}}
+%			{\tmlet{\varslash{l}{F}}{t_1}{\boldsymbol{t'_2}}}
+%		\end{multicols}
+%	\end{adjustwidth}	
+%	\hrulefill
+%	\end{spacing}
+%	\caption{ \textbf{Multi-Step Inlining of Second-Order Local Bindings}\hfill}
+% 	\label{fig:inl-let-d}
+%	\end{figure}
+
+$$\dfrac{\inllet{t}{t'}}{\inllett{t}{t'}}{~~(\textsc{$I_1$-step})}
+\quad\dfrac{\inllett{t}{t'} 
+\qquad \inllett{t'}{t''}}{\inllett{t}{t''}}{~~(\textsc{$I_1$-trans})}$$
+\end{definition}
+
+	\begin{lemma}[(determinacy of $\inlletplus$)] 
+		$\forall n \in \mathbb{N}.~ \forall t, t_1, t_2.
+			(t \inlletarr^{n} {t_1} \bwedge t \inlletarr^{n} {t_2}) \brarr
+			t_1 = t_2$.		
+	\end{lemma}
+	\begin{proof}
+		Start by proving the base case (\textsc{$I_1$-step}) by case analysis, for each possible form of $t$, on the leftmost immediate sub-term of $t$ containing an occurrence of some second-order variable $F$. 
+	  Do the remaining  (\textsc{$I_1$-trans}) case	by strong induction on $n$. 
+	\end{proof}
 
 \begin{proof}
- By case analysis, for each possible form of $t$, on the leftmost immediate sub-term of $t$ which contains an occurrence of some second-order variable.
+ 
 \end{proof}
 
-\begin{lemma}[($\inlletarr$, free variables)] 
- If $\inllet{t}{t'}$, then $FV(t') \subseteq FV(t)$.
- \label{inllet-fv-l}
+\begin{lemma}[($\inlletplus$ Preservation Properties)]
+For any well-typed term $t$ such that\\ $\typerule{t}{\tau}{\theta}{\rho}$, if $\inllet{t}{t'}$ then
+\begin{displaymath}
+\begin{array}{l@{\hspace*{1cm}}l@{\hspace*{1cm}}l}
+	(1)& FV(t') \subseteq FV(t) & \textsc{(free variables inclusion)} \\
+	(2)& \typerule{t'}{\tau}{\theta}{\rho} &\textsc{(typing preservation)} \\
+	(3)& t' \in \inlT & \textsc{(A-normal form preservation)}
+\end{array}
+\end{displaymath}
+ \label{inllet-prop-l}
 \end{lemma}
-
 \begin{proof}
  By induction on the derivation of $\inllet{t}{t'}$. For detailed proof see
- \ref{inllet-fv-p}.
+ \ref{inllet-prop-p}.
  \end{proof}
 
-\begin{lemma}[($\inlletarr$, typing preservation)] For any well-typed term $t$
- such that \mbox{$\typerule{t}{\tau}{\theta}{\rho}$}, if $\inllet{t}{t'}$
- then $\typerule{t'}{\tau}{\theta}{\rho}$.
- \label{inllet-ty-l}
-\end{lemma}
 
-\begin{proof} By induction on the derivation of $\inllet{t}{t'}$. For detailed proof see \ref{inllet-ty-p}.
+\begin{definition}([$\inlletNF$, Normal Forms For $\inlletplus$])
+ Define $\inlletNF$, the set of normal forms for $\inlletplus$, as follows:
+ $$ \inlletNF \triangleq \{ t | t \in \inlT \bwedge 
+ \forall t' \in \inlT. t~\cancel{\inlletplus}~t' \} $$ 
+\end{definition}
+
+	\begin{theorem}([Termination of $\inlletplus$]) 
+		The multi-step inlining always terminates: 
+		$$\forall t_0.~ t_0 
+	 			\exists t_n \in \inlT: 
+	 				(t_0 \in \inlT \bwedge t_0 \not\in \inlS) \brarr 
+	 				  (\inllett{t_0}{t_n} \bwedge t_n \in \inlletNF).$$ 
+
+\label{inllet-term-l}.
+\end{theorem}
+\begin{proof}
+For detailed proof see \ref{inllet-term-p}.
 \end{proof}
-- output language subset+
-- lemmas TERMINATION
+
+
+
+
+
+%
+%\begin{lemma}[($\inlletarr$, free variables)] 
+% If $\inllet{t}{t'}$, then $FV(t') \subseteq FV(t)$.
+% \label{inllet-fv-l}
+%\end{lemma}
+%
+%\begin{proof}
+% By induction on the derivation of $\inllet{t}{t'}$. For detailed proof see
+% \ref{inllet-fv-p}.
+% \end{proof}
+%
+%\begin{lemma}[($\inlletarr$, typing preservation)]  For any well-typed term $t$ such that\\ $\typerule{t}{\tau}{\theta}{\rho}$, if $\inllet{t}{t'}$
+% then $\typerule{t'}{\tau}{\theta}{\rho}$.
+% \label{inllet-ty-l}
+%\end{lemma}
+%
+%\begin{proof} By induction on the derivation of $\inllet{t}{t'}$. For detailed proof see \ref{inllet-ty-p}.
+%\end{proof}
+%
+%\begin{lemma}[($\inlletarr$, \textit{A-Normal Form} Preservation)] 
+% If $\inllet{t}{t'}$, then $t' \in \inlT$.
+% \label{inllet-aform-l}
+%\end{lemma}
+%
+%\begin{proof} By induction on the derivation of $\inllet{t}{t'}$. For detailed proof see \ref{inllet-aform-p}.
+%\end{proof}
+
+
+
+
+
+
+
+%\begin{lemma} $NF_{\inlletarr^\star} \subset \T$ 
+%
+%\label{inllet-nforms-l}.
+%\end{theorem}
+%\begin{proof}
+%For detailed proof see \ref{inllet-nforms-p}.
+%\end{proof}
+
+\begin{theorem}([Normal Forms For $\inlletarr^\star$]) 
+$ \inlletNF = \inlS \cup \{ F \}.$
+\label{inllet-nforms-l}
+\end{theorem}
+\begin{proof}
+For detailed proof see \ref{inllet-nforms-p}.
+\end{proof}
+
+
+
+
+
 - examples
 
 \subsubsection*{Inlining Second-Order Applications}
@@ -678,32 +802,77 @@ blah blah
 
 	\subsection{Inlining Second-Order Local Bindings}
 	
-  \begin{lemma}
- 	If $\inllet{t}{t'}$, then $FV(t') \subseteq FV(t)$.
- 	\label{inllet-fv-p}
-  \end{lemma}
-
-\begin{proof}
- By induction on the derivation of $\inllet{t}{t'}$.  \\
- 	\noindent\textit{Case} \textsc{(Let$_0$)}\quad 
- 	$\tmlet{F}{s_1}{s_2} \hookdownarrow \tmsbst{s_2}{F}{s_1}$. 
- 	If $F \in FV(s_2)$, then 
- 	$$FV(t) = FV(s_1) \cup (FV(s_2) \backslash \{F\}) = FV(t') $$ 
- 	Otherwise  
- 	$$ FV(t') =  FV(s_2) \backslash \{F\} \subseteq (FV(s_1) \cup FV(s_2) \backslash \{F\}) =  FV(t)$$.
- Other cases are hold by straightforward induction. Back to \ref{inllet-fv-l}.
-\end{proof}	
 	
-	\begin{lemma}[($\inlletarr$, typing preservation)] For any well-typed term $t$
- such that \mbox{$\typerule{t}{\tau}{\theta}{\rho}$}, if $\inllet{t}{t'}$
- then $\typerule{t'}{\tau}{\theta}{\rho}$.
- \label{inllet-ty-p}
+\begin{lemma}[($\inlletarr$ Preservation Properties)]
+For any well-typed term $t$ such that\\ $\typerule{t}{\tau}{\theta}{\rho}$, if $\inllet{t}{t'}$ then
+\begin{displaymath}
+\begin{array}{l@{\hspace*{1cm}}l@{\hspace*{1cm}}l}
+	(1)& FV(t') \subseteq FV(t) & \textsc{(free variables inclusion)} \\
+	(2)& \typerule{t'}{\tau}{\theta}{\rho} &\textsc{(typing preservation)} \\
+	(3)& t' \in \inlT & \textsc{(A-normal form preservation)}
+\end{array}
+\end{displaymath}
+ \label{inllet-prop-p}
 \end{lemma}
 
-\begin{proof} Observe that for the base case:
-$$\tmlet{F}{s_1}{s_2} \hookdownarrow \tmsbst{s_2}{F}{s_1} \quad \textsc{(Let$_0$)},$$ the restriction typing for term $s_1$, $\typerule{s_1}{\tau_{s_1}}{\bot_\theta}{\bot_\rho}$ guarantees that the only source of side effects or potential non-termination of $t$ is $s_2$, and the result follows immediately by LEMMA \label{TODO:typ-subst-lemma}. Other cases follow by straightforward induction on 
-the derivation of $\inllet{t}{t'}$. Back to \ref{inllet-ty-l}.
+\begin{proof}
+ By induction on the derivation of $\inllet{t}{t'}$.
+ \label{TODO-inllet-prop-p}
+ Back to \ref{inllet-prop-l}.
+ \end{proof}	
+	
+%  \begin{lemma}
+% 	If $\inllet{t}{t'}$, then $FV(t') \subseteq FV(t)$.
+% 	\label{inllet-fv-p}
+%  \end{lemma}
+%
+%\begin{proof}
+% By induction on the derivation of $\inllet{t}{t'}$.  \\
+% 	\noindent\textit{Case} \textsc{(Let$_0$)}\quad 
+% 	$\tmlet{F}{s_1}{s_2} \hookdownarrow \tmsbst{s_2}{F}{s_1}$. 
+% 	If $F \in FV(s_2)$, then 
+% 	$$FV(t) = FV(s_1) \cup (FV(s_2) \backslash \{F\}) = FV(t') $$ 
+% 	Otherwise  
+% 	$$ FV(t') =  FV(s_2) \backslash \{F\} \subseteq (FV(s_1) \cup FV(s_2) \backslash \{F\}) =  FV(t)$$.
+% Other cases are hold by straightforward induction. Back to \ref{inllet-fv-l}.
+%\end{proof}	
+%	
+%	\begin{lemma}[($\inlletarr$, typing preservation)] For any well-typed term $t$
+% such that\\ $\typerule{t}{\tau}{\theta}{\rho}$, if $\inllet{t}{t'}$
+% then $\typerule{t'}{\tau}{\theta}{\rho}$.
+% \label{inllet-ty-p}
+%\end{lemma}
+%
+%\begin{proof} Observe that for the base case:
+%$$\tmlet{F}{s_1}{s_2} \hookdownarrow \tmsbst{s_2}{F}{s_1} \quad \textsc{(Let$_0$)},$$ the restriction typing for term $s_1$, $\typerule{s_1}{\tau_{s_1}}{\bot_\theta}{\bot_\rho}$ guarantees that the only source of side effects or potential non-termination of $t$ is $s_2$, and the result follows immediately by LEMMA \label{TODO:typ-subst-lemma}. Other cases follow by straightforward induction on 
+%the derivation of $\inllet{t}{t'}$. Back to \ref{inllet-ty-l}.
+%\end{proof}
+%	
+%\begin{lemma}[($\inlletarr$, \textit{A-form})] 
+% If $\inllet{t}{t'}$, then $t' \in \inlT$.
+% \label{inllet-aform-p}
+%\end{lemma}
+%
+%\begin{proof} Back to \ref{inllet-aform-l}.
+%\end{proof}	
+	
+	
+\begin{theorem}([Normal Forms For $\inlletarr^\star$]) = Output language S
+ \label{inllet-nforms-p}.
+\end{theorem}
+\begin{proof}
+Back to \ref{inllet-nforms-l}.
 \end{proof}
+
+
+\begin{theorem}([Termination of $\inlletarr^\star$])
+\label{inllet-term-p}.
+\end{theorem}
+\begin{proof}
+  Back to \ref{inllet-term-l}.
+\end{proof}	
+	
+	
 	
 	\subsection{Inlining Second-Order Applications}
 
