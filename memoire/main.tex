@@ -377,13 +377,55 @@ side effects + termination, independently
 \newpage
 \section{Inlining}
 
+Inlining of higher-order expressions is a syntactic transformation that simplifies every higher-order expression that appear in a program. Local variables are replaced by functional expression they introduce; formal parameters of functional type are substituted by actual arguments, and more generally applications of higher-order terms are progressively simplified until no higher-order expression is left. The rest of the source program,  remains syntactically unchanged. 
+
+Is it always possible to transform a higher-order program into a first-order program that contains no higher-order sub-expression ? If the source ML-program is of some first-order type,  such as \texttt{int}, \textit{list bool}, \textit{unit}, etc., then obviously inlining should result in an ML-program that contains no higher-order expression: programs being \textit{closed}, \textit{well-typed} terms, the only higher-order expressions that might appear in a first-order input, are either local functional definition or functional's application, and those forms are precisely what inlining aims to eliminate.  
+
+The most important thing to understand about inlining is that, by its nature, inlining is a \textit{syntactic} transformation; there is a little chance of any correlation between inlining of a source program and its formal semantics. Therefore, our main concern will be the \textbf{correctness} of inlining: it  should be \textit{deterministic} transformation, that always \textit{terminate}, and returns a first-order program that has exactly the same \textit{meaning} that the corresponding source program. 
+
+Can we take as the source language for inlining the set of ML programs we defined in the previous section ? The interesting feature of ML programs is side effects, notably, reference assignment and recursive function non-termination. Suppose now that we want to inline 
+$$t \triangleq \tmlet{F_{(int \rightarrow int) \rightarrow int}}{(r_{int}:= 42; \lambda f_{int \rightarrow int}. t_0)}{t_1} $$
 
 
-	present general idea of inlining in two phases and a brief description of 
-	required tools.
-	
+Intuitively, inlining operation should not simplify the bounded expression 
+$(r_{int}:= 42; \lambda f_{int \rightarrow int}. t_0)$ in order to prevent an assignment of variable $r$, so the result of inlining should be directly a substitution 
+$$ I(t) \approx \tmsbst{t_1}{F}{(r_{int}:= 42; \lambda f_{int \rightarrow int}. t_0)} $$
+Sadly, the semantics of $t_1$ is not preserved by inlining:  
+ if $F$ has multiple occurrences in $t_1$, the variable assignment $r:=42$ will be multiplied, and if $f$ does not occur in $t_1$, then it will be lost. Even if $F$ occurs just once in $t_1$, we cannot be sure, that the initial order of assignments is preserved. And If we replace $r:=42$ in the example above by some recursive call that loops, from an always looping program $t$ we get an eventually terminating $I(t)$, so again the semantics is not preserved.
+
+Another (de)-motivating example is the example of a higher-order function that is recursive:
+\begin{whycode}
+let swap f g x = 
+	if x > 0 then swap f g (f x) 
+	else if x < 0 then swap g f (g x
+\end{whycode}
+%$$t \triangleq  
+%\text{ let } \text{ rec } \text{swap} =
+%(\tmrec{\text{swap}}{f~x}{\texttt{int}}
+%{\text{ if x = 0}
+%\text{ then } (\text{swap} f (f x))
+%  
+%\text{ else } (\text{swap} (\lambda x.  x)} f_0\boldsymbol{)}~ $$
+
+
+\textbf{Thus, some restrictions must be imposed on the source language}, before we can apply inlining \textit{safely}.
+
+
+
+%
+%$$ t \triangleq (\lambda f_{int \rightarrow int}. t_0 ~ (r_{int} := 42; \lambda x_{int}. x))$$
+
+
+
+
+
+
 \subsection{Restrictions On The Source Language}
-	
+
+What restrictions should we impose to the source program syntax and typing, and that has exactly the \textit{same} meaning that 
+
+syntax typing notations
+
 
 \subsection{Inlining As Rewriting Strategy}
 
