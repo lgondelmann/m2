@@ -360,8 +360,6 @@ let rec canon_typ = function
   | Tlist ty -> Typed_ast.Tlist (canon_typ ty)
   | Ttuple tyl -> Typed_ast.Ttuple (List.map canon_typ tyl)
 
-let canon_def d = assert false (*TODO*)
-
 let rec canon_texpr e =
   { Typed_ast.texpr_desc = canon_texpr_desc e.texpr_desc;
     Typed_ast.texpr_typ = canon_typ e.texpr_typ; }
@@ -393,5 +391,8 @@ and canon_tpatt_desc = function
   | TP_any -> Typed_ast.TP_any
   | TP_ident id -> Typed_ast.TP_ident id
   | TP_tuple pl -> Typed_ast.TP_tuple (List.map canon_tpatt pl)
+
+let canon_def (r, p, e) =
+  (r, canon_tpatt p, canon_texpr e)
 
 let file dl = List.map canon_def (file dl)
