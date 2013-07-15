@@ -1,0 +1,12 @@
+autom4te.cache/
+configure
+.depend
+Makefile
+config.status
+lexer.ml
+parser.ml
+parser.mli
+parser.output
+inliner.opt
+inliner.byte
+test.mlw
