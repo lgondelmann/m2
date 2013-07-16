@@ -340,6 +340,8 @@ keepspaces=true,
 %\date{\today}
 \counterwithin{figure}{subsection}
 \sloppy 
+\addtolength{\hoffset}{-0.3in}
+\addtolength{\textwidth}{0.6in}
 \begin{document}
 
 \maketitle
@@ -390,39 +392,148 @@ $$t \triangleq \tmlet{F_{(int \rightarrow int) \rightarrow int}}{(r_{int}:= 42; 
 Intuitively, inlining operation should not simplify the bounded expression 
 $(r_{int}:= 42; \lambda f_{int \rightarrow int}. t_0)$ in order to prevent an assignment of variable $r$, so the result of inlining should be directly a substitution 
 $$ I(t) \approx \tmsbst{t_1}{F}{(r_{int}:= 42; \lambda f_{int \rightarrow int}. t_0)} $$
-Sadly, the semantics of $t_1$ is not preserved by inlining:  
- if $F$ has multiple occurrences in $t_1$, the variable assignment $r:=42$ will be multiplied, and if $f$ does not occur in $t_1$, then it will be lost. Even if $F$ occurs just once in $t_1$, we cannot be sure, that the initial order of assignments is preserved. And If we replace $r:=42$ in the example above by some recursive call that loops, from an always looping program $t$ we get an eventually terminating $I(t)$, so again the semantics is not preserved.
+Unfortunately, the semantics of $t_1$ is not preserved by inlining:  if $F$ has multiple occurrences in $t_1$, the variable assignment $r:=42$ will be multiplied, and if $f$ does not occur in $t_1$, then it will be lost. Even if $F$ occurs just once in $t_1$, we cannot be sure, that the initial order of assignments is preserved. And if we replace $r:=42$ in the example above by some recursive call that loops, from an always looping program $t$ we get an eventually terminating $I(t)$, so again the semantics is not preserved.
 
-Another (de)-motivating example is the example of a higher-order function that is recursive:
-\begin{whycode}
-let swap f g x = 
-	if x > 0 then swap f g (f x) 
-	else if x < 0 then swap g f (g x
-\end{whycode}
-%$$t \triangleq  
-%\text{ let } \text{ rec } \text{swap} =
-%(\tmrec{\text{swap}}{f~x}{\texttt{int}}
-%{\text{ if x = 0}
-%\text{ then } (\text{swap} f (f x))
-%  
-%\text{ else } (\text{swap} (\lambda x.  x)} f_0\boldsymbol{)}~ $$
+Recursive higer-order functions is another (de)motivating example:  suppose we want to inline two different programs $t$ and $t'$ : \\
+\begin{footnotesize}
+$ t \triangleq 
+	\texttt{ let } \textcolor{blue}{F} =  
+	\tmrec{f}{\textcolor{blue}{g_{int \rightarrow int}}~x_{int}}{int}
+	{\texttt{ if } x = 0 \texttt{ then } (\textcolor{blue}{g}~x) \texttt{ else } ((f~\textcolor{Sepia}{\boldsymbol{g}})~(x - 1))}  \texttt{ in } (\textcolor{blue}{F}~\textcolor{red}{\lambda y_{int}. t_0}) $ \\[0.15cm]
+$ t' \triangleq 
+	\texttt{ let } \textcolor{blue}{F} =  
+	\tmrec{f}{\textcolor{blue}{g_{int \rightarrow int}}~x_{int}}{int}
+	{\texttt{ if } x = 0 \texttt{ then } (\textcolor{blue}{g}~x) \texttt{ else } ((f~\textcolor{Sepia}{\boldsymbol{\lambda y. 0}})~(x - 1))} 
+	\texttt{ in } (\textcolor{blue}{F}~\textcolor{red}{\lambda y_{int}. t_0}) $ \\[0.15cm]
+\end{footnotesize}
 
+As we suggested above, the inlining of both programs consists in replacing,  inside application $(\textcolor{blue}{F}~\textcolor{red}{\lambda y_{int}. t_0})$, local variable $\textcolor{blue}{F}$ by its definition and then substituting inside the body of recursive function $f$ the formal parameter $\textcolor{blue}{g}$ by actual argument $\textcolor{red}{\lambda y_{int}. t_0}$. However substituting  $\textcolor{blue}{g}$ inside recursive call 
+$((f~\textcolor{Sepia}{\boldsymbol{g}})~(x - 1))$ does not make any sense, because the output would still contain a higher order expression that cannot be simplified, that is, inlining would fail. The only solution would be then to simply erase inside every recursive call any formal parameter of functional type:\\[0.15cm]
+\begin{footnotesize}
+	$ I(t) \approx 
+	\tmrec{f}{\textcolor{blue}{\text{\textvisiblespace}}~x_{int}}{int}
+	{\texttt{ if } x = 0 \texttt{ then } (\textcolor{red}{\lambda y_{int}. t_0}~x) 
+	\texttt{ else } (f~\textcolor{blue}{\text{\textvisiblespace}}~(x-1))} $ \\[0.15cm]
+$ I(t') \approx 
+	\tmrec{f}{\textcolor{blue}{\text{\textvisiblespace}}~x_{int}}{int}
+	{\texttt{ if } x = 0 \texttt{ then } (\textcolor{red}{\lambda y_{int}. t_0}~x) 
+	\texttt{ else } (f~\textcolor{blue}{\text{\textvisiblespace}}~(x-1))} $ \\[0.15cm]
+\end{footnotesize}
+By chance, the formal parameter $g$ remains unchanged inside recursive call 
+$((f~g)~x)$, So $t$ and $I(t)$ do have the same semantics. Unfortunately, in the recursive call of program $t'$,  instead of $g$ we have a constant function $\lambda y. 0$, and the safety of inlining is broken: for instance, if for some non-null integer x the call $(\lambda y. t_0~x)$ loops, then while $(t'~x)$ will return zero, $(I(t')~x)$ will loop too. 
 
-\textbf{Thus, some restrictions must be imposed on the source language}, before we can apply inlining \textit{safely}.
+Of course, the incompleteness of inlining for such expressive language as ML is not a surprise. However, the aim of this work is not to describe a most general class of higher-order expressions that can be simplified, but a much more practical investigation about the potential of higer-order inlining in deductive verification discipline. As we will show later in evaluation section, the immense majority of higher-order definitions of real projects does not require all the power of ML. 
 
-
-
-%
-%$$ t \triangleq (\lambda f_{int \rightarrow int}. t_0 ~ (r_{int} := 42; \lambda x_{int}. x))$$
-
-
-
-
+Therefore we begin a more formal description of inlining by imposing some restrictions on typing system of ML that, without reducing drastically its expressiveness, still correspond to real-world examples, and at the same time allow to define inlining and to prove its correctness. 
 
 
 \subsection{Restrictions On The Source Language}
+The syntax of types is defined as follows 
 
-What restrictions should we impose to the source program syntax and typing, and that has exactly the \textit{same} meaning that 
+\begin{displaymath}
+	\begin{array}{lll@{\hspace*{3cm}}l}
+	\tau^0 & ::= & int~|~bool~|~unit~|~list~int~|~\dots~ & \textsc{base type}  \\
+	\tau^1 & ::= & 
+	\tau^0 \stackrel{\theta, \rho}{\rightarrow} \tau^0 ~|~
+	\tau^0 \stackrel{\theta, \rho}{\rightarrow} \tau^1 
+	& \textsc{first-order functions}\\
+	\tau^2 & ::= & 
+	\tau^1 \stackrel{\theta, \rho}{\rightarrow} \tau^0 ~|~
+	\tau^1 \stackrel{\theta, \rho}{\rightarrow} \tau^1 ~|~
+	\tau^1 \stackrel{\bot_{\theta}, \bot_{\rho}}{\rightarrow} \tau^2 
+	& \textsc{second-order functions} \\
+	\end{array}
+\end{displaymath}
+
+
+\begin{displaymath}
+	\begin{array}{lll@{\hspace*{3cm}}l}
+	t &::=& x_{\tau^{i}} ~|~ v~|~(t~v)
+	~|~\text{let } x_{\tau^{i}} = t \text{ in } t 
+	~|~ r_{\tau^i} := v ~|~ !r_{\tau^i} 
+	& \textsc{terms}\\
+	v &::=& \lambda x_{\tau^{i}}. t ~|~ \text{rec } f x_{\tau^{i}}:~\tau^{i}.t
+	~|~ c  
+	& \textsc{values} \\
+	c &::=& \text{()} ~|~ \mathbb{N}~|~\mathbb{B}~|~+~|~-~|~\bwedge~|~\dots
+	& \text{constants}	 
+	\end{array}
+\end{displaymath}
+
+blah
+\begin{footnotesize}
+\begin{multicols}{2}	
+\infrule[T$_{ML^{^2}}$-Var]{}{x_{\tau^{i}} : \tau^{i}, \bot_{\theta}, \bot_{\rho} }
+\infrule[T$_{ML^{^2}}$-Const]{\text{Typeof}(c) = \tau^i}{c_{\tau^{i}} : \tau^{i}, \bot_{\theta}, \bot_{\rho} }
+\end{multicols}
+\end{footnotesize}
+
+\begin{footnotesize}
+\begin{multicols}{2}	
+\infrule[T$_{ML^{^2}}$-Fun]
+	{t : \tau^{j}, \theta, \rho}
+	{\lambda x_{t^i}. t : \tau^{i} \stackrel{\theta, \rho}{\rightarrow} \tau^{j}, \bot_{\theta}, \bot_{\rho}}
+
+\infrule[T$_{ML^{^2}}$-App]
+	{t: \tau^{i} \stackrel{\theta, \rho}{\rightarrow} \tau^{j}, \theta', \rho' \qquad v:\tau^{i}, \bot_{\theta}, \bot_{\rho} }
+	{(t~v) : \tau^{j}, (\theta \bvee \theta'), (\rho \bvee \rho')} 
+\end{multicols}
+\end{footnotesize}
+
+\begin{footnotesize}
+\begin{multicols}{2}	
+\infrule[T$_{ML^{^2}}$-Assign]
+	{v:\tau^{0}, \bot_{\theta}, \bot_{\rho}}
+	{r_{\tau^{0}} := v : unit, \top_{\theta}, \bot_{\rho}} 
+	
+\infrule[T$_{ML^{^2}}$-Deref]
+	{}
+	{!r_{\tau^{0}} : \tau^{0}, \bot_{\theta}, \bot_{\rho} }
+\end{multicols}
+\end{footnotesize}
+
+
+
+\begin{footnotesize}
+\begin{multicols}{2}	
+\infrule[T$_{ML^{^2}}$-Rec]
+	{t : \tau^{1}, \theta, \rho}
+	{\text{rec } f~x_{\tau^0}~. t : \tau^{0} \stackrel{\theta, \top_{\rho}}{\rightarrow} \tau^{1}, \bot_{\theta}, \bot_{\rho}}
+
+\infrule[T$_{ML^{^2}}$-Let]
+	{t_1 : \tau^i, \theta, \rho \qquad t' : \tau^j, \theta', \rho'
+	\qquad i = 2 \Rightarrow \boldsymbol{(\theta = \bot_{\theta} \bwedge \rho = \bot_{\rho})}}
+	{\text{ let } x_{\tau^i} = t \text{ in } t'  : \tau^{j}, (\theta \bvee \theta'), (\rho \bvee \rho')} 
+\end{multicols}
+\end{footnotesize}
+
+blah
+
+
+
+\begin{displaymath}
+	\begin{array}{lll@{\hspace*{3cm}}l}
+	L &::=& F ~|~ l \qquad \text{with}\qquad  l~::=~ x ~|~ f 
+	& \textsc{binders} \\	
+	t &::=& l ~|~ v~|~(t~v)
+	~|~\text{let } L = t \text{ in } t 
+	~|~ r := v ~|~ !r
+	& \textsc{terms}\\
+	v &::=& \lambda l. t ~|~ \text{rec } f x :~\tau . t
+	~|~ c ~|~ 
+	& \textsc{values} \\
+	c &::=& \text{()} ~|~ \mathbb{N}~|~\mathbb{B}~|~+~|~-~|~\bwedge~|	~\dots
+	& \textsc{constants} \\
+	
+	 
+	\end{array}
+\end{displaymath}
+
+- sec ord \\
+- restr \\
+- 
+
+
 
 syntax typing notations
 
