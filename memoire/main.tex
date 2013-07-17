@@ -474,24 +474,13 @@ Furthermore, we can simplify the inlining procedure a lot by ordering the formal
 
 This hierarchy is defined inductively (by strong induction on type's degree $i$): if $i=0$, then the base case consist of all base types such as $int$, $bool$, etc; otherwise, for $i > 0$, the set of possible types of degree $i+1$ is an enumeration  $\{\tau^{i} \rightarrow \tau^{k} ~|~ k \in [ 0 \dots (i+1) ] \}$ of all possible codomain inferior degrees including $(i+1)$. 
 \end{definition}
-
 We shall note such hierarchy by $ML^{^{n}}$ and the initial $ML$ typeset by $ML^\star$. 
 
 Note that the set of $ML^{^{n}}$ types is totally ordered: indeed, for every couple of types $\tau^i \rightarrow \tau^k$ $\tau^j \rightarrow \tau^l$ we can compare them lexicographically  starting by comparing their domain degrees $i$ and $j$, and if those are equal, then by comparing their codomain degrees $k$ and $l$. 
 
 Moreover, note that $ML^{^{n}}$ is isomorphic $ML^{star}$, therefore  restraining the source language typing to $ML^{^{n}}$ does not reduce the $ML^{star}$ expressiveness (though, the typing rules below will do).
-
-
-
-
-- anf
-- source fo -> output fo pure
-- order arguments
-- recursive function
-- simplification
-- highest order identity prhobited 
-
-
+\paragraph*{The syntax of $ML^{^{2}}$}
+The syntax of source language $\inlT$ remains identical to $ML$ except for explicit typing annotation of variables :
 \begin{displaymath}
 	\begin{array}{lll@{\hspace*{3cm}}l}
 	t &::=& x_{\tau^{i}} ~|~ v~|~(t~v)
@@ -505,8 +494,11 @@ Moreover, note that $ML^{^{n}}$ is isomorphic $ML^{star}$, therefore  restrainin
 	& \text{constants}	 
 	\end{array}
 \end{displaymath}
+To simplify our presentation, application $(t~v)$ is put in $A-normal form$. Again, as we noticed in TODO that does not reduce language expressiveness. 
 
-blah
+
+So far, we defined $ML^{^{n}}$ for an arbitrary degree $n$. In practice, however, TODO the immense majority of high-order expressions limits on second-order programs like $folders$, $iterators$, $mappings$, etc. For that reason, and for the sake of simplicity, we continue our presentation limiting it to $ML^{^{2}}$, an ML programs bounded to second-order degree. However, all definitions, theorems and proofs for $ML^{^{2}}$ can be easily extended for $ML^{^{n}}$ of arbitrary degree $n$.
+\paragraph*{The Typing Rules for $ML^{^{2}}$}
 \begin{footnotesize}
 \begin{multicols}{2}	
 \infrule[T$_{ML^{^2}}$-Var]{}{x_{\tau^{i}} : \tau^{i}, \bot_{\theta}, \bot_{\rho} }
@@ -579,9 +571,7 @@ blah
 - restr \\
 - 
 
-\textbf{To simplify our presentation, from now on we'll restraint  
-}
-syntax typing notations
+
 
 
 \subsection{Inlining As Rewriting Strategy}
