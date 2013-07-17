@@ -424,14 +424,29 @@ $((f~g)~x)$, So $t$ and $I(t)$ do have the same semantics. Unfortunately, in the
 
 Of course, the incompleteness of inlining for such expressive language as ML is not a surprise. However, the aim of this work is not to describe a most general class of higher-order expressions that can be simplified, but a much more practical investigation about the potential of higer-order inlining in deductive verification discipline. As we will show later in evaluation section, the immense majority of higher-order definitions of real projects does not require all the power of ML. 
 
-Therefore we begin a more formal description of inlining by imposing some restrictions on typing system of ML that, without reducing drastically its expressiveness, still correspond to real-world examples, and at the same time allow to define inlining and to prove its correctness. 
+Therefore we begin a more formal description of inlining by imposing some restrictions on the typing system of ML. Without reducing drastically ML expressiveness, the source language will still cover a great number of real-life programming examples. 
+
+Once we formally specified the domain and codomain of inlining transformation, we will give a precise definition  \textit{small-step} of procedure itself, described as rewriting strategy by a set of inference rules in a \textit{small-step} manner. 
+
+We will then state and prove that this definition corresponds to the procedure that is deterministic, always terminate and results in a entirely first-order program. 
+
+Finally, after all syntactical problems pointed out and solved, we will concentrate our attention on the \textit{total correctness} of inlining transformation: using a well-know \textit{logical relations} technique, we will formalize the notion semantic equivalence between programs and show that for every couple of source and target programs, these programs are semantically equivalent. 
+ 
+The correctness of inlining we establish is \textit{total}: source language is not confined to terminating programs and an input program's non-termination is preserved by inlining. As \textit{Kahn natural semantics} is limited to establishing the \textit{partial} correctness, that explains our choice of an overall small-step style of programs operational semantics and inlining. 
 
 
 \subsection{Restrictions On The Source Language}
-The syntax of types is defined as follows 
 
+As we have seen in the previous example TODO, recursive definitions shall operate only arguments of some base type like \texttt{int}, \texttt{bool}, etc. That does not mean we cannot parametrize the body of recursive functions by a variable of some higher-order type:
+\begin{footnotesize}
+$$ \lambda f_{int \rightarrow int}. \texttt{ rec } \text{apply } x_{int} . 
+\texttt{ if } x = 0 \texttt{ then } 42 \texttt{ else} \text{ apply } (f~x)$$
+\end{footnotesize}
+Furthermore, we can simplify the inlining procedure a lot by ordering the formal parameters, according to their type's degree, in \textit{any} functional definition.  Formally, we force ML types to obey the following hierarchy :
+
+\begin{definition}[($ML^{^{2}}$)]
 \begin{displaymath}
-	\begin{array}{lll@{\hspace*{3cm}}l}
+	\begin{array}{lll@{\hspace*{2cm}}l}
 	\tau^0 & ::= & int~|~bool~|~unit~|~list~int~|~\dots~ & \textsc{base type}  \\
 	\tau^1 & ::= & 
 	\tau^0 \stackrel{\theta, \rho}{\rightarrow} \tau^0 ~|~
@@ -440,10 +455,41 @@ The syntax of types is defined as follows
 	\tau^2 & ::= & 
 	\tau^1 \stackrel{\theta, \rho}{\rightarrow} \tau^0 ~|~
 	\tau^1 \stackrel{\theta, \rho}{\rightarrow} \tau^1 ~|~
-	\tau^1 \stackrel{\bot_{\theta}, \bot_{\rho}}{\rightarrow} \tau^2 
+	\tau^1 \stackrel{\theta, \rho}{\rightarrow} \tau^2 
+%	\tau^1 \stackrel{\bot_{\theta}, \bot_{\rho}}{\rightarrow} \tau^2 
 	& \textsc{second-order functions} \\
+	\dots & & \dots &  \dots \\
+	\tau^{n+1} & ::= & 
+	\tau^{n} \stackrel{\theta, \rho}{\rightarrow} \tau^0 ~|~
+	\tau^{n} \stackrel{\theta, \rho}{\rightarrow} \tau^1 ~|~ 
+	\dots ~|~
+	\tau^{n} \stackrel{\theta, \rho}{\rightarrow} \tau^{n} ~|~
+	\tau^{n} \stackrel{\theta, \rho}{\rightarrow}\tau^{n+1}
+%	\tau^1 \stackrel{\bot_{\theta}, \bot_{\rho}}{\rightarrow} \tau^2 
+	& \textsc{higher-order functions} \\
+	
 	\end{array}
 \end{displaymath}
+\label{MLn-ty-d}
+
+This hierarchy is defined inductively (by strong induction on type's degree $i$): if $i=0$, then the base case consist of all base types such as $int$, $bool$, etc; otherwise, for $i > 0$, the set of possible types of degree $i+1$ is an enumeration  $\{\tau^{i} \rightarrow \tau^{k} ~|~ k \in [ 0 \dots (i+1) ] \}$ of all possible codomain inferior degrees including $(i+1)$. 
+\end{definition}
+
+We shall note such hierarchy by $ML^{^{n}}$ and the initial $ML$ typeset by $ML^\star$. 
+
+Note that the set of $ML^{^{n}}$ types is totally ordered: indeed, for every couple of types $\tau^i \rightarrow \tau^k$ $\tau^j \rightarrow \tau^l$ we can compare them lexicographically  starting by comparing their domain degrees $i$ and $j$, and if those are equal, then by comparing their codomain degrees $k$ and $l$. 
+
+Moreover, note that $ML^{^{n}}$ is isomorphic $ML^{star}$, therefore  restraining the source language typing to $ML^{^{n}}$ does not reduce the $ML^{star}$ expressiveness (though, the typing rules below will do).
+
+
+
+
+- anf
+- source fo -> output fo pure
+- order arguments
+- recursive function
+- simplification
+- highest order identity prhobited 
 
 
 \begin{displaymath}
@@ -533,8 +579,8 @@ blah
 - restr \\
 - 
 
-
-
+\textbf{To simplify our presentation, from now on we'll restraint  
+}
 syntax typing notations
 
 
