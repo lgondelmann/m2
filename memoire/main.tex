@@ -39,7 +39,7 @@
   {0.4in}% espacement numéro/titre <--- valeur à changer
   {}% police spécifique du titre
 \titlespacing*{\section}
-  {-0.9in}% espacement gauche
+  {-0.7in}% espacement gauche
   {0.2in}% espacement avant
   {0.2in}% espacement après
   [0.1in]% espacement à droite
@@ -50,7 +50,7 @@
   {0.2in}% espacement numéro/titre <--- valeur à changer
   {}% police spécifique du titre
 \titlespacing*{\subsection}
-  {-0.7in}% espacement gauche
+  {-0.6in}% espacement gauche
   {0.2in}% espacement avant
   {0.2in}% espacement après
   [0.1in]% espacement à droite
@@ -62,7 +62,7 @@
   {0.1in}% espacement numéro/titre <--- valeur à changer
   {}% police spécifique du titre
 \titlespacing*{\subsubsection}
-  {-0.6in}% espacement gauche
+  {-0.5in}% espacement gauche
   {0.2in}% espacement avant
   {0.2in}% espacement après
   [0.1in]% espacement à droite
@@ -74,7 +74,7 @@
   {0.1in}% espacement numéro/titre <--- valeur à changer
   {}% police spécifique du titre
 \titlespacing*{\paragraph}
-  {-0.4in}% espacement gauche
+  {0.0in}% espacement gauche
   {0.2in}% espacement avant
   {0.2in}% espacement après
   [0.1in]% espacement à droite
@@ -178,9 +178,11 @@ keepspaces=true,
 \newcommand{\eqv}[1]{#1 \thicksim #1'}
 \newcommand{\eqvsbst}[2]{#1 \thicksim_{#2} #1'}
 \label{Inlining macros}
-\newcommand{\inlT}{\mathcal{T}}
+
 \newcommand{\inlS}{\mathcal{S}}
 \newcommand{\inlU}{\mathcal{U}}
+\newcommand{\inlsrc}{\textit{ML}^{^2}}
+\newcommand{\inlT}{\inlsrc}
 
 \newcommand{\hookdownarrow}{\mathrel{\rotatebox[origin=c]{180}{$\hookleftarrow$}}}
 \newcommand{\inlletarr}{\hookdownarrow}
@@ -340,8 +342,8 @@ keepspaces=true,
 %\date{\today}
 \counterwithin{figure}{subsection}
 \sloppy 
-\addtolength{\hoffset}{-0.3in}
-\addtolength{\textwidth}{0.6in}
+\addtolength{\hoffset}{-0.5in}
+\addtolength{\textwidth}{0.8in}
 \begin{document}
 
 \maketitle
@@ -379,92 +381,183 @@ side effects + termination, independently
 \newpage
 \section{Inlining}
 
-Inlining of higher-order expressions is a syntactic transformation that simplifies every higher-order expression that appear in a program. Local variables are replaced by functional expression they introduce; formal parameters of functional type are substituted by actual arguments, and more generally applications of higher-order terms are progressively simplified until no higher-order expression is left. The rest of the source program,  remains syntactically unchanged. 
+Inlining of higher-order programs is a syntactic transformation that turns
+each higher-order expression into an expression of first-order degree. Local
+variables are replaced by functional expression they introduce; formal
+parameters of functional type are substituted by actual arguments inside
+applications, and more generally every higher-order expression inside a
+program is progressively simplified until no higher-order expression is
+left. The rest of the source program, that is, any expression of first-order
+type, remains syntactically unchanged.
 
-Is it always possible to transform a higher-order program into a first-order program that contains no higher-order sub-expression ? If the source ML-program is of some first-order type,  such as \texttt{int}, \textit{list bool}, \textit{unit}, etc., then obviously inlining should result in an ML-program that contains no higher-order expression: programs being \textit{closed}, \textit{well-typed} terms, the only higher-order expressions that might appear in a first-order input, are either local functional definition or functional's application, and those forms are precisely what inlining aims to eliminate.  
+Obviously, for programs whose return type is some base type, the inlining
+transformation must be \textit{total}. That is, for any program that only
+\textit{makes use} of high-order expressions, but should return some
+first-order data like \texttt{int} or \textit{list bool}, the inlining must
+\textit{always} result in a purely first-order program. (Indeed, programs
+being \textit{closed}, \textit{well-typed} terms, the only higher-order
+expressions that might appear inside, are either local definitions or
+applications of a functional to functions, and these are precisely what
+inlining aims to simplify). \\
 
-The most important thing to understand about inlining is that, by its nature, inlining is a \textit{syntactic} transformation; there is a little chance of any correlation between inlining of a source program and its formal semantics. Therefore, our main concern will be the \textbf{correctness} of inlining: it  should be \textit{deterministic} transformation, that always \textit{terminate}, and returns a first-order program that has exactly the same \textit{meaning} that the corresponding source program. 
+So can we take the entire set of ML programs as the domain of inlining
+function ?  Would it always be possible to transform a higher-order program
+into a first-order program that contains no higher-order content ?
 
-Can we take as the source language for inlining the set of ML programs we defined in the previous section ? The interesting feature of ML programs is side effects, notably, reference assignment and recursive function non-termination. Suppose now that we want to inline 
-$$t \triangleq \tmlet{F_{(int \rightarrow int) \rightarrow int}}{(r_{int}:= 42; \lambda f_{int \rightarrow int}. t_0)}{t_1} $$
+The most important thing to understand about inlining is that, by its
+nature, inlining is a \textit{syntactic} transformation; there is a little
+chance of any correlation between inlining of a source program and its
+formal semantics. Therefore, our main concern will be the
+\textbf{correctness} of inlining: it should be \textit{deterministic} and
+always \textit{terminating} transformation, whose output has exactly the
+same \textit{meaning} that the corresponding source program. Unfortunately,
+the entire set of ML contains programs for which inlining would be
+incorrect. Let us illustrate this statement with the following two
+examples. \\
 
+The interesting feature of ML is its possibility to write programs with side
+effects: we can assign a reference
+ or write a recursive function that loops (which is rather a bug, than a
+ feature). Suppose now that we want to inline
+	$$ t \triangleq 
+	\tmlet 
+            {\textcolor{blue}
+            {F_{(int \rightarrow int) \rightarrow int}}}
+	{(r_{int}:= 42; \lambda f_{int \rightarrow int}. t_0)}{t_1} $$
+Intuitively, inlining operation should not modify the bounded expression
+$(r_{int}:= 42; \lambda f_{int \rightarrow int}. t_0)$ in order to prevent an
+assignment of variable $r$, so the result of inlining should be directly a
+substitution
+	$$ I(t) \approx 
+	\tmsbst{t_1}
+		{\textcolor{blue}{F}}
+		{(r_{int}:= 42; \lambda f_{int \rightarrow int}. t_0)} $$ 
+Unfortunately, the semantics of $t_1$ is not preserved by inlining: if
+$\textcolor{blue}{F}$ has multiple occurrences in $t_1$, the variable
+assignment $r:=42$ will be multiplied, and if $f$ does not occur in $t_1$,
+then it will be lost. Even if $\textcolor{blue}{F}$ occurs just once in
+$t_1$, we cannot be sure, that the initial order of assignments is
+preserved. And if we replace $r:=42$ in the example above by some recursive
+call that loops, from an always looping program $t$ we get an eventually
+terminating $I(t)$, so again the semantics is not preserved.
 
-Intuitively, inlining operation should not simplify the bounded expression 
-$(r_{int}:= 42; \lambda f_{int \rightarrow int}. t_0)$ in order to prevent an assignment of variable $r$, so the result of inlining should be directly a substitution 
-$$ I(t) \approx \tmsbst{t_1}{F}{(r_{int}:= 42; \lambda f_{int \rightarrow int}. t_0)} $$
-Unfortunately, the semantics of $t_1$ is not preserved by inlining:  if $F$ has multiple occurrences in $t_1$, the variable assignment $r:=42$ will be multiplied, and if $f$ does not occur in $t_1$, then it will be lost. Even if $F$ occurs just once in $t_1$, we cannot be sure, that the initial order of assignments is preserved. And if we replace $r:=42$ in the example above by some recursive call that loops, from an always looping program $t$ we get an eventually terminating $I(t)$, so again the semantics is not preserved.
-
-Recursive higer-order functions is another (de)motivating example:  suppose we want to inline two different programs $t$ and $t'$ : \\
-\begin{footnotesize}
-$ t \triangleq 
-	\texttt{ let } \textcolor{blue}{F} =  
-	\tmrec{f}{\textcolor{blue}{g_{int \rightarrow int}}~x_{int}}{int}
-	{\texttt{ if } x = 0 \texttt{ then } (\textcolor{blue}{g}~x) \texttt{ else } ((f~\textcolor{Sepia}{\boldsymbol{g}})~(x - 1))}  \texttt{ in } (\textcolor{blue}{F}~\textcolor{red}{\lambda y_{int}. t_0}) $ \\[0.15cm]
-$ t' \triangleq 
-	\texttt{ let } \textcolor{blue}{F} =  
-	\tmrec{f}{\textcolor{blue}{g_{int \rightarrow int}}~x_{int}}{int}
-	{\texttt{ if } x = 0 \texttt{ then } (\textcolor{blue}{g}~x) \texttt{ else } ((f~\textcolor{Sepia}{\boldsymbol{\lambda y. 0}})~(x - 1))} 
-	\texttt{ in } (\textcolor{blue}{F}~\textcolor{red}{\lambda y_{int}. t_0}) $ \\[0.15cm]
+Recursive functions with  higer-order parameters is another (de)motivating
+example: suppose we want to inline two different programs $t$ and $t'$ :
+	\begin{footnotesize}
+	$$ t \triangleq 
+		\texttt{ let } \textcolor{blue}{F} =
+  		\tmrec{f}{\textcolor{blue}{g_{int \rightarrow int}}~x_{int}}{int} 
+  		{\texttt{ if } x = 0 
+  		\texttt{ then } (\textcolor{blue}{g}~x) 
+  		\texttt{ else }((f~\textcolor{Sepia}{\boldsymbol{g}})~(x - 1))} 
+  		\texttt{ in }
+  		(\textcolor{blue}{F}~\textcolor{red}{\lambda y_{int}. t_0})$$ 
+  $$ t' \triangleq 
+  \texttt{ let } \textcolor{blue}{F} =
+  \tmrec{f}{\textcolor{blue}{g_{int \rightarrow int}}~x_{int}}{int} 
+  {\texttt{ if } x = 0 
+  \texttt{ then } (\textcolor{blue}{g}~x) 
+  \texttt{ else } ((f~\textcolor{Sepia}{\boldsymbol{\lambda y. 0}})~(x-1))} 
+  \texttt{ in }(\textcolor{blue}{F}~\textcolor{red}{\lambda y_{int}.t_0})$$
 \end{footnotesize}
+As we suggested above, the inlining of both programs consists in replacing,
+inside application $(\textcolor{blue}{F}~\textcolor{red}{\lambda y_{int}. t_0})$, 
+local variable $\textcolor{blue}{F}$ by its definition and
+then substituting inside the body of recursive function $f$ the formal parameter
+$\textcolor{blue}{g}$ by actual argument 
+$\textcolor{red}{\lambda y_{int}. t_0}$. 
+However substituting $\textcolor{blue}{g}$ inside recursive call 
+$((f~\textcolor{Sepia}{\boldsymbol{g}})~(x - 1))$ does not make any sense,
+because the output would still contain a higher order expression that cannot be
+simplified, that is, inlining would fail. The only solution would be then to
+simply erase inside every recursive call any formal parameter of functional
+type:
+	\begin{footnotesize}
+	$$ I(t) \approx
+  \tmrec{f}{\textcolor{blue}{\text{\textvisiblespace}}~x_{int}}{int}
+  	{\texttt{ if } x = 0\texttt{ then }(\textcolor{red}{\lambda y_{int}.t_0}~x)
+    \texttt{ else } (f~\textcolor{blue}{\text{\textvisiblespace}}~(x-1))} $$
+	$$ I(t') \approx
+  \tmrec{f}{\textcolor{blue}{\text{\textvisiblespace}}~x_{int}}{int} 
+  	{\texttt{ if }x = 0\texttt{ then }(\textcolor{red}{\lambda y_{int}.t_0}~x)
+    \texttt{ else }(f~\textcolor{blue}{\text{\textvisiblespace}}~(x-1))} $$
+	\end{footnotesize}
+By chance, the formal parameter $g$ remains unchanged inside recursive call
+$((f~g)~x)$, So $t$ and $I(t)$ do have the same semantics. Unfortunately, in the
+recursive call of program $t'$, instead of $g$ we have a constant function
+$\lambda y. 0$, and the safety of inlining is broken: for instance, if for some
+non-null integer x the call $(\lambda y. t_0~x)$ loops, then while $(t'~x)$ will
+return zero, $(I(t')~x)$ will loop too.
 
-As we suggested above, the inlining of both programs consists in replacing,  inside application $(\textcolor{blue}{F}~\textcolor{red}{\lambda y_{int}. t_0})$, local variable $\textcolor{blue}{F}$ by its definition and then substituting inside the body of recursive function $f$ the formal parameter $\textcolor{blue}{g}$ by actual argument $\textcolor{red}{\lambda y_{int}. t_0}$. However substituting  $\textcolor{blue}{g}$ inside recursive call 
-$((f~\textcolor{Sepia}{\boldsymbol{g}})~(x - 1))$ does not make any sense, because the output would still contain a higher order expression that cannot be simplified, that is, inlining would fail. The only solution would be then to simply erase inside every recursive call any formal parameter of functional type:\\[0.15cm]
-\begin{footnotesize}
-	$ I(t) \approx 
-	\tmrec{f}{\textcolor{blue}{\text{\textvisiblespace}}~x_{int}}{int}
-	{\texttt{ if } x = 0 \texttt{ then } (\textcolor{red}{\lambda y_{int}. t_0}~x) 
-	\texttt{ else } (f~\textcolor{blue}{\text{\textvisiblespace}}~(x-1))} $ \\[0.15cm]
-$ I(t') \approx 
-	\tmrec{f}{\textcolor{blue}{\text{\textvisiblespace}}~x_{int}}{int}
-	{\texttt{ if } x = 0 \texttt{ then } (\textcolor{red}{\lambda y_{int}. t_0}~x) 
-	\texttt{ else } (f~\textcolor{blue}{\text{\textvisiblespace}}~(x-1))} $ \\[0.15cm]
-\end{footnotesize}
-By chance, the formal parameter $g$ remains unchanged inside recursive call 
-$((f~g)~x)$, So $t$ and $I(t)$ do have the same semantics. Unfortunately, in the recursive call of program $t'$,  instead of $g$ we have a constant function $\lambda y. 0$, and the safety of inlining is broken: for instance, if for some non-null integer x the call $(\lambda y. t_0~x)$ loops, then while $(t'~x)$ will return zero, $(I(t')~x)$ will loop too. 
+Of course, the incompleteness of inlining for such expressive language as ML is
+not a surprise; some restrictions should be imposed on the source language.  
+However, the aim of this work is not to describe a most general
+class of higher-order expressions that can be inlined, but a more
+practical investigation about the potential of higer-order inlining in deductive
+verification discipline. As we will show later in evaluation section, the
+immense majority of higher-order definitions of real projects does not require
+all the power of ML.
+\paragraph*{Outline}
+ We begin a more formal description of inlining by imposing some
+restrictions on the typing system of ML. Without reducing drastically ML
+expressiveness, the source language will still cover a great number of real-life
+programming examples.
 
-Of course, the incompleteness of inlining for such expressive language as ML is not a surprise. However, the aim of this work is not to describe a most general class of higher-order expressions that can be simplified, but a much more practical investigation about the potential of higer-order inlining in deductive verification discipline. As we will show later in evaluation section, the immense majority of higher-order definitions of real projects does not require all the power of ML. 
+Once we formally specified the domain and codomain of inlining transformation,
+we will give a precise definition \textit{small-step} of procedure itself,
+described as rewriting strategy by a set of inference rules in a
+\textit{small-step} manner.
 
-Therefore we begin a more formal description of inlining by imposing some restrictions on the typing system of ML. Without reducing drastically ML expressiveness, the source language will still cover a great number of real-life programming examples. 
+We will then state and prove that this definition corresponds to the procedure
+that is deterministic, always terminate and results in a entirely first-order
+program.
 
-Once we formally specified the domain and codomain of inlining transformation, we will give a precise definition  \textit{small-step} of procedure itself, described as rewriting strategy by a set of inference rules in a \textit{small-step} manner. 
-
-We will then state and prove that this definition corresponds to the procedure that is deterministic, always terminate and results in a entirely first-order program. 
-
-Finally, after all syntactical problems pointed out and solved, we will concentrate our attention on the \textit{total correctness} of inlining transformation: using a well-know \textit{logical relations} technique, we will formalize the notion semantic equivalence between programs and show that for every couple of source and target programs, these programs are semantically equivalent. 
+Finally, after all syntactical problems pointed out and solved, we will
+concentrate our attention on the \textit{total correctness} of inlining
+transformation: using a well-know \textit{logical relations} technique, we will
+formalize the notion semantic equivalence between programs and show that for
+every couple of source and target programs, these programs are semantically
+equivalent.
  
-The correctness of inlining we establish is \textit{total}: source language is not confined to terminating programs and an input program's non-termination is preserved by inlining. As \textit{Kahn natural semantics} is limited to establishing the \textit{partial} correctness, that explains our choice of an overall small-step style of programs operational semantics and inlining. 
+The correctness of inlining we establish is \textit{total}: source language is
+not confined to terminating programs and an input program's non-termination is
+preserved by inlining. As \textit{Kahn natural semantics} is limited to
+establishing the \textit{partial} correctness, that explains our choice of an
+overall small-step style of programs operational semantics and inlining.
 
 
-\subsection{Restrictions On The Source Language}
+\subsection{The Source Language $\inlsrc$}
 
-As we have seen in the previous example TODO, recursive definitions shall operate only arguments of some base type like \texttt{int}, \texttt{bool}, etc. That does not mean we cannot parametrize the body of recursive functions by a variable of some higher-order type:
+As we have seen in the previous example TODO, recursive definitions shall
+operate only on arguments of some base type like \texttt{int}, \texttt{bool},
+etc. That does not mean we cannot parametrize the body of recursive function by
+a variable of some higher-order type:
 \begin{footnotesize}
-$$ \lambda f_{int \rightarrow int}. \texttt{ rec } \text{apply } x_{int} . 
-\texttt{ if } x = 0 \texttt{ then } 42 \texttt{ else} \text{ apply } (f~x)$$
+$$ \lambda f_{int \rightarrow int}. \texttt{ rec } \text{apply } x_{int} .
+  \texttt{ if } x = 0 \texttt{ then } 42 \texttt{ else} \text{ apply } (f~x)$$
 \end{footnotesize}
-Furthermore, we can simplify the inlining procedure a lot by ordering the formal parameters, according to their type's degree, in \textit{any} functional definition.  Formally, we force ML types to obey the following hierarchy :
+To make this idea a little more general, if we order the formal
+parameters according to their type's degree in \textit{any} functional
+definition, that would make inlining more easy to define 
+and more easy to proof sound. 
+Formally, we force ML types to obey the following hierarchy :
 
-\begin{definition}[($ML^{^{2}}$)]
+\begin{definition}[($ML^{^{n}}$)]
 \begin{displaymath}
 	\begin{array}{lll@{\hspace*{2cm}}l}
-	\tau^0 & ::= & int~|~bool~|~unit~|~list~int~|~\dots~ & \textsc{base type}  \\
-	\tau^1 & ::= & 
-	\tau^0 \stackrel{\theta, \rho}{\rightarrow} \tau^0 ~|~
-	\tau^0 \stackrel{\theta, \rho}{\rightarrow} \tau^1 
-	& \textsc{first-order functions}\\
-	\tau^2 & ::= & 
-	\tau^1 \stackrel{\theta, \rho}{\rightarrow} \tau^0 ~|~
-	\tau^1 \stackrel{\theta, \rho}{\rightarrow} \tau^1 ~|~
-	\tau^1 \stackrel{\theta, \rho}{\rightarrow} \tau^2 
+	\tau^0 & ::= & int~|~bool~|~unit~|~list~int~|~\dots~ & \textsc{base
+          type} \\ \tau^1 & ::= & \tau^0 \stackrel{\theta, \rho}{\rightarrow}
+        \tau^0 ~|~ \tau^0 \stackrel{\theta, \rho}{\rightarrow} \tau^1 &
+        \textsc{first-order functions}\\ \tau^2 & ::= & \tau^1 \stackrel{\theta,
+          \rho}{\rightarrow} \tau^0 ~|~ \tau^1 \stackrel{\theta,
+          \rho}{\rightarrow} \tau^1 ~|~ \tau^1 \stackrel{\theta,
+          \rho}{\rightarrow} \tau^2
 %	\tau^1 \stackrel{\bot_{\theta}, \bot_{\rho}}{\rightarrow} \tau^2 
-	& \textsc{second-order functions} \\
-	\dots & & \dots &  \dots \\
-	\tau^{n+1} & ::= & 
-	\tau^{n} \stackrel{\theta, \rho}{\rightarrow} \tau^0 ~|~
-	\tau^{n} \stackrel{\theta, \rho}{\rightarrow} \tau^1 ~|~ 
-	\dots ~|~
-	\tau^{n} \stackrel{\theta, \rho}{\rightarrow} \tau^{n} ~|~
-	\tau^{n} \stackrel{\theta, \rho}{\rightarrow}\tau^{n+1}
+	& \textsc{second-order functions} \\ \dots & & \dots & \dots
+        \\ \tau^{n+1} & ::= & \tau^{n} \stackrel{\theta, \rho}{\rightarrow}
+        \tau^0 ~|~ \tau^{n} \stackrel{\theta, \rho}{\rightarrow} \tau^1 ~|~
+        \dots ~|~ \tau^{n} \stackrel{\theta, \rho}{\rightarrow} \tau^{n} ~|~
+        \tau^{n} \stackrel{\theta, \rho}{\rightarrow}\tau^{n+1}
 %	\tau^1 \stackrel{\bot_{\theta}, \bot_{\rho}}{\rightarrow} \tau^2 
 	& \textsc{higher-order functions} \\
 	
@@ -472,111 +565,166 @@ Furthermore, we can simplify the inlining procedure a lot by ordering the formal
 \end{displaymath}
 \label{MLn-ty-d}
 
-This hierarchy is defined inductively (by strong induction on type's degree $i$): if $i=0$, then the base case consist of all base types such as $int$, $bool$, etc; otherwise, for $i > 0$, the set of possible types of degree $i+1$ is an enumeration  $\{\tau^{i} \rightarrow \tau^{k} ~|~ k \in [ 0 \dots (i+1) ] \}$ of all possible codomain inferior degrees including $(i+1)$. 
+This hierarchy is defined inductively (by strong induction on type's degree
+$i$): if $i=0$, then the base case consist of all base types such as $int$,
+$bool$, etc; otherwise, for $i > 0$, the set of possible types of degree $i+1$
+is an enumeration $\{\tau^{i} \rightarrow \tau^{k} ~|~ k \in [ 0 \dots (i+1) ]
+\}$ of all possible codomain inferior degrees including $(i+1)$.
+We shall name such hierarchy by $ML^{^{n}}$ and the initial $ML$ typeset by
+$ML^\star$.
 \end{definition}
-We shall note such hierarchy by $ML^{^{n}}$ and the initial $ML$ typeset by $ML^\star$. 
 
-Note that the set of $ML^{^{n}}$ types is totally ordered: indeed, for every couple of types $\tau^i \rightarrow \tau^k$ $\tau^j \rightarrow \tau^l$ we can compare them lexicographically  starting by comparing their domain degrees $i$ and $j$, and if those are equal, then by comparing their codomain degrees $k$ and $l$. 
+Note that the set of $ML^{^{n}}$ types is totally ordered: indeed, for every
+couple of types $\tau^i \rightarrow \tau^k$ $\tau^j \rightarrow \tau^l$ we can
+compare them lexicographically starting by comparing their domain degrees $i$
+and $j$, and if those are equal, then by comparing their codomain degrees $k$
+and $l$.
 
-Moreover, note that $ML^{^{n}}$ is isomorphic $ML^{star}$, therefore  restraining the source language typing to $ML^{^{n}}$ does not reduce the $ML^{star}$ expressiveness (though, the typing rules below will do).
-\paragraph*{The syntax of $ML^{^{2}}$}
-The syntax of source language $\inlT$ remains identical to $ML$ except for explicit typing annotation of variables :
-\begin{displaymath}
-	\begin{array}{lll@{\hspace*{3cm}}l}
-	t &::=& x_{\tau^{i}} ~|~ v~|~(t~v)
-	~|~\text{let } x_{\tau^{i}} = t \text{ in } t 
-	~|~ r_{\tau^i} := v ~|~ !r_{\tau^i} 
-	& \textsc{terms}\\
-	v &::=& \lambda x_{\tau^{i}}. t ~|~ \text{rec } f x_{\tau^{i}}:~\tau^{i}.t
-	~|~ c  
-	& \textsc{values} \\
-	c &::=& \text{()} ~|~ \mathbb{N}~|~\mathbb{B}~|~+~|~-~|~\bwedge~|~\dots
-	& \text{constants}	 
-	\end{array}
-\end{displaymath}
-To simplify our presentation, application $(t~v)$ is put in $A-normal form$. Again, as we noticed in TODO that does not reduce language expressiveness. 
+\paragraph*{The syntax and Semantics of $ML^{^{2}}$}
 
+So far, we defined $ML^{^{n}}$ types for an arbitrary degree $n$. In
+practice, however, TODO the immense majority of high-order expressions
+limits on second-order programs like $folders$, $iterators$, $mappings$,
+etc.  For that reason, and for the sake of simplicity, we continue our
+presentation limiting it to $ML^{^{2}}$, an ML programs bounded to
+second-order degree.
 
-So far, we defined $ML^{^{n}}$ for an arbitrary degree $n$. In practice, however, TODO the immense majority of high-order expressions limits on second-order programs like $folders$, $iterators$, $mappings$, etc. For that reason, and for the sake of simplicity, we continue our presentation limiting it to $ML^{^{2}}$, an ML programs bounded to second-order degree. However, all definitions, theorems and proofs for $ML^{^{2}}$ can be easily extended for $ML^{^{n}}$ of arbitrary degree $n$.
+It is important to point out that $ML^{^{n}}$ is isomorphic $ML^{star}$,
+therefore restraining the source language typing to $ML^{^{n}}$ does not
+reduce the $ML^{star}$ expressiveness (though, the typing rules below will
+do).
+
+To simplify our presentation little further (especially for the semantic
+equivalence and the inlining correctness proof), we confine mutable
+variables type $r_{\tau^i}$ to degree zero.  That is, the global store
+contains first-order values only.  Note, however, that all definitions,
+theorems and proofs for below can be easily extended for $ML^{^{n}}$ of
+arbitrary degree $n$ without store typing confinement.
+
+Overall, the syntax of source language $\inlT$ remains  identical to $ML$, 
+except the explicit typing annotation of variables :
+%\begin{displaymath}
+%	\begin{array}{lll@{\hspace*{3cm}}l}
+%	t &::=& x_{\tau^{i}} ~|~ v~|~(t~v) ~|~\text{let } x_{\tau^{i}} = t
+%        \text{ in } t ~|~ r_{\tau^i} := v ~|~ !r_{\tau^i} & \textsc{terms}\\ v
+%        &::=& \lambda x_{\tau^{i}}. t ~|~ \text{rec } f x_{\tau^{i}}:~\tau^{i}.t
+%        ~|~ c & \textsc{values} \\ c &::=& \text{()} ~|~
+%        \mathbb{N}~|~\mathbb{B}~|~+~|~-~|~\bwedge~|~\dots & \text{constants}
+%	\end{array}
+%\end{displaymath}
+Likewise, the semantics $\inlsrc$ is given by exactly the same small-step 
+inferences rules we presented in TODO for ML.
+
 \paragraph*{The Typing Rules for $ML^{^{2}}$}
-\begin{footnotesize}
-\begin{multicols}{2}	
-\infrule[T$_{ML^{^2}}$-Var]{}{x_{\tau^{i}} : \tau^{i}, \bot_{\theta}, \bot_{\rho} }
-\infrule[T$_{ML^{^2}}$-Const]{\text{Typeof}(c) = \tau^i}{c_{\tau^{i}} : \tau^{i}, \bot_{\theta}, \bot_{\rho} }
-\end{multicols}
-\end{footnotesize}
 
+Ordering parameter types and putting language into $A-normal form$ only
+changes the source language syntax, without altering ML's expressiveness. To
+restraint $\inlsrc$ programs to the set of initial programs for which the
+inlining procedure will be \textit{total} and \textit{sound} is precisely
+the goal of typing rules.
+ 
+Obviously, the typing of variables,constants and mutable variable
+manipulation remains the same as for $ML$ (except explicit typing
+annotations):
 \begin{footnotesize}
-\begin{multicols}{2}	
-\infrule[T$_{ML^{^2}}$-Fun]
-	{t : \tau^{j}, \theta, \rho}
-	{\lambda x_{t^i}. t : \tau^{i} \stackrel{\theta, \rho}{\rightarrow} \tau^{j}, \bot_{\theta}, \bot_{\rho}}
+	\begin{multicols}{2}	
+		\infrule[T$_{ML^{^2}}$-Var]
+			{}
+			{\vdash x_{\tau^{i}} : \tau^{i}, 
+			\bot_{\theta},
+  		\bot_{\rho} } 
+  	\infrule[T$_{ML^{^2}}$-Const]
+  	{\text{Typeof}(c) = \tau^i}
+  	{\vdash c_{\tau^{i}} : \tau^{i}, \bot_{\theta}, \bot_{\rho}}
+	\end{multicols}
 
-\infrule[T$_{ML^{^2}}$-App]
-	{t: \tau^{i} \stackrel{\theta, \rho}{\rightarrow} \tau^{j}, \theta', \rho' \qquad v:\tau^{i}, \bot_{\theta}, \bot_{\rho} }
-	{(t~v) : \tau^{j}, (\theta \bvee \theta'), (\rho \bvee \rho')} 
-\end{multicols}
-\end{footnotesize}
-
-\begin{footnotesize}
-\begin{multicols}{2}	
-\infrule[T$_{ML^{^2}}$-Assign]
-	{v:\tau^{0}, \bot_{\theta}, \bot_{\rho}}
-	{r_{\tau^{0}} := v : unit, \top_{\theta}, \bot_{\rho}} 
+	\begin{multicols}{2}	
+		\infrule[T$_{ML^{^2}}$-Assign] 
+		{\vdash v:\tau^{0}, \bot_{\theta}, \bot_{\rho}}
+    {\vdash r_{\tau^{0}} := v : unit, \top_{\theta}, \bot_{\rho}}
 	
-\infrule[T$_{ML^{^2}}$-Deref]
-	{}
-	{!r_{\tau^{0}} : \tau^{0}, \bot_{\theta}, \bot_{\rho} }
-\end{multicols}
+		\infrule[T$_{ML^{^2}}$-Deref] 
+			{} 
+			{\vdash !r_{\tau^{0}} : \tau^{0}, \bot_{\theta},\bot_{\rho}}
+	\end{multicols}
 \end{footnotesize}
 
+Maybe less obviously, the typing of function definitions and applications
+does not change either.  Indeed, the inlining of such expression as
+$$ (\lambda f_{int \rightarrow int}.t~ (r_{int}:=42; \lambda x_{int}. x))$$
+would be incorrect. Fortunately, we have put $\inlsrc$ into $A-normal form$,
+so the term above is rejected by syntax, so keeping the same typing for
+abstractions and applications becomes possible: 
 
+	\begin{footnotesize}
+		\begin{multicols}{2}	
+	\infrule[T$_{ML^{^2}}$-Fun] 
+		{\vdash t : \tau^{j}, \theta, \rho} 
+		{\vdash \lambda x_{t^i}. t : 
+			\tau^{i} \stackrel{\theta, \rho}{\rightarrow} \tau^{j}, 
+			\bot_{\theta},
+ 			\bot_{\rho}}
 
-\begin{footnotesize}
-\begin{multicols}{2}	
-\infrule[T$_{ML^{^2}}$-Rec]
-	{t : \tau^{1}, \theta, \rho}
-	{\text{rec } f~x_{\tau^0}~. t : \tau^{0} \stackrel{\theta, \top_{\rho}}{\rightarrow} \tau^{1}, \bot_{\theta}, \bot_{\rho}}
+	\infrule[T$_{ML^{^2}}$-App] 
+		{\vdash t: \tau^{i} \stackrel{\theta, \rho}{\rightarrow}
+  	\tau^{j}, \theta', \rho' 
+  	\qquad \vdash v:\tau^{i}, \bot_{\theta}, \bot_{\rho}}
+    {\vdash (t~v) : \tau^{j}, (\theta \bvee \theta'), (\rho \bvee \rho')}
+		\end{multicols}
+	\end{footnotesize}
 
-\infrule[T$_{ML^{^2}}$-Let]
-	{t_1 : \tau^i, \theta, \rho \qquad t' : \tau^j, \theta', \rho'
-	\qquad i = 2 \Rightarrow \boldsymbol{(\theta = \bot_{\theta} \bwedge \rho = \bot_{\rho})}}
-	{\text{ let } x_{\tau^i} = t \text{ in } t'  : \tau^{j}, (\theta \bvee \theta'), (\rho \bvee \rho')} 
-\end{multicols}
-\end{footnotesize}
+The interesting part is the typing of recursive functions and local
+variables.  As example above TODO shows, recursive functions should operate
+on first-order arguments only. Taking a currification into account, the
+typing of recursive functions is restraint to
+	\begin{footnotesize}
+		\infrule[T$_{ML^{^2}}$-Rec] 
+		{\vdash t : \tau^{1}, \theta, \rho} 
+		{\vdash \text{rec }  f~x_{\tau^0}~. t : 
+			\tau^{0} \stackrel{\theta, \top_{\rho}}{\rightarrow}\tau^{1}, 
+			\bot_{\theta}, 
+			\bot_{\rho}}
+	\end{footnotesize}
+Finally, as we illustrated in another example TODO, in expressions such as 
+"$\texttt{let } F_{\boldsymbol{i^{2}}} = t_2 \texttt{ in } t_1 $",
+the second-order term $t_2$ should free from any possible side-effects.
+So the general typing of \texttt{let} expression is given by
+	\begin{footnotesize}
+		\infrule[T$_{ML^{^2}}$-Let] 
+			{\vdash t_1 : \tau^i, \theta, \rho 
+			\qquad \vdash t' : \tau^j, \theta', \rho' 
+			\qquad (i = 2) \Rightarrow 
+			\boldsymbol{(\theta = \bot_{\theta}\bwedge \rho = \bot_{\rho})}} 
+			{\vdash \text{ let } x_{\tau^i} = t \text{ in } t' 
+				: \tau^{j}, 
+				(\theta \bvee \theta'), 
+				(\rho \bvee \rho')}
+	\end{footnotesize}
 
-blah
+\paragraph*{Notations}
 
-
+TODO
 
 \begin{displaymath}
 	\begin{array}{lll@{\hspace*{3cm}}l}
-	L &::=& F ~|~ l \qquad \text{with}\qquad  l~::=~ x ~|~ f 
-	& \textsc{binders} \\	
-	t &::=& l ~|~ v~|~(t~v)
-	~|~\text{let } L = t \text{ in } t 
-	~|~ r := v ~|~ !r
-	& \textsc{terms}\\
-	v &::=& \lambda l. t ~|~ \text{rec } f x :~\tau . t
-	~|~ c ~|~ 
-	& \textsc{values} \\
-	c &::=& \text{()} ~|~ \mathbb{N}~|~\mathbb{B}~|~+~|~-~|~\bwedge~|	~\dots
-	& \textsc{constants} \\
-	
-	 
+			L &::=& F ~|~ l \qquad \text{with}\qquad l~::=~ x ~|~ f &
+        \textsc{binders} \\ 
+      t &::=& l ~|~ v~|~(t~v) ~|~\text{let } L = t 
+        \text{ in } t ~|~ r := v ~|~ !r & 
+        \textsc{terms}\\ 
+      v &::=& \lambda l. t ~|~
+        \text{rec } f x :~\tau . t ~|~ c ~|~ & 
+        \textsc{values} \\ 
+      c &::=&
+        \text{()} ~|~ \mathbb{N}~|~\mathbb{B}~|~+~|~-~|~\bwedge~| ~\dots &
+        \textsc{constants} \\
 	\end{array}
 \end{displaymath}
-
-- sec ord \\
-- restr \\
-- 
-
-
 
 
 \subsection{Inlining As Rewriting Strategy}
 
-Short description of two steps
+Short description of two steps 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{Inlining Second-Order Variables}
 
@@ -601,16 +749,22 @@ It is straightforward to see that $\inlS \subsetneq \inlT$. In particular,
 terms of $S$ are in \textit{A-Normal Forms}, respects all typing restrictions 
 we imposed on terms of $\inlT$ and has exactly the same \textit{CBV} semantics. 
 
-Our goal is then to define the inlining procedure and show that it always terminates, resulting in some term $s \in \inlS$. 
+Our goal is then to define the inlining procedure and show that it always
+terminates, resulting in some term $s \in \inlS$.
 %Most importantly, we will
 %show that inlining procedure preserves the meaining of the source p 
-To acheive this goal, let us start by describing all possible forms that inlining procedure can take in  \textit{one step}.
+To acheive this goal, let us start by describing all possible forms that
+inlining procedure can take in \textit{one step}.
 
 \begin{definition}[(One Step local bindings Inlining, $\hookdownarrow$)]
-   Let $t$ be a term of the source language $\inlT$  such that $t \not\in \inlS$ and $t \neq F $. Thus $t$ contains at least one local binding of some second-order variable $F$ introduced by $\tmlet{F}{t_0}{t_1}$ construction.
+   Let $t$ be a term of the source language $\inlT$ such that $t \not\in
+   \inlS$ and $t \neq F $. Thus $t$ contains at least one local binding of
+   some second-order variable $F$ introduced by $\tmlet{F}{t_0}{t_1}$
+   construction.
 
-Then the inlining of local bindings of $t$, is defined as a rewriting strategy
-$\inllet{t}{t'}$ by the set of inference rules of \cref{fig:inl-let-d}.
+Then the inlining of local bindings of $t$, is defined as a rewriting
+strategy $\inllet{t}{t'}$ by the set of inference rules of
+\cref{fig:inl-let-d}.
 
 \label{inlletrule-macro}
 \newcommandx{\inlletrule}[5]
@@ -669,16 +823,25 @@ $\inllet{t}{t'}$ by the set of inference rules of \cref{fig:inl-let-d}.
 	\end{figure}
 \end{definition}
 
-As we can see, the $\ilarr$ relation consist in the head reduction rule \textsc{I$_1$-Let$_0$} and the set of contextual reductions are defined recursively, from left to right, on the immediate sub-term where a second-local binding take place. Then, the first phase of inlining is defined as follows: 
+As we can see, the $\ilarr$ relation consist in the head reduction rule
+\textsc{I$_1$-Let$_0$} and the set of contextual reductions are defined
+recursively, from left to right, on the immediate sub-term where a
+second-local binding take place. Then, the first phase of inlining is
+defined as follows:
 
-\begin{definition}([Multi-Step Inlining, $\inlletplus$]) The multi-step inlining $\inlletplus$ is the transitive closure of one-step inlining. That is, it is the smallest relation defined by the following inference rules:
+\begin{definition}([Multi-Step Inlining, $\inlletplus$]) The multi-step
+  inlining $\inlletplus$ is the transitive closure of one-step
+  inlining. That is, it is the smallest relation defined by the following
+  inference rules:
+
 
 $$\dfrac{\inllet{t}{t'}}{\inllett{t}{t'}}{~~(\textsc{$I_1$-step})}
 \quad\dfrac{\inllett{t}{t'} 
 \qquad \inllett{t'}{t''}}{\inllett{t}{t''}}{~~(\textsc{$I_1$-trans})}$$
 \end{definition}
 
-To achieve the goal we have fixed above, it is useful to state the following auxiliary lemmas and definitions :
+To achieve the goal we have fixed above, it is useful to state the following
+auxiliary lemmas and definitions :
 
 \begin{lemma}[(Determinacy of $\inlletplus$)] 
 	$\forall n \in \mathbb{N}.~ \forall t, t_1, t_2.
@@ -803,7 +966,10 @@ bla
 	\end{figure}
 \end{definition}
 
-\begin{definition}([Multi-Step Inlining, $\inlletplus$]) The multi-step inlining $\inlletplus$ is the transitive closure of one-step inlining. That is, it is the smallest relation defined by the following inference rules:
+\begin{definition}([Multi-Step Inlining, $\inlletplus$]) 
+The multi-step inlining $\inlletplus$ is the transitive closure of one-step
+inlining.  That is, it is the smallest relation defined by the following
+inference rules:
 
 %\begin{figure}[H]
 %	\begin{spacing}{1.01}
@@ -991,7 +1157,10 @@ $$\dfrac{\inllet{t}{t'}}{\inllett{t}{t'}}{~~(\textsc{$I_1$-step})}
 	$(t\sigma')$ are terms that well-typed, and from (2) and (3) it follows 
 	that both $(t\sigma)$ and	 $(t\sigma')$ are \textit{\textbf{closed}} terms.
 	
-	The next lemma captures the intuition that plugging free variables inside a term by semantically equivalent, even thought syntactically different programs gives two programs for which the semantic equivalence is preserved:
+	The next lemma captures the intuition that plugging free variables
+        inside a term by semantically equivalent, even thought syntactically
+        different programs gives two programs for which the semantic
+        equivalence is preserved:
 	
 	\begin{lemma} 
 		$\forall t. \forall (\sigma, \sigma'). ~\eqvsbst{\sigma}{t}
