@@ -18,7 +18,7 @@
    <goal
     name="WP_parameter imperative_forall_pair"
     locfile="../forall.mlw"
-    loclnum="42" loccnumb="8" loccnume="30"
+    loclnum="34" loccnumb="8" loccnume="30"
     expl="VC for imperative_forall_pair"
     sum="943b19c4987c031cad6ab3f1fb371a01"
     proved="true"
@@ -33,7 +33,7 @@
      <goal
       name="WP_parameter imperative_forall_pair.1"
       locfile="../forall.mlw"
-      loclnum="42" loccnumb="8" loccnume="30"
+      loclnum="34" loccnumb="8" loccnume="30"
       expl="1. postcondition"
       sum="5510a8695acd12505a75c4a11d70b2e9"
       proved="true"
@@ -53,7 +53,7 @@
      <goal
       name="WP_parameter imperative_forall_pair.2"
       locfile="../forall.mlw"
-      loclnum="42" loccnumb="8" loccnume="30"
+      loclnum="34" loccnumb="8" loccnume="30"
       expl="2. loop invariant init"
       sum="66f0e00540a3e06af6dfe2b546f3f9bb"
       proved="true"
@@ -73,7 +73,7 @@
      <goal
       name="WP_parameter imperative_forall_pair.3"
       locfile="../forall.mlw"
-      loclnum="42" loccnumb="8" loccnume="30"
+      loclnum="34" loccnumb="8" loccnume="30"
       expl="3. precondition"
       sum="e7ca60e597ce64b88b3cbeb5e5e352e2"
       proved="true"
@@ -93,7 +93,7 @@
      <goal
       name="WP_parameter imperative_forall_pair.4"
       locfile="../forall.mlw"
-      loclnum="42" loccnumb="8" loccnume="30"
+      loclnum="34" loccnumb="8" loccnume="30"
       expl="4. loop invariant preservation"
       sum="7c02aa8f91c8f942803c56194c1f5e7d"
       proved="true"
@@ -113,7 +113,7 @@
      <goal
       name="WP_parameter imperative_forall_pair.5"
       locfile="../forall.mlw"
-      loclnum="42" loccnumb="8" loccnume="30"
+      loclnum="34" loccnumb="8" loccnume="30"
       expl="5. postcondition"
       sum="7b923e4053be0bc42ae7ceea0aad6030"
       proved="true"
@@ -133,131 +133,14 @@
     </transf>
    </goal>
    <goal
-    name="WP_parameter imperative_forall_impair"
-    locfile="../forall.mlw"
-    loclnum="53" loccnumb="8" loccnume="32"
-    expl="VC for imperative_forall_impair"
-    sum="35a6a076e6a28bb05c49bb9780d63e8a"
-    proved="true"
-    expanded="true"
-    shape="aimpairagetV3V6Iainfix &lt;V6V1Aainfix &lt;=V0V6Fqainfix =V5aTrueIaimpairagetV3V7Iainfix &lt;V7ainfix +V4c1Aainfix &lt;=V0V7Fqainfix =V5aTrueAaimpairagetV3V10Iainfix &lt;V10ainfix +V8c1Aainfix &lt;=V0V10Fqainfix =V9aTrueIainfix =V9CV5aTrueiaimpairagetV3V8aTrueaFalseaFalseaFalseFAainfix &lt;V8V2Aainfix &lt;=c0V8IaimpairagetV3V11Iainfix &lt;V11V8Aainfix &lt;=V0V11Fqainfix =V5aTrueIainfix &lt;=V8V4Aainfix &lt;=V0V8FFAaimpairagetV3V12Iainfix &lt;V12V0Aainfix &lt;=V0V12FIainfix &lt;=V0V4AaimpairagetV3V13Iainfix &lt;V13V1Aainfix &lt;=V0V13FIainfix &gt;V0V4Lainfix -V1c1Iainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
-    <label
-     name="expl:VC for imperative_forall_impair"/>
-    <transf
-     name="split_goal_wp"
-     proved="true"
-     expanded="true">
-     <goal
-      name="WP_parameter imperative_forall_impair.1"
-      locfile="../forall.mlw"
-      loclnum="53" loccnumb="8" loccnume="32"
-      expl="1. postcondition"
-      sum="4871374990fe1826dac9e8b066754997"
-      proved="true"
-      expanded="false"
-      shape="aimpairagetV3V5Iainfix &lt;V5V1Aainfix &lt;=V0V5FIainfix &gt;V0V4Lainfix -V1c1Iainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
-      <label
-       name="expl:VC for imperative_forall_impair"/>
-      <proof
-       prover="0"
-       timelimit="3"
-       memlimit="1000"
-       obsolete="false"
-       archived="false">
-       <result status="valid" time="0.02"/>
-      </proof>
-     </goal>
-     <goal
-      name="WP_parameter imperative_forall_impair.2"
-      locfile="../forall.mlw"
-      loclnum="53" loccnumb="8" loccnume="32"
-      expl="2. loop invariant init"
-      sum="b912ad93a9eaff53203cc0b35c8f3602"
-      proved="true"
-      expanded="false"
-      shape="aimpairagetV3V5Iainfix &lt;V5V0Aainfix &lt;=V0V5FIainfix &lt;=V0V4Lainfix -V1c1Iainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
-      <label
-       name="expl:VC for imperative_forall_impair"/>
-      <proof
-       prover="0"
-       timelimit="3"
-       memlimit="1000"
-       obsolete="false"
-       archived="false">
-       <result status="valid" time="0.01"/>
-      </proof>
-     </goal>
-     <goal
-      name="WP_parameter imperative_forall_impair.3"
-      locfile="../forall.mlw"
-      loclnum="53" loccnumb="8" loccnume="32"
-      expl="3. precondition"
-      sum="8548df55e14223b123cf68d5f92b0320"
-      proved="true"
-      expanded="false"
-      shape="ainfix &lt;V6V2Aainfix &lt;=c0V6IaimpairagetV3V7Iainfix &lt;V7V6Aainfix &lt;=V0V7Fqainfix =V5aTrueIainfix &lt;=V6V4Aainfix &lt;=V0V6FFIainfix &lt;=V0V4Lainfix -V1c1Iainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
-      <label
-       name="expl:VC for imperative_forall_impair"/>
-      <proof
-       prover="0"
-       timelimit="3"
-       memlimit="1000"
-       obsolete="false"
-       archived="false">
-       <result status="valid" time="0.02"/>
-      </proof>
-     </goal>
-     <goal
-      name="WP_parameter imperative_forall_impair.4"
-      locfile="../forall.mlw"
-      loclnum="53" loccnumb="8" loccnume="32"
-      expl="4. loop invariant preservation"
-      sum="8686b845d934a596877c7a2d01d85c9f"
-      proved="true"
-      expanded="false"
-      shape="aimpairagetV3V8Iainfix &lt;V8ainfix +V6c1Aainfix &lt;=V0V8Fqainfix =V7aTrueIainfix =V7CV5aTrueiaimpairagetV3V6aTrueaFalseaFalseaFalseFIainfix &lt;V6V2Aainfix &lt;=c0V6IaimpairagetV3V9Iainfix &lt;V9V6Aainfix &lt;=V0V9Fqainfix =V5aTrueIainfix &lt;=V6V4Aainfix &lt;=V0V6FFIainfix &lt;=V0V4Lainfix -V1c1Iainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
-      <label
-       name="expl:VC for imperative_forall_impair"/>
-      <proof
-       prover="0"
-       timelimit="3"
-       memlimit="1000"
-       obsolete="false"
-       archived="false">
-       <result status="valid" time="0.03"/>
-      </proof>
-     </goal>
-     <goal
-      name="WP_parameter imperative_forall_impair.5"
-      locfile="../forall.mlw"
-      loclnum="53" loccnumb="8" loccnume="32"
-      expl="5. postcondition"
-      sum="d81e17ebd9de59b1dc9121fa7493cda7"
-      proved="true"
-      expanded="false"
-      shape="aimpairagetV3V6Iainfix &lt;V6V1Aainfix &lt;=V0V6Fqainfix =V5aTrueIaimpairagetV3V7Iainfix &lt;V7ainfix +V4c1Aainfix &lt;=V0V7Fqainfix =V5aTrueFIainfix &lt;=V0V4Lainfix -V1c1Iainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
-      <label
-       name="expl:VC for imperative_forall_impair"/>
-      <proof
-       prover="0"
-       timelimit="3"
-       memlimit="1000"
-       obsolete="false"
-       archived="false">
-       <result status="valid" time="0.02"/>
-      </proof>
-     </goal>
-    </transf>
-   </goal>
-   <goal
     name="WP_parameter functional_forall_pair"
     locfile="../forall.mlw"
-    loclnum="64" loccnumb="8" loccnume="30"
+    loclnum="46" loccnumb="10" loccnume="32"
     expl="VC for functional_forall_pair"
-    sum="0d08ae2e16bd11dbe3ebc17e074f212d"
+    sum="3c55d25390b315c7b670fb0890f307e6"
     proved="true"
     expanded="true"
-    shape="apairagetV3V5Iainfix &lt;V5V1Aainfix &lt;=V0V5Fqainfix =V4aTrueIapairagetV3V6Iainfix &lt;V6V1Aainfix &lt;=V0V6Fqainfix =V4aTrueFAainfix &lt;=V0V2Aainfix &lt;=c0V0Aiainfix &gt;=V7V1apairagetV8V9Iainfix &lt;V9V1Aainfix &lt;=V7V9FapairagetV8V12Iainfix &lt;V12V1Aainfix &lt;=V7V12Fqainfix =iapairagetV8V7V11aFalseaTrueAainfix &lt;V7V2Aainfix &lt;=c0V7IapairagetV8V13Iainfix &lt;V13V1Aainfix &lt;=V10V13Fqainfix =V11aTrueFAainfix &lt;=V10V2Aainfix &lt;=c0V10Lainfix +V7c1Iainfix &lt;=V7V2Aainfix &lt;=c0V7Aainfix &lt;=c0V2FFIainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
+    shape="iainfix &gt;=V0V1apairagetV3V4Iainfix &lt;V4V1Aainfix &lt;=V0V4FapairagetV3V7Iainfix &lt;V7V1Aainfix &lt;=V0V7Fqainfix =iapairagetV3V0V6aFalseaTrueAainfix &lt;V0V2Aainfix &lt;=c0V0IapairagetV3V8Iainfix &lt;V8V1Aainfix &lt;=V5V8Fqainfix =V6aTrueFAainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V5V2Aainfix &lt;=c0V5Lainfix +V0c1Iainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
     <label
      name="expl:VC for functional_forall_pair"/>
     <transf
@@ -267,12 +150,12 @@
      <goal
       name="WP_parameter functional_forall_pair.1"
       locfile="../forall.mlw"
-      loclnum="64" loccnumb="8" loccnume="30"
+      loclnum="46" loccnumb="10" loccnume="32"
       expl="1. postcondition"
-      sum="683439c110f82ed110feb3be1a5577c8"
+      sum="bdda87c049bd7fd8eaed5d3ea6ada7a0"
       proved="true"
       expanded="false"
-      shape="apairagetV5V6Iainfix &lt;V6V1Aainfix &lt;=V4V6FIainfix &gt;=V4V1Iainfix &lt;=V4V2Aainfix &lt;=c0V4Aainfix &lt;=c0V2FFIainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
+      shape="apairagetV3V4Iainfix &lt;V4V1Aainfix &lt;=V0V4FIainfix &gt;=V0V1Iainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
       <label
        name="expl:VC for functional_forall_pair"/>
       <proof
@@ -281,18 +164,18 @@
        memlimit="1000"
        obsolete="false"
        archived="false">
-       <result status="valid" time="0.01"/>
+       <result status="valid" time="0.02"/>
       </proof>
      </goal>
      <goal
       name="WP_parameter functional_forall_pair.2"
       locfile="../forall.mlw"
-      loclnum="64" loccnumb="8" loccnume="30"
+      loclnum="46" loccnumb="10" loccnume="32"
       expl="2. precondition"
-      sum="6d57c1bf07f5dc75b4c667b29b253fa8"
+      sum="3aeef9655445f79c2924c7ce503c0b6b"
       proved="true"
       expanded="false"
-      shape="ainfix &lt;=V6V2Aainfix &lt;=c0V6Lainfix +V4c1Iainfix &gt;=V4V1NIainfix &lt;=V4V2Aainfix &lt;=c0V4Aainfix &lt;=c0V2FFIainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
+      shape="ainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V4V2Aainfix &lt;=c0V4Lainfix +V0c1Iainfix &gt;=V0V1NIainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
       <label
        name="expl:VC for functional_forall_pair"/>
       <proof
@@ -307,12 +190,12 @@
      <goal
       name="WP_parameter functional_forall_pair.3"
       locfile="../forall.mlw"
-      loclnum="64" loccnumb="8" loccnume="30"
+      loclnum="46" loccnumb="10" loccnume="32"
       expl="3. precondition"
-      sum="18c2fc3f2e323a4e81eefa6f4213308d"
+      sum="ea0be0c8919f34a233c438da780ce52c"
       proved="true"
       expanded="false"
-      shape="ainfix &lt;V4V2Aainfix &lt;=c0V4IapairagetV5V8Iainfix &lt;V8V1Aainfix &lt;=V6V8Fqainfix =V7aTrueFIainfix &lt;=V6V2Aainfix &lt;=c0V6Lainfix +V4c1Iainfix &gt;=V4V1NIainfix &lt;=V4V2Aainfix &lt;=c0V4Aainfix &lt;=c0V2FFIainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
+      shape="ainfix &lt;V0V2Aainfix &lt;=c0V0IapairagetV3V6Iainfix &lt;V6V1Aainfix &lt;=V4V6Fqainfix =V5aTrueFIainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V4V2Aainfix &lt;=c0V4Lainfix +V0c1Iainfix &gt;=V0V1NIainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
       <label
        name="expl:VC for functional_forall_pair"/>
       <proof
@@ -327,14 +210,111 @@
      <goal
       name="WP_parameter functional_forall_pair.4"
       locfile="../forall.mlw"
-      loclnum="64" loccnumb="8" loccnume="30"
+      loclnum="46" loccnumb="10" loccnume="32"
+      expl="4. postcondition"
+      sum="759597a93c50ce21c867f8d5290ed662"
+      proved="true"
+      expanded="false"
+      shape="apairagetV3V6Iainfix &lt;V6V1Aainfix &lt;=V0V6Fqainfix =iapairagetV3V0V5aFalseaTrueIainfix &lt;V0V2Aainfix &lt;=c0V0IapairagetV3V7Iainfix &lt;V7V1Aainfix &lt;=V4V7Fqainfix =V5aTrueFIainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V4V2Aainfix &lt;=c0V4Lainfix +V0c1Iainfix &gt;=V0V1NIainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
+      <label
+       name="expl:VC for functional_forall_pair"/>
+      <proof
+       prover="0"
+       timelimit="3"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.01"/>
+      </proof>
+     </goal>
+    </transf>
+   </goal>
+   <goal
+    name="WP_parameter functional_forall_pair_version"
+    locfile="../forall.mlw"
+    loclnum="53" loccnumb="8" loccnume="38"
+    expl="VC for functional_forall_pair_version"
+    sum="0d08ae2e16bd11dbe3ebc17e074f212d"
+    proved="true"
+    expanded="true"
+    shape="apairagetV3V5Iainfix &lt;V5V1Aainfix &lt;=V0V5Fqainfix =V4aTrueIapairagetV3V6Iainfix &lt;V6V1Aainfix &lt;=V0V6Fqainfix =V4aTrueFAainfix &lt;=V0V2Aainfix &lt;=c0V0Aiainfix &gt;=V7V1apairagetV8V9Iainfix &lt;V9V1Aainfix &lt;=V7V9FapairagetV8V12Iainfix &lt;V12V1Aainfix &lt;=V7V12Fqainfix =iapairagetV8V7V11aFalseaTrueAainfix &lt;V7V2Aainfix &lt;=c0V7IapairagetV8V13Iainfix &lt;V13V1Aainfix &lt;=V10V13Fqainfix =V11aTrueFAainfix &lt;=V10V2Aainfix &lt;=c0V10Lainfix +V7c1Iainfix &lt;=V7V2Aainfix &lt;=c0V7Aainfix &lt;=c0V2FFIainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
+    <label
+     name="expl:VC for functional_forall_pair_version"/>
+    <transf
+     name="split_goal_wp"
+     proved="true"
+     expanded="true">
+     <goal
+      name="WP_parameter functional_forall_pair_version.1"
+      locfile="../forall.mlw"
+      loclnum="53" loccnumb="8" loccnume="38"
+      expl="1. postcondition"
+      sum="683439c110f82ed110feb3be1a5577c8"
+      proved="true"
+      expanded="false"
+      shape="apairagetV5V6Iainfix &lt;V6V1Aainfix &lt;=V4V6FIainfix &gt;=V4V1Iainfix &lt;=V4V2Aainfix &lt;=c0V4Aainfix &lt;=c0V2FFIainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
+      <label
+       name="expl:VC for functional_forall_pair_version"/>
+      <proof
+       prover="0"
+       timelimit="3"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.00"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter functional_forall_pair_version.2"
+      locfile="../forall.mlw"
+      loclnum="53" loccnumb="8" loccnume="38"
+      expl="2. precondition"
+      sum="6d57c1bf07f5dc75b4c667b29b253fa8"
+      proved="true"
+      expanded="false"
+      shape="ainfix &lt;=V6V2Aainfix &lt;=c0V6Lainfix +V4c1Iainfix &gt;=V4V1NIainfix &lt;=V4V2Aainfix &lt;=c0V4Aainfix &lt;=c0V2FFIainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
+      <label
+       name="expl:VC for functional_forall_pair_version"/>
+      <proof
+       prover="0"
+       timelimit="3"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.01"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter functional_forall_pair_version.3"
+      locfile="../forall.mlw"
+      loclnum="53" loccnumb="8" loccnume="38"
+      expl="3. precondition"
+      sum="18c2fc3f2e323a4e81eefa6f4213308d"
+      proved="true"
+      expanded="false"
+      shape="ainfix &lt;V4V2Aainfix &lt;=c0V4IapairagetV5V8Iainfix &lt;V8V1Aainfix &lt;=V6V8Fqainfix =V7aTrueFIainfix &lt;=V6V2Aainfix &lt;=c0V6Lainfix +V4c1Iainfix &gt;=V4V1NIainfix &lt;=V4V2Aainfix &lt;=c0V4Aainfix &lt;=c0V2FFIainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
+      <label
+       name="expl:VC for functional_forall_pair_version"/>
+      <proof
+       prover="0"
+       timelimit="3"
+       memlimit="1000"
+       obsolete="false"
+       archived="false">
+       <result status="valid" time="0.01"/>
+      </proof>
+     </goal>
+     <goal
+      name="WP_parameter functional_forall_pair_version.4"
+      locfile="../forall.mlw"
+      loclnum="53" loccnumb="8" loccnume="38"
       expl="4. postcondition"
       sum="1689f9b7d42c9291912d0701705ab3bd"
       proved="true"
       expanded="false"
       shape="apairagetV5V8Iainfix &lt;V8V1Aainfix &lt;=V4V8Fqainfix =iapairagetV5V4V7aFalseaTrueIainfix &lt;V4V2Aainfix &lt;=c0V4IapairagetV5V9Iainfix &lt;V9V1Aainfix &lt;=V6V9Fqainfix =V7aTrueFIainfix &lt;=V6V2Aainfix &lt;=c0V6Lainfix +V4c1Iainfix &gt;=V4V1NIainfix &lt;=V4V2Aainfix &lt;=c0V4Aainfix &lt;=c0V2FFIainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
       <label
-       name="expl:VC for functional_forall_pair"/>
+       name="expl:VC for functional_forall_pair_version"/>
       <proof
        prover="0"
        timelimit="3"
@@ -345,16 +325,16 @@
       </proof>
      </goal>
      <goal
-      name="WP_parameter functional_forall_pair.5"
+      name="WP_parameter functional_forall_pair_version.5"
       locfile="../forall.mlw"
-      loclnum="64" loccnumb="8" loccnume="30"
+      loclnum="53" loccnumb="8" loccnume="38"
       expl="5. precondition"
       sum="81235dce239dca752f2b80687292e23c"
       proved="true"
       expanded="false"
       shape="ainfix &lt;=V0V2Aainfix &lt;=c0V0Iainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
       <label
-       name="expl:VC for functional_forall_pair"/>
+       name="expl:VC for functional_forall_pair_version"/>
       <proof
        prover="0"
        timelimit="3"
@@ -365,23 +345,23 @@
       </proof>
      </goal>
      <goal
-      name="WP_parameter functional_forall_pair.6"
+      name="WP_parameter functional_forall_pair_version.6"
       locfile="../forall.mlw"
-      loclnum="64" loccnumb="8" loccnume="30"
+      loclnum="53" loccnumb="8" loccnume="38"
       expl="6. postcondition"
       sum="61fa0100ff4358ee280a9da784fc68f0"
       proved="true"
       expanded="false"
       shape="apairagetV3V5Iainfix &lt;V5V1Aainfix &lt;=V0V5Fqainfix =V4aTrueIapairagetV3V6Iainfix &lt;V6V1Aainfix &lt;=V0V6Fqainfix =V4aTrueFIainfix &lt;=V0V2Aainfix &lt;=c0V0Iainfix &lt;=V1V2Aainfix &lt;=c0V1Aainfix &lt;=V0V2Aainfix &lt;=c0V0Aainfix &lt;=c0V2FF">
       <label
-       name="expl:VC for functional_forall_pair"/>
+       name="expl:VC for functional_forall_pair_version"/>
       <proof
        prover="0"
        timelimit="3"
        memlimit="1000"
        obsolete="false"
        archived="false">
-       <result status="valid" time="0.02"/>
+       <result status="valid" time="0.01"/>
       </proof>
      </goal>
     </transf>

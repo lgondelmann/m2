@@ -85,7 +85,7 @@ let rec expr fmt e = match e.texpr_desc with
 let def fmt (r, p, e) =
   let args, e = decomp_args e in
   fprintf fmt "  @[<hov 2>let %a%a %a =@ %a@]@\n"
-    print_rec r pat p (print_list space pat_ty) args expr e
+    print_rec r pat_ty p (print_list space pat_ty) args expr e
 
 let print_program fmt p =
   fprintf fmt "module M@.";

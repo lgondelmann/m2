@@ -3,52 +3,52 @@
   module Forall
     use import bool.Bool
     use import int.Int
-    use import ref.Ref 
+    use import ref.Ref
     use import array.Array
-    
-  
+
+
 
     predicate pair (a: int) =
       exists m:int. a = 2 * m
 
-    predicate impair (a : int) = 
+    predicate impair (a : int) =
       exists m:int. a = 2 * m + 1
- 
+
 
    (*** source programs ***)
 
    (*
-   let imperative_forall_pair (m n: int) (t: array int) = 
-      let b = ref False in 	
-      for i = m to n do 
+   let imperative_forall_pair (m n: int) (t: array int) =
+      let b = ref False in
+      for i = m to n do
         b := andb !b (pair t[i])
       done;
       !b *)
 
    (*
-   let functional_forall_pair (m n: int) (t: array int)    
+   let functional_forall_pair (m n: int) (t: array int)
     =
-      let rec aux (i: int) 
+      let rec aux (i: int)
       = if i >= n then True else andb (pair t[i]) (aux (i + 1))
       in aux m *)
 
    (*** specified programs ***)
 
 
-    let imperative_forall_pair (m n: int) (t: array int) 
-      requires { 0 <= m <= t.length /\ 0 <= n <= t.length } 
+    let imperative_forall_pair (m n: int) (t: array int)
+      requires { 0 <= m <= t.length /\ 0 <= n <= t.length }
       ensures  { result = True <-> forall j: int. m <= j < n -> pair t[j] }
-    = let b = ref True in 	
-      for i = m to n - 1 do 
+    = let b = ref True in
+      for i = m to n - 1 do
         invariant {!b = True <-> forall j:int. m <= j < i -> pair t[j] }
         b := andb !b (pair t[i])
       done;
       !b
- 
-  let rec functional_forall_pair (m n: int) (t: array int)      
-      requires { 0 <= m <= t.length /\ 0 <= n <= t.length } 
+
+  let rec functional_forall_pair (m n: int) (t: array int)
+      requires { 0 <= m <= t.length /\ 0 <= n <= t.length }
       ensures  { result = True <-> forall j: int. m <= j < n -> pair t[j] }
-      = if m >= n then True 
+      = if m >= n then True
         else andb (pair t[m]) (functional_forall_pair (m + 1) n t)
 
 
@@ -82,7 +82,7 @@
            ((b = True <->
               (forall j:int. m <= j /\ j < (o + 1) -> pair (get t1 j))) ->
              b = True <-> (forall j:int. m <= j /\ j < n -> pair (get t1 j)))))
- 
+
 
 goal WP_parameter_functional_forall_pair :
     if m >= n then forall j:int. m <= j /\ j < n -> pair (get t1 j)
@@ -96,12 +96,12 @@ goal WP_parameter_functional_forall_pair :
 
 
 
- let functional_forall_pair_version (m n: int) (t: array int)      
-      requires { 0 <= m <= t.length /\ 0 <= n <= t.length } 
+ let functional_forall_pair_version (m n: int) (t: array int)
+      requires { 0 <= m <= t.length /\ 0 <= n <= t.length }
       ensures  { result = True <-> forall j: int. m <= j < n -> pair t[j] }
     =
-      let rec aux (i: int) 
-        requires { 0 <= i <= t.length} 
+      let rec aux (i: int)
+        requires { 0 <= i <= t.length}
         ensures  { result = True <-> forall j: int. i <= j < n -> pair t[j] }
       = if i >= n then True else andb (pair t[i]) (aux (i + 1))
       in aux m
@@ -128,5 +128,67 @@ end
 
   *)
 
+  function sum (i: int) (a: array int) : int
 
+  axiom sum0len:
+    forall i:int, a: array int.
+    a.length = 0 -> sum i a = 0
+
+  axiom sum_rec:
+    forall i:int, a: array int.
+      0 < i <= a.length -> sum i a = (sum (i-1) a) + a[i-1]
+
+  axiom sum_ax:
+    forall a: array int. sum 0 a = 0
+
+  let test42 (a: array int) =
+    requires {true}
+    ensures  {result = sum a.length a}
+    let s = ref 0 in
+    for i = 0 to Array.length a - 1 do
+    invariant {!s = sum i a}
+      s := !s + a[i]
+    done;
+      !s
+
+  let test42while (a: array int) =
+    requires {true}
+    ensures  {result = sum a.length a}
+    let s = ref 0 in
+    let i = ref 0 in
+    while !i < (Array.length a) do
+    invariant {0 <= !i <= a.length /\ !s = sum !i a}
+      s := !s + a[!i];
+      i := !i + 1
+    done;
+      !s
   end
+
+(*
+ goal WP_parameter_test42 :
+    (0 > o -> 0 = sum a a2) /\
+     (0 <= o ->
+       0 = sum 0 a2 /\
+        (forall s:int.
+          (forall i:int.
+            0 <= i /\ i <= o ->
+             s = sum i a2 ->
+              (0 <= i /\ i < a) &&
+               (forall s1:int. s1 = (s + get a1 i) -> s1 = sum (i + 1) a2)) /\
+           (s = sum (o + 1) a2 -> s = sum a a2)))
+end
+
+  goal WP_parameter_test42while :
+    ((0 <= 0 /\ 0 <= a) /\ 0 = sum 0 a2) /\
+     (forall i:int, s:int.
+       (0 <= i /\ i <= a) /\ s = sum i a2 ->
+        (if i < a then (0 <= i /\ i < a) &&
+                        (forall s1:int.
+                          s1 = (s + get a1 i) ->
+                           (forall i1:int.
+                             i1 = (i + 1) ->
+                              (0 <= i1 /\ i1 <= a) /\ s1 = sum i1 a2))
+        else s = sum a a2))
+end
+
+*)

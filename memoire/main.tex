@@ -7,8 +7,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
-\usepackage[a4paper,pdftex,colorlinks=true,
-	urlcolor=blue,pdfstartview=FitH]{hyperref}
+\usepackage[a4paper,colorlinks=true,urlcolor=blue,pdfstartview=FitH]{hyperref}
 \usepackage{graphicx}
 \usepackage{amssymb,amsfonts,amsthm,amsmath}
 \usepackage{titlesec}
@@ -33,6 +32,7 @@
 \usepackage{cancel}
 \crefname{enumi}{position}{positions}
 \diagramstyle[labelstyle=\scriptstyle]
+
 \titleformat{\section}[hang]% style du titre
   {\normalfont\LARGE\bfseries}% police du titre + numéro
   {\thesection}% numérotation
@@ -62,7 +62,7 @@
   {0.1in}% espacement numéro/titre <--- valeur à changer
   {}% police spécifique du titre
 \titlespacing*{\subsubsection}
-  {-0.5in}% espacement gauche
+  {-0.0in}% espacement gauche
   {0.2in}% espacement avant
   {0.2in}% espacement après
   [0.1in]% espacement à droite
@@ -83,14 +83,16 @@
 \RequirePackage{amssymb}
 
 \lstset{
+	xleftmargin=\parindent,
   basicstyle={\ttfamily},
-  framesep=2pt,
-  frame=single,
+%  framesep=2pt,
+%  frame=single,
   keywordstyle={\color{blue}},
   stringstyle=\itshape,
   commentstyle=\itshape,
   columns=[l]fullflexible,
   showstringspaces=false,
+  mathescape=true
 }
 
 \lstdefinelanguage{why3}
@@ -126,8 +128,12 @@ keepspaces=true,
 % {->}{$\rightarrow$}{2}%
 % {<->}{$\leftrightarrow$}{2}%
 
-\lstnewenvironment{whycode}{\lstset{language=why3}}{}
+\lstnewenvironment{whycode}
+	{\lstset{language=why3}}
+	{\vspace*{-1em}}
 \lstnewenvironment{ocamlcode}{\lstset{language={[Objective]Caml}}}{}
+
+%\newcommand{whymode}[1]{\begin{whycode}#1\end{whycode}}
 
 %\lstset{basicstyle={\ttfamily}}
 \let\why\lstinline
@@ -155,8 +161,8 @@ keepspaces=true,
 \label{ML-Types marcros}
 \newcommand{\ty}[1][]{\tau_{#1}}
 \newcommandx{\tyarr}[4][1=1, 2=2, 3=\theta, 4=\rho]
-	{\tau_{#1}\hspace*{-0.2cm}\stackrel{(#3,#4)}
-	{\Rightarrow}\hspace*{-0.2cm}\tau_{#2}}
+	{\tau_{#1}\hspace*{-0.1cm}\stackrel{(#3,#4)}
+	{\Longrightarrow}\hspace*{-0.1cm}\tau_{#2}}
 \newcommandx{\tyord}[2][2=]{\ty[#2]^{#1}}
 
 %
@@ -171,6 +177,12 @@ keepspaces=true,
 \label{ML-Typing marcos}
 \newcommandx{\typerule}[5]{~\vdash  #1 : (#2, #3, #4) #5}
 
+
+\newcommand{\typing}[4]{\vdash~#1~:~#2,~#3,~#4}
+\newcommand{\bth}{\bot_\theta}
+\newcommand{\brh}{\bot_\rho}  
+\newcommand{\tth}{\top_\theta}
+\newcommand{\trh}{\top_\rho}   
 \label{Semantics marcos}
 \newcommand{\evalstep}[4]{~#1_{|\mu_#2} \rightarrow #3_{|\mu_#4} ~}
 \newcommand{\evalstar}[4]{~#1_{|\mu_#2} \rightarrow^{\star} #3_{|\mu_#4} ~}
@@ -336,47 +348,594 @@ keepspaces=true,
 \newcommand{\lgforall}[3]{\forall \glvar{#1}{#2}. #3}
 \newcommand{\lgforallc}{\lgforall{x}{\tau_2}{f_1}}
 
+
+\newcommand{\meganerd}	
+	{\url{http://www.meganerd.com/erikd/Blog/CodeHacking/Ocaml/fold.html}}
+\newcommand{\libsndfile}
+{\url{
+http://www.meganerd.com/erikd/Blog/CodeHacking/libsndfile/ten_years.html}}	
+	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \title{TITLE}
 \author{Léon}
 %\date{\today}
 \counterwithin{figure}{subsection}
-\sloppy 
-\addtolength{\hoffset}{-0.5in}
-\addtolength{\textwidth}{0.8in}
+%\sloppy 
+%\addtolength{\hoffset}{-0.5in}
+%\addtolength{\textwidth}{0.8in}
+\hbadness=10000
+\hfuzz=\maxdimen
+%\tolerance=10000
 \begin{document}
 
 \maketitle
 
 \tableofcontents
 
-\begin{abstract}
-  This is the abstract...
-\end{abstract}
+%\begin{abstract}
+%  This is the abstract...
+%\end{abstract}
 
 \section{Introduction}
+%
+%	This memoir is a study about how high-order definitions can be used in the context of deductive software verification, when the available specification environment is limited to first-order logic. 
+%			
+%	Nevertheless, evaluation of large-scale functional programming corpora shows that most of higher-order programs encountered in practice 
+%	are essentially equivalent to using a simple imperative loop construction.
+%	
+%	belong to a restrained class of second-order expressions 
+%	
+%	
+%	such as \textit{iterators} \textit{mappings}, \textit{folders} for which verification which are equivalent simple imperative loop.
+%  The goal of this memoir is to present the 	
 
-context: deductive program verification~\cite{filliatre11sttt}
+%	
+%	
+%	Concretely, this work presents a technical solution of higher-order programs \textit{inlining} and provides its \textit{correctness} proof. 
+%	Evaluation of higher-order expressions inside large-scale corpora shows that without being complete, this solution should fit most of the higher-order programs OCaml developers may encounter in practice. 
+%	Besides evaluation, we provide a prototype that implements the \textit{inlining} technique for a small fragment of WhyML, the specification language of an existing software verification platform Why3$^{\cite{boogie11why3}}$ developed by the Toccata team\footnote{\url{http://toccata.lri.fr/}}. 
+%	
+	We begin this work by an informal presentation of the context, the state of art and this memoir main ideas. 
+	
 
-main idea = if a program is using a HO function to write a loop, its
-proof of correctness should not be more difficult than its imperative
-counterpart using a for/while loop
+\subsubsection*{The Context of Deductive Program Verification}
 
-motivating examples
+	Deductive software verification is the process where the correctness
+of programs is proved, using computational logic and an axiomatic formal semantics approach$^{\cite{Hoare69anaxiomatic}}$.
+	In this process, first the correctness of a program is expressed
+as a set of axioms, hypotheses and assertions, called \textit{verification conditions}.
+	Using axioms and hypotheses, assertions are then proved
+by either interactive proof assistants or automated theorem provers.
 
-related work 
+	Until recently, interactive proof assistants were predominating
+in verification practice.
+	Indeed, such problems as linear arithmetic, floating-point number analysis,
+or array bounds check, occur ubiquitously in any realistic software
+ verification process,but were not supported by the earlier models of automated theorems provers, leaving no choice but to use proof assistants.
+	
+	The new generation of ATPs, the \textit{Satisfiability Modulo Theories} (SMT) provers, brings a hope of more automated verification.
+	SMT solvers combine a classical ATP approach for solving first-order logic problems with a built-in support for linear arithmetic, nonlinear arithmetic, bitvectors, arrays, datatypes, etc.\\
+	
+	Though these theorem provers are rather powerful, generally they do not yet perform proofs for programs that make use of higher-order definitions. 
+	Consequentially, software verification environments (such as \textit{Why3} platform, or microsoft research \textit{Spec\#} TODO), that rely on ATPs to discharge verification conditions, do not yet provide a support for higher-order program specification. 
+	
+\subsubsection*{Related Work}
+	
+	
+\subsubsection*{An Introductory Example}		
 
-\section{Programming Language}
+	Does all this mean that, as long as ATPs remain first-order, proving a piece of higher-order functional code, no matter how simple the code is, should require more sophisticated or less automated tools ? 
+	
+	In one of his blog posts\footnote{\meganerd}, Eric di Castro Lopo, author of widely-used C-library \textit{libsndfile}\footnote{\libsndfile}, gives the following example of two programs, one using a iterative loop, and the other using iterator functional, that compute a sum of the elements of an \textit{array}\footnote{we slightly adapt his examples to the syntax of WhyML} \\
+\begin{small}
+	\begin{minipage}[t]{0.4\linewidth}
+		\begin{whycode}  
+ let sum_loop (a: array int) =		
+  let s = ref 0 in
+  let i = ref 0 in
+  while !i < a.length do
+    s := !s + a[!i];
+    i := !i + 1
+  done; !s 
+ (*Array sum with while loop*)
+		\end{whycode}
+	\end{minipage}\hfill 
+	\begin{minipage}[t]{0.55\linewidth}
+		\begin{whycode} 
+  let sum_iter (a: array int) =		 
+    let s = ref 0 in
+    Array.iter (fun x -> s := !s + x) a;
 
-mini-ML + global references + recursive functions
 
-\subsection{Syntax}
 
+ 
+    (*Array sum with iterator*)
+		\end{whycode}	
+	\end{minipage}
+\end{small}
+
+	As Linux programmer states, functions like \texttt{iter}, \texttt{map}, or \texttt{fold}: \textit{``can reduce the number of points of possible error in a program. More importantly, for the code reader who understands and is comfortable with these techniques, reading and understanding code using these functions is quicker than reading and understanding the equivalent for loop.''}
+			
+	So what if such a reader wants to verify of code correctness formally? Is there anything similar to \textit{Hoare logic} rule for \texttt{while} for \texttt{Array.iter}? Could we do verification of the latter as easily as for the while loop ? 
+	To make the comparison clear, let us first illustrate how the sum of array elements computed using \textit{while} loop is specified and proved in Why3.  
+
+To prove that \texttt{sum\_loop} computes $\sum_{~0\leq i < n} a[i]$:
+\begin{footnotesize}
+	\begin{whycode}  
+     let sum_loop (a: array int) 	
+       $\textcolor{OliveGreen}{\text{requires \{ true \}}}$
+       $\textcolor{OliveGreen}{\text{ensures}\{\sum_{~0 \leq i < n} a[i]\}}$ = ...
+ 	\end{whycode}
+ \end{footnotesize}
+\
+we typically introduce a \textit{loop invariant}. Here, the invariant is:
+\ 
+ \begin{footnotesize}
+ 	\begin{whycode}  
+     while !i < n do $\textcolor{OliveGreen}{\text{invariant sum } = \sum_{~0\leq j < i} a[j] \bwedge 0 \leq !i \leq n }$ ...
+ 	\end{whycode} 
+\end{footnotesize}  
+\
+The verification conditions we get from these specifications are:
+\begin{footnotesize}
+\begin{displaymath}
+\begin{array}{ll@{\hspace*{2em}}r}
+
+(vc1)
+	& 0 \leq !i \leq n 
+	& \textsc{(accessibility)} \\
+
+(vc2)
+	& (0 \leq 0 \bwedge 0 \leq n) 
+\bwedge 0 = \sum_{~0\leq j < 0} a[j]	
+	& \textsc{(initialisation)} \\
+
+
+(vc3)
+	& \forall i. (0 \leq i < n \bwedge !s = \sum_{~0 \leq j \leq i} a[j]) \brarr
+		(0 \leq (i+1) \leq n) 
+		\bwedge !s = \sum_{~0 \leq j \leq i+1} a[j]
+	& \textsc{(preservation)} \\
+
+(vc4)
+	& s = \sum_{~0 \leq i < n} a[i] 
+	& \textsc{(postcondition)} 
+\end{array}
+\end{displaymath}
+\end{footnotesize}
+
+All verification conditions above are elementary first-order formulas with linear arithmetic and can proved by Alt-Ergo SMT solver instantly. So can we do \textit{exactly} the same thing with \texttt{Array.iter} ? In particularly, we would like to get verifications conditions that should be roughly the same. 
+
+\subsubsection*{A Technical Solution: Inlining}
+
+	One possible solution is higher-order program \textit{inlining}.
+	Inlining of higher-order programs is a syntactic transformation that turns
+each higher-order expression into an expression of first-order degree. 
+	Local variables of a higher-order type are replaced by functional expression they introduce; 
+	formal parameters of functional type are substituted by actual arguments inside applications; 
+	more generally, every higher-order expression inside a program is progressively simplified until no higher-order expression is left. 
+	The rest of the source program, that is, any expression of first-order
+type, remains syntactically unchanged. 
+
+	Let us illustrate this on the example of \texttt{sum\_iter program}. 
+	First off all, the specification of \texttt{Array.iter} function is partial, in that sense that it provides no specification for its formal parameter $f$:
+	\begin{small}
+	\begin{whycode}  
+  let array_iter f a $\textcolor{OliveGreen}{inv}$ =
+    let rec loop i =  	
+      $\textcolor{OliveGreen}{\text{requires \{ \text{ inv } i \}}}$
+      $\textcolor{OliveGreen}{\text{ensures}\{ \text{ inv (length a)}\}}$ 
+      = if i < a.length then (f a[i] ; loop (i + 1) 
+    in loop 0
+ 	\end{whycode}
+ \end{small}
+	
+	
+	
+	
+	
+
+%	The verification condition \texttt{vc1} ensures that variable \texttt{i} used as an array index is within the bounds of \texttt{a}. \texttt{vc2} checks that  the invariant holds before entering into the loop. 
+%
+%	The verification condition \texttt{vc3} checks that for each iteration of loop, \textit{if the invariant holds for the preceding iteration step $i$}, for some $i<n$, then it still holds for the step $i+1$.   
+%	
+	
+
+
+
+
+
+
+\subsubsection*{Outline}
+
+%
+%context: deductive program verification~\cite{filliatre11sttt}
+%
+%main idea = if a program is using a HO function to write a loop, its
+%proof of correctness should not be more difficult than its imperative
+%counterpart using a for/while loop
+%
+%motivating examples
+%
+%related work 
+\newpage
+\section{Mini-ML: Programming Language}
+	Within the deductive software verification approach, the first step is to write a formal specification for a given program. 
+	Programs are usually written in some \textit{intermediate specification language}, which corresponds to a fragment of some existing programming language enriched with logic assertions and other logical formulae used to write specifications. 
+	The computational part of an \textit{ISL} should be not too narrow so that it would allow verification of some non-trivial or real-practice-like programs. 
+	For instance, the computational component of framaC TODO is a 100 per cent compatible with C-language. 
+	     
+	In this section we present briefly the \textit{Mini-ML} programming language. 	Mini-ML corresponds to a tiny fragment of \textit{WhyML}'s TODO computational part.	
+	Roughly speaking it is equivalent to \textbf{PCF + state}. 
+	That is, Mini-ML consists of a simply-typed lambda-calculus with built-in primitive data types and recursive functions) extended with global store of modifiable references.
+	Despite it's simplicity, Mini-ML should be sufficiently expressive for we  
+could write programs similar to our introductory example.
+	
+\subsection{Syntax}	
+The formal description of Mini-ML syntax is given below: 
+	
+\begin{figure}[H]
+\hrule
+\begin{adjustwidth}{0em}{-3em}
+\begin{footnotesize}
+\begin{minipage}[t]{0.49\linewidth}
+\begin{displaymath}
+\begin{array}{llr}
+\tau & ::= & \textsc{types} \\
+   	& int ~|~ bool ~|~ unit ~|~ \dots & \textit{built-in simple types} \\
+    & list_{int}											& \textit{built-in recursive types} \\
+    & \tau \stackrel{\theta, \rho}{\Rightarrow} \tau           
+    																	& \textit{function type} \\
+  \\
+\theta, \rho & ::= 						& \textsc{effects indicators} \\
+& \bth ~|~ \tth & \textit{reference assignment} \\
+& \brh ~|~ \trh			& \textit{recursive function use} \\
+\\
+p & ::=										 					& \textsc{programs} \\
+	&(ref~r_{\tau}\leftarrow v) \quad p &\textit{global reference declaration}\\
+	& t & \textit{term} \\
+	\\
+& \hspace*{-0.8cm} t_{\mu} \rightarrow t_{\mu}
+	& \textsc{evaluation rules} \\
+& \qquad ...
+	& \textit{(see \cref{mini-ml-def-sem})} \\
+\\
+& \hspace*{-0.8cm} \vdash t : \tau, \theta, \rho
+	& \textsc{typing rules} \\ 						
+& \qquad ...
+	& \textit{(see \cref{mini-ml-def-typ})} \\[1cm]
+	
+& \hspace*{-0.8cm}\fbox{\textsc{Mini-ML syntax}} 
+	
+\end{array}
+\end{displaymath}
+\end{minipage} 
+\hspace*{0.7	em} \vrule \hfill 
+\begin{minipage}[t]{0.49\linewidth}
+\begin{displaymath}
+\begin{array}{llr}
+	t & ::=										& \textsc{terms}   \\
+  	& v 										& \textit {value} \\
+  	& (t~v) 								& \textit {application} \\
+  	& let~x_{\tau} = t~in~t & \textit {local binding} \\
+  	& if~t~then~t~else~t 		& \textit{if-then-else} \\
+  	& match~v~with \\
+  	& ~|~Nil~->~t~|~Cons~n~x~->t~ 
+  													& \textit{match-with}\\
+  	& r_{\tau} := v 				& \textit{assignment} \\
+  	& !r_{\tau} 						& \textit {dereference} \\
+	\\
+	v & ::= 											& \textsc{values} \\
+  	& x_{\tau}						  		& \textit {variable} \\
+		& \lambda x_{\tau} . t 		  & \textit{function} \\
+		& \mu f:~\tau.~
+			\lambda x_{\tau}. t				& \textit{recursive function} \\
+		& c													& \textit{constant}  \\
+	\\
+  c & ::= 								& \textsc{constants} \\
+  	& \mathbb{N}~|~\mathbb{B}~|~() ~|~ ... 
+  												& \textit{base type constants} \\
+  	& \mu l. (Nil ~|~ Cons~c_{int}~l)   
+  												& \textit{integer list}  \\ 
+%  	& \mu t. (Empty ~|~ Node~t~c_{int}~t )
+%  												&  \textit{integer binary tree} \\
+  	& + ~|~ - ~|~ ... 		
+  												& \textit{arithmetic operators} \\
+  	& \neg ~|~ \bwedge ~|~ ... 
+  												& \textit{boolean operators} \\
+ 		& = 
+ 													& \textit{monomorphic equality} \\
+\end{array}
+\end{displaymath}
+\end{minipage} 	 		 
+\end{footnotesize}
+\end{adjustwidth}
+\label{mini-ml-def-syn}
+\hrule
+\end{figure} 
+
+\noindent	\textbf{Types and Effect indicators}	\indent  
+	The Mini-ML types consist of a set of built-in primitive data types and an arrow type $\tyarr[][][\theta][\rho]$. 
+	Arrows are labelled by greek letters $\theta$ and $\rho$, which represent two distinct function's \textit{latent effects}:
+	a boolean variable $\theta$ indicates whether a function's body contains some reference assignment, and $\rho$ indicates whether function's body contains some recursive call.
+	Such a labelling keeps track of function's \textit{latent} effects in that sense that they become visible no sooner than function's body is evaluated, that is only \textit{after} function's call.\\
+	
+\noindent	\textbf{Terms, Values and Constants}	\indent  
+	Each Mini-ML program consists of two parts. 
+	First, all global references are declared and instantiated with some value.
+	These declarations are then followed by a term.
+
+	Each term is either a value or a compound construction like application, local binding, etc.
+
+	A value can be a variable, an \textit{abstraction}, a \textit{recursive function}, or a \textit{constant}. Constants, on their turn, are either some elementary data like 42, \textit{True}, \textit{Cons 42 Cons 0 Nil}, or a n-ary operations such as \textit{+}, $\neg$, $=$.
+	
+	Note that references, variables, and formal parameters of functions are \textbf{explicitly typed}. 
+	Also note that terms are put in \textbf{A-normal} form\footnote{\cite{BartheC02}}: in applications, a term $t$ is always applied to some already value form $v$ where the result of every intermediate computation is named via a \textbf{let} construct.
+	
+%. Similarly, in $\underline{if~v~then~\dots}$ and $\underline{match~v~with~\dots}$ constructions, the matched expression $v$ is a value too. ,	
+
+%$\underline{match~v~with~Nil~\rightarrow~t_1~|~Cons~n~l~\rightarrow~t_2}$ 
+%TODO match !!!
 \subsection{Semantics}
+\label{mini-ml-def-sem}
+	The Semantics of Mini-ML is given by the following SOS (small-step operational semantics) inference rules where $\mu$ and $\mu'$ are global reference store transition states:	
+	\begin{figure}[H]
+	\begin{spacing}{1.2} 	
+	
+	\infrule[E-Head]
+	{\gevalh{t}{\mu}{t'}{\mu'}}
+	{\geval{t}{\mu}{t'}{\mu'}}
+	
+	\infrule[E-Context]
+	{{t_{1}}\mem \rightarrow {{t'}_{1}}\memp}
+	{\mathtt{let} ~ x_\tau = t_{1} ~ \mathtt{in}~ {t_{2}}\mem
+		\rightarrow 
+		\mathtt{let} ~ x_\tau = t_{1}' ~ \mathtt{in}~ {t_{2}}\memp}
+\end{spacing}
+%\caption{ \textbf{Semantics Rules} \hfill}
+\end{figure}
+	The rule \textsc{E-Context} describes an evaluation step \textbf{inside} \textit{let} construction, under assumption that a sub-term $t_1$ is evaluated.
+	That is, \textsc{E-Context} rule does not alter the term's construction, but simplifies it contextually.
+
+	On the contrary, the rule \textit{E-Head} describes an evaluation step where term's construction is modified "on the top``, passing from one form to another:
+\begin{figure}[H]
+	\begin{spacing}{2} 
+	
+	\infax[E-Op-$\delta$] 
+	{\ghead
+		{ c~v_1 \dots v_k}{\mem}
+		{ \delta(c,v_1 \dots v_k)}\mem \quad 
+		\text{if } k = Arity(c) \text{ and }\delta(c,v)\text{ is defined }} 
+	
+  \infax[E-Op-$\lambda$]
+	{\ghead
+		{{c~v_1 \dots v_k}{\mem}}
+		{\lambda x_{\tau}. c~v_1 \dots v_k ~ x_{\tau}}\quad 
+		\text{if } 1 \leq k < arity(c)}		
+	
+	\infax[E-AppFun] 
+	{\ghead
+		{ (\lambda x_\tau~v)\mem }
+		{ \sbst{t}{x_{\tau}}{v}}\mem } 
+	  
+	
+	\infax[E-AppRec]
+	{\ghead
+		{
+			(\mu f:~\tau.~
+				\lambda x_{\tau_2}. t~v)\mem}
+		{t[
+			 x_{\tau_2} \mapsfrom v, 
+			 f \mapsfrom  \mu f:~\tau.~\lambda x_{\tau_2}. t]\mem}}
+			 
+	
+	\infax[E-Let-V]
+	{\ghead
+	 {let~x_{\tau} ~=~v_1~in~{t_{2}}\mem}
+	 {\sbst{t_{2}}{x_\tau}{v_{1}}}\mem} 
+	
+	\infax[E-If-true]		
+	{\ghead
+		{\mathtt{if}~\mathtt{true}~\mathtt{then}~t_{1}~\mathtt{else}~t_{2}{\mem}}
+		{t_{1}{\mem}}}
+	
+	\infax[E-If-false]		
+	{\ghead
+		{\mathtt{if}~\mathtt{false}~\mathtt{then}~t_{1}~\mathtt{else}~t_{2}{\mem}}
+		{t_{2}{\mem}}}	
+
+	\infax[E-Deref]	 	
+	{\ghead
+	{r_\tau{\mem}}
+	{\mu_{}(r_\tau)}}
+
+	\infax[E-Assign]
+	{\ghead
+		{r_\tau := v\mem}
+		{()_{|\mu[r_{\tau} \mapsfrom ~ v]}}}
+	
+\end{spacing}
+\caption{ \textbf{\gml Semantics (Head Reduction Rules)} \hfill}
+\end{figure}
+  As we can see, the evaluation of constant operation $c$	\textit{partial} application transforms it into abstraction until the application becomes total. 
+  In their turn, \textbf{total} application of primitive operations is defined by a set of $\delta$-rules: 
+\begin{figure}[H]
+	\begin{spacing}{1.1} 
+	
+ \hspace*{2cm}$\bullet\quad\delta(+, n, m) \triangleq ||n + m||$ 
+ 	(where $n,m$ are integers)
+ 	
+ \hspace*{2cm}$\bullet\quad\delta(\mathtt{not}, b) \triangleq  ||\neg b||$ 
+ 	(where $b \in \mathbb{B}$)
+ 	
+ \hspace*{2cm}$\bullet\quad\delta(\mathtt{=}_{\tau}, (t,u)) \triangleq t =_{\tau} u$ 
+ 	
+ 	\hspace*{2cm}\quad(where $=_\tau$ is structural equality modulo $\alpha$-equivalence for type $\tau$)\\
+ \hspace*{2cm}\dots 	
+\end{spacing}
+\caption{ \textsc{Mini-ML Semantics ($\delta$ Rules)} \hfill}
+\end{figure}	
+
+	Finally, note that the two syntactic details above (explicitly typed variables and A-normal form) are somehow irrelevant for semantics of Mini-ML.
+	Indeed, a semantics rules applies for a term which the typing system would reject as ill-typed. For instance, we have that 
+	$\evalstep{if~True~then~42~else~Nil}{1}{42}{1}$ 
+	even if this term is considered as ill-typed by a typing system.
+	Similarly, while A-normal form seems to restrain the expressiveness of the language, it is just a compilation trick to make our presentation shorter and easier to read. 
+	Indeed, we could compile any term $(t_1~t_2)$ to an equivalent A-normal form via \textit{let} expression: $(t_1~t_2) \simeq~let~x~=~t_2~in~(t_1~x)$.
 
 \subsection{Type System with Effects}
 
-side effects + termination, independently
+varia
+	
+ and Typing	
+	
+	by $\theta$ and $\rho$
+	To explain what the meaning of these labels, 
+	
+	
+	let us first explain the general 
+	Indeed, the Mini-ML typing system we describe in \cref{mini-ml-def-typ}  allow us to keeps track of program side-effects such as reference assignment and recursive function use. 
+	That is, the typing $\typing{t}{\tau}{\theta}{\rho}$ is a relation between  term
+
+	The typing 
+	
+	
+	
+	liteture stidied
+	simple boolean
+	latent effect arrow
+	avoid danger
+	
+	
+	
+	
+	
+	avoir some dangerous cases like in the  examples TODO,  
+	
+	
+	These labels are latent effects on the arrow are ind
+	
+
+
+
+
+\noindent	\textbf{Typing}	\indent  bla
+
+
+\label{mini-ml-def-typ}		
+\begin{figure}[H]
+\hrule
+\begin{adjustwidth}{0em}{-3em}
+\begin{small}
+\begin{minipage}[t]{0.49\linewidth}
+\begin{displaymath}
+\begin{array}{l}
+
+\dfrac
+	{}
+	{\typing{x_{\tau}}{\tau}{\bot_{\theta}}{\bot_{\rho}}}
+	{\textsc{  (T-var)}} \\[1cm]
+
+\dfrac
+	{\textsc{Typeof}(c) = \tau}
+	{\typing{c}{\tau}{\bot_{\theta}}{\bot_{\rho}}}
+	{\textsc{  (T-const)}} \\[1cm]
+
+	
+\dfrac
+	{\typing{t_1}{\tau_1}{\theta_1}{\rho_1}}
+	{\typing{\lambda x_{\tau_2} . t_1}
+		{\tyarr[2][1][\theta_1][\rho_1]}{\bth}{\brh}}
+	{\textsc{  (T-lam)}} \\[1cm]		
+	
+\dfrac
+	{\typing{\lambda x_{\tau_2}. t}{\tyarr[2][1][\theta_1][\rho_1]}{\bth}{\brh}}
+	{\typing{\mu f:~\tyarr[2][1][\theta_1][\textcolor{red}{\trh}].~
+		\lambda x_{\tau_2}. t}
+		{\tyarr[2][1][\theta_1][\textcolor{red}{\trh}]}
+			{\bth}{\brh}}
+	{\textsc{  (T-rec)}}\\[1cm]		
+	
+	\dfrac
+	{
+		\typing{v}{bool}{\bth}{\brh}
+		\typing{t_1}{\tau_1}{\theta_1}{\rho_1} \qquad
+		\typing{t_2}{\tau_1}{\theta_2}{\rho_2}
+	}
+	{	\typing{if~v~then~t_1~else~t_2}
+		{\tau_1}{\theta_1 \bvee \theta_2}{\rho_1 \bvee \rho_2}}
+	{\textsc{  (T-if)}}	\\[1cm]	
+\end{array}
+\end{displaymath}
+\end{minipage} 
+ \hfill 
+\begin{minipage}[t]{0.49\linewidth}
+\begin{displaymath}
+\begin{array}{llr}
+\hspace*{-1.5cm}
+\dfrac
+	{
+		\typing{t}{\tyarr[2][1][\theta_1][\rho_1]}{\theta_2}{\rho_2} \qquad
+		\typing{v}{\tau_2}{\bth}{\brh}}
+	{
+		\typing{t~v}{\tau_1}{\theta_1 \bvee \theta_2}{\rho_1 \bvee \rho_2}}
+	{
+		\textsc{  (T-app)}} \\[1cm]	
+\hspace*{-1cm}				
+\dfrac
+	{
+		\typing{t_1}{\tau_1}{\theta_1}{\rho_1} \qquad
+		\typing{t_2}{\tau_2}{\theta_2}{\rho_2}
+	}
+	{\typing
+		{let~x_{\tau_1} = t_1~in~t_2}
+		{\tau_2}
+		{\theta_1 \bvee \theta_2}
+		{\rho_1 \bvee \rho_2}}
+	{\textsc{  (T-let)}} \\[1cm]					
+
+\hspace*{1cm}		
+\dfrac
+	{\typing{v}{\tau}{\bth}{\brh}}
+	{\typing{r_{\tau}~:=~v}
+		{unit}
+		{\textcolor{red}{\tth}}
+		{\brh}} 			
+ 	{\textsc{  (T-assign)}}	\\[1cm]		
+\hspace*{2.5cm}		   			
+\dfrac
+	{}
+	{\typing{!r_{\tau}}{\tau}{\bth}{\brh}} 
+{\textsc{  (T-deref)}}\\[1cm]
+
+\hspace*{3cm}\fbox{\textsc{Mini-ML typing rules}}
+
+\end{array}
+\end{displaymath}
+\end{minipage} 	 		 
+\end{small}
+\end{adjustwidth}
+\hrule
+\end{figure}    
+
+\subsection{Type Soundness}
+
+\begin{theorem}
+ If $\typing{t_1}{\tau}{\theta}{\rho}$ then 
+ \begin{itemize}
+ \item[$\bullet$] if $\theta = \bth$:
+    $\evalstep{t{_1}}{1}{t{_2}}{2} \brarr (\mu_1 = \mu_2 \bwedge 
+  \typing{t}{\tau}{\brh}{\rho})$
+ \item[$\bullet$] if $\rho = \brh $: $\evalstar{t{_1}}{1}{v{_2}}{2}$
+
+ 
+ \end{itemize}
+ 
+\end{theorem}
+
+	Choosing PCF as programming language corresponds to what is commonly done in computer science research~(TODO cite benj piece Abramsky).  
+	
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Inlining}
@@ -398,7 +957,7 @@ first-order data like \texttt{int} or \textit{list bool}, the inlining must
 being \textit{closed}, \textit{well-typed} terms, the only higher-order
 expressions that might appear inside, are either local definitions or
 applications of a functional to functions, and these are precisely what
-inlining aims to simplify). \\
+inlining aims to simplify). 
 
 So can we take the entire set of ML programs as the domain of inlining
 function ?  Would it always be possible to transform a higher-order program
@@ -413,7 +972,7 @@ always \textit{terminating} transformation, whose output has exactly the
 same \textit{meaning} that the corresponding source program. Unfortunately,
 the entire set of ML contains programs for which inlining would be
 incorrect. Let us illustrate this statement with the following two
-examples. \\
+examples. 
 
 The interesting feature of ML is its possibility to write programs with side
 effects: we can assign a reference
@@ -526,7 +1085,7 @@ establishing the \textit{partial} correctness, that explains our choice of an
 overall small-step style of programs operational semantics and inlining.
 
 
-\subsection{The Source Language $\inlsrc$}
+\subsection{The Source Language \texorpdfstring{$\inlsrc$}{}}
 
 As we have seen in the previous example TODO, recursive definitions shall
 operate only on arguments of some base type like \texttt{int}, \texttt{bool},
@@ -1029,8 +1588,8 @@ $$\dfrac{\inllet{t}{t'}}{\inllett{t}{t'}}{~~(\textsc{$I_1$-step})}
 			if $\ty = \tyarr$ for some types $\ty[1], \ty[2]$,
 			then\\[0.2cm]
 			$\hspace*{0em}\forall v_0, v'_0. ~ \eqv{v_0} ~ 
-			\bwedge \typerule{v_0}{\ty[1]}{\bot_\theta}{\bot_\rho}{} ~~
-			\bwedge \typerule{v'_0}{\ty[1]}{\bot_\theta}{\bot_\rho}{} $ \\[0.2cm]
+			\bwedge \typerule{v_0}{\ty[1]}{\bth}{\brh}{} ~~
+			\bwedge \typerule{v'_0}{\ty[1]}{\bth}{\brh}{} $ \\[0.2cm]
 			$\hspace*{1em}
 			\Rightarrow \forall\mu_0.(\evalinfty{\tmapp{t}{v_0}}{\mu_0}
 			\bwedge\evalinfty{\tmapp{t'}{v'_0}}{\mu_0})$\\[0.2cm]
@@ -1279,7 +1838,7 @@ For any well-typed term $t$ such that\\ $\typerule{t}{\tau}{\theta}{\rho}$, if $
 %\end{lemma}
 %
 %\begin{proof} Observe that for the base case:
-%$$\tmlet{F}{s_1}{s_2} \hookdownarrow \tmsbst{s_2}{F}{s_1} \quad \textsc{(Let$_0$)},$$ the restriction typing for term $s_1$, $\typerule{s_1}{\tau_{s_1}}{\bot_\theta}{\bot_\rho}$ guarantees that the only source of side effects or potential non-termination of $t$ is $s_2$, and the result follows immediately by LEMMA \label{TODO:typ-subst-lemma}. Other cases follow by straightforward induction on 
+%$$\tmlet{F}{s_1}{s_2} \hookdownarrow \tmsbst{s_2}{F}{s_1} \quad \textsc{(Let$_0$)},$$ the restriction typing for term $s_1$, $\typerule{s_1}{\tau_{s_1}}{\bth}{\brh}$ guarantees that the only source of side effects or potential non-termination of $t$ is $s_2$, and the result follows immediately by LEMMA \label{TODO:typ-subst-lemma}. Other cases follow by straightforward induction on 
 %the derivation of $\inllet{t}{t'}$. Back to \ref{inllet-ty-l}.
 %\end{proof}
 %	
@@ -1418,7 +1977,7 @@ Back to \ref{inllet-nforms-l}.
 			
 		\item[$(\beta)$] if $\ty$ is an arrow type $\tyarr$ for some types 
 		$\ty[1], \ty[2]$,	let $v_0, v'_0$ be two arbitrary values satisfying:
-		$$~\eqv{v_0}~\bwedge \typerule{v_0}{\ty[1]}{\bot_\theta}{\bot_\rho}{}.$$
+		$$~\eqv{v_0}~\bwedge \typerule{v_0}{\ty[1]}{\bth}{\brh}{}.$$
 		By hypothesis, we have the reduction steps:
 		$$\evalstar{{t_0}}{0}{{t_1}}{1}\quad\evalstar{{t'_0}}{0}{{t'_1}}{1}$$						which induce respectively: 
 		$$\evalstar{\tmapp{t_0}{v_0}}{0}{\tmapp{t_1}{v_0}}{1} \quad
@@ -1445,10 +2004,9 @@ Back to \ref{inllet-nforms-l}.
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\section{References} 
 %\addcontentsline{toc}{chapter}{Bibliography}
 \bibliographystyle{plain}
-\bibliography{abbrevs,demons,demons2,demons3,team,crossrefs}
+\bibliography{abbrevs,demons,demons2,demons3,team,crossrefs,./biblio}
 
 \end{document}
 
