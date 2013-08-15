@@ -361,8 +361,8 @@ http://www.meganerd.com/erikd/Blog/CodeHacking/libsndfile/ten_years.html}}
 %\date{\today}
 \counterwithin{figure}{subsection}
 %\sloppy 
-%\addtolength{\hoffset}{-0.5in}
-%\addtolength{\textwidth}{0.8in}
+\addtolength{\hoffset}{-0.5in}
+\addtolength{\textwidth}{0.8in}
 \hbadness=10000
 \hfuzz=\maxdimen
 %\tolerance=10000
@@ -401,6 +401,16 @@ or array bounds check, occur ubiquitously in any realistic software
 	More generaly, deductive software verification was historically and still is a framework focusing mostly on the verification of imperative programs written in languages like C or Java.
 	
 	Consequentially, software verification environments (such as \textit{Why3} platform, or Microsoft research \textit{Spec\#} TODO), that rely on ATPs to discharge verification conditions, do not yet provide a support for higher-order program specification. \\
+
+%
+%
+%	Verification process begins with writing down specifications for a program we want to prove. 
+%	Verification tools often dispose a special programming language, called \textit{Intermediate Specification Language (ISL)}, in which both programs and specifications can be written. 
+%	The computational part of an \textit{ISL} usually corresponds to a fragment of some existing programming language. 
+%	For instance, Why3 platform relies on a \textit{Whyml}, an ISL which contains a simplified subset of the Ocaml programming language. \\
+%	
+%	FramaC$^{\cite{Cuoq}}$'s \textit{isl} relies on \textit{CIL} (C Intermediate Language) which contains a simplified subset of the C programming language. \\
+%	
 
   HERE RELATED WORK \\
 
@@ -705,8 +715,10 @@ call that loops infinitely, from an non-terminating program $t$ we get an eventu
 terminating program $I(t)$, so again the semantics is not preserved. \\
 
 Recursive functions with  higer-order parameters is another (de)motivating
-example: suppose we want to inline two different programs $t$ and $t'$ :
-	\begin{footnotesize}
+example: suppose we want to inline two different programs $t$ and $t'$ :\vspace{-0.4cm}
+	\begin{figure}[H]
+	\label{fig:rec-bad-ex} 
+		\begin{footnotesize}
 	$$ t \triangleq 
 		\texttt{ let } \textcolor{blue}{F} =
   		\tmrec{f}{\textcolor{blue}{g_{int \rightarrow int}}~x_{int}}{int} 
@@ -715,14 +727,16 @@ example: suppose we want to inline two different programs $t$ and $t'$ :
   		\texttt{ else }((f~\textcolor{Sepia}{\boldsymbol{g}})~(x - 1))} 
   		\texttt{ in }
   		(\textcolor{blue}{F}~\textcolor{red}{\lambda y_{int}. t_0})$$ 
-  $$ t' \triangleq 
+  $$t' \triangleq 
   \texttt{ let } \textcolor{blue}{F} =
   \tmrec{f}{\textcolor{blue}{g_{int \rightarrow int}}~x_{int}}{int} 
   {\texttt{ if } x = 0 
   \texttt{ then } (\textcolor{blue}{g}~x) 
   \texttt{ else } ((f~\textcolor{Sepia}{\boldsymbol{\lambda y. 0}})~(x-1))} 
-  \texttt{ in }(\textcolor{blue}{F}~\textcolor{red}{\lambda y_{int}.t_0})$$
-\end{footnotesize}
+  \texttt{ in }(\textcolor{blue}{F}~\textcolor{red}{\lambda y_{int}.t_0}) $$
+  \end{footnotesize}
+   
+  \end{figure}  \vspace{-0.4cm}
 As we suggested above, inlining of both programs consists in replacing,
 inside application $(\textcolor{blue}{F}~\textcolor{red}{\lambda y_{int}. t_0})$, 
 local variable $\textcolor{blue}{F}$ by its definition and
@@ -823,23 +837,23 @@ we extend $\inlsrc$ language with logical annotations.
 %	The computational part of an \textit{ISL} should be not too narrow so that it would allow verification of some non-trivial or real-practice-like programs. 
 
 \newpage
-\section{Mini-ML: Programming Language}
-	Verification process begins with writing down specifications for a program we want to prove. 
-	Verification tools often dispose a special programming language, called \textit{Intermediate Specification Language (ISL)}, in which both programs and specifications can be written. 
-	The computational part of an \textit{ISL} usually corresponds to a fragment of some existing programming language. 
-	For instance, Why3 platform relies on a \textit{Whyml}, an ISL which contains a simplified subset of the Ocaml programming language. \\
-%	
-%	FramaC$^{\cite{Cuoq}}$'s \textit{isl} relies on \textit{CIL} (C Intermediate Language) which contains a simplified subset of the C programming language. \\
-%	
-	In this section we describe a tiny fragment of \textit{WhyML}'s computational component, called \textit{Mini-ML}, which will serve us to illustrate in details how the inlining works for programs written in Mini-ML.
+\section{Input Programming Language }
+
+	In this section, we give formal description of two functional programming languages. 
 	
-	Roughly speaking Mini-ML is equivalent to \textbf{PCF + state}, a standard experimental subject in computer science{\footnotesize$^{ \cite[p.~143]{Pierce:2002:TPL:509043}}$}
+	First we describe briefly \textit{Mini-ML}, in which we can write programs like our introductory examples.
+	In particular, we present a variant of typing system with \textit{effects} which allows to predict statically whether a well-typed program is pure or contains some potentially impure expressions such as reference assignment and recursive calls.  
+	
+	Then, we introduce ${\inlsrc}$, a restriction of Mini-ML, where all programs causing inlining to fail are eliminated so that we can only write programs we can inline safely, like in the example of \texttt{sum\_iter}. 
+	
+\subsection{Mini-ML: Initial Source Language}
+
+	Roughly speaking Mini-ML is equivalent to \textbf{PCF + state}, a standard experimental subject in computer science{\footnotesize$^{ \cite[p.~143]{Pierce:2002:TPL:509043}}$}. 
 	That is, Mini-ML consists of a simply-typed lambda-calculus with built-in primitive data types and recursive functions extended with global store of modifiable references.
-	Despite it's simplicity, Mini-ML should be sufficiently expressive for we  
-could write programs similar to our introductory example.
 	
-\subsection{Syntax and Semantics}	
-The formal description of Mini-ML is given below: 
+	Despite its simplicity, Mini-ML is sufficiently expressive so we  
+could write programs similar to our introductory examples.
+	The formal description of the Mini-ML is given below: 
 	
 \begin{figure}[H]
 \hrule
@@ -859,7 +873,7 @@ The formal description of Mini-ML is given below:
 & \brh ~|~ \trh			& \textit{recursive function use} \\
 \\
 p & ::=										 					& \textsc{programs} \\
-	&(ref~r_{\tau}\leftarrow v) \quad p &\textit{global reference declaration}\\
+	&(ref~r_{\tau} := v) \quad p &\textit{global reference declaration}\\
 	& t & \textit{term} \\
 	\\
 & \hspace*{-0.8cm} t_{\mu} \rightarrow t_{\mu}
@@ -872,7 +886,7 @@ p & ::=										 					& \textsc{programs} \\
 & \qquad ...
 	& \textit{(see \cref{mini-ml-def-typ})} \\[1cm]
 	
-& \hspace*{-0.8cm}\fbox{\textsc{Mini-ML syntax}} 
+& \hspace*{-0.8cm}\fbox{\textsc{Mini-ML}} 
 	
 \end{array}
 \end{displaymath}
@@ -885,9 +899,9 @@ p & ::=										 					& \textsc{programs} \\
   	& v 										& \textit {value} \\
   	& (t~v) 								& \textit {application} \\
   	& let~x_{\tau} = t~in~t & \textit {local binding} \\
-  	& if~t~then~t~else~t 		& \textit{if-then-else} \\
+  	& if~v~then~t~else~t 		& \textit{if-then-else} \\
   	& match~v~with \\
-  	& ~|~Nil~->~t~|~Cons~n~x~->t~ 
+  	& ~|~Nil~->~t~|~Cons~x_{\tau}~x_{\tau}~->t~ 
   													& \textit{match-with}\\
   	& r_{\tau} := v 				& \textit{assignment} \\
   	& !r_{\tau} 						& \textit {dereference} \\
@@ -895,21 +909,21 @@ p & ::=										 					& \textsc{programs} \\
 	v & ::= 											& \textsc{values} \\
   	& x_{\tau}						  		& \textit {variable} \\
 		& \lambda x_{\tau} . t 		  & \textit{function} \\
-		& \mu f:~\tau.~
+		& \mu f:~(\tau, \theta).~
 			\lambda x_{\tau}. t				& \textit{recursive function} \\
 		& c													& \textit{constant}  \\
 	\\
   c & ::= 								& \textsc{constants} \\
   	& \mathbb{N}~|~\mathbb{B}~|~() ~|~ ... 
   												& \textit{base type constants} \\
-  	& \mu l. (Nil ~|~ Cons~c_{int}~l)   
-  												& \textit{integer list}  \\ 
+  	& Nil ~|~ Cons   
+  												& \textit {list constructors}  \\ 
 %  	& \mu t. (Empty ~|~ Node~t~c_{int}~t )
 %  												&  \textit{integer binary tree} \\
   	& + ~|~ - ~|~ ... 		
   												& \textit{arithmetic operators} \\
   	& \neg ~|~ \bwedge ~|~ ... 
-  												& \textit{boolean operators} \\
+  												& \textit{Boolean operators} \\
  		& = 
  													& \textit{monomorphic equality} \\
 \end{array}
@@ -920,69 +934,135 @@ p & ::=										 					& \textsc{programs} \\
 \label{mini-ml-def-syn}
 \hrule
 \end{figure} 
-
-\noindent	\textbf{Types and Effect indicators}	\indent  
-	The Mini-ML types consist of a set of built-in primitive data types and an arrow type $\tyarr[][][\theta][\rho]$. 
-	Labels $\theta$ and $\rho$, represent two distinct function's \textit{latent effects}:
-	a boolean variable $\theta$ indicates whether a function's body contains some reference assignment, and $\rho$ indicates whether function's body contains some recursive call.
-	Such a labelling keeps track of function's \textit{latent} effects in that sense that they become visible no sooner than function's body is evaluated, that is only \textit{after} function's call.\\
+	Note that in the figure above, compound terms are put in \textbf{A-normal} form$^{\cite{Flanagan}}$: in applications, instead of applying a term to a term $t~t$, a term $t$ is applied directly to some value $v$. 
+	Similarly, in pattern-matching and branching the matched expression is already a value too. 
+	 
+	 However, A-normal is not a language restriction, but only a compilation trick to make our presentation shorter and easier to read. 
+	Indeed, we could compile any A-normal form back \textit{let} expression as in $(t_1~t_2) \simeq~let~x~=~t_2~in~(t_1~x)$.
 	
-\noindent	\textbf{Programs}	\indent  
-	Each Mini-ML program consists of declaring a list global references, each reference instantiated with some value, and then writing a program's body term. 
-	Each term is either a value or a compound construction like application, pattern matching, etc. 
-	Note Compound terms are put in \textbf{A-normal} form$^{\cite{Flanagan}}$: in applications, instead of applying a term to a term $t~t$, a term $t$ is applied directly to some value $v$. 
-	Similarly, in pattern-matching and branching the matched expression is alreadt a value too. 
-%	A value can be a variable, an \textit{abstraction}, a \textit{recursive function}, or a \textit{constant}. Constants, on their turn, are either some elementary data like 42, \textit{True}, \textit{Cons 42 Cons 0 Nil}, or a n-ary operations such as \textit{+}, $\neg$, $=$.
-%	
-	Note also that references, bindings, variables, and formal parameters of functions are all \textbf{explicitly typed}. \\
-%	Also note that terms are put in \textbf{A-normal} form\footnote{\cite{Flanagan}}: in applications, a term $t$ is always applied to some already value form $v$ where the result of every intermediate computation is named via a \textbf{let} construct.
 	
-%. Similarly, in $\underline{if~v~then~\dots}$ and $\underline{match~v~with~\dots}$ constructions, the matched expression $v$ is a value too. ,	
+\subsubsection{The Semantics of Mini-ML }
+	The semantics of Mini-ML is given by the standard call-by value small-step operational semantics{\footnotesize$^{ \cite[p.~54]{Pierce:2002:TPL:509043}}$}.  
+	Each transition rule is of the form \fbox{$t_\mu \rightarrow t'_{\mu'}$} where $\mu$ and $\mu'$ are global reference store transition states. 
+	Each reduction step of that form is either a reduction \textit{on the top} of term $t$, denoted  $\gevalh{t}{\mu}{t'}{\mu'}$, or a \textit{contextual} reduction that occur \textit{inside a sub-term  } of $t$. 
+  The set of transition rules for the reduction on the top is given in the figure below:
 
-\noindent	\textbf{Semantics}	\indent  
-	The Semantics of Mini-ML is given by the standard small-step operational semantics rules of the form \fbox{$t_\mu \rightarrow t'_{\mu'}$} where $\mu$ and $\mu'$ are global reference store transition states:	
 	\begin{figure}[H]
+	  \begin{small}
+	\begin{spacing}{2} 
+	
+	\infax[E-Op-$\delta$] 
+	{\ghead
+		{ c~v_1 \dots {v_{k}} {\mem}}
+		{ \delta(c,v_1 \dots v_k) \mem} \quad 
+		\text{if } k = Arity(c) \text{ and }\delta(c,v)\text{ is defined }} 
+	
+  \infax[E-Op-$\lambda$]
+	{\ghead
+		{{c~v_1 \dots v_k}{\mem}}
+		{\lambda x_{\tau}. c~v_1 \dots v_k ~ x_{\tau}}\quad 
+		\text{if } 1 \leq k < arity(c)}		
+	
+	\infax[E-AppFun] 
+	{\ghead
+		{ (\lambda x_\tau~v)\mem }
+		{ \sbst{t}{x_{\tau}}{v}\mem }} 
+	  
+	
+	\infax[E-AppRec]
+	{\ghead
+		{
+			(\mu f:(\tau, \theta).~
+				\lambda x_{\tau'}. t~v)\mem}
+		{t[
+			 x_{\tau_2} \mapsfrom v, 
+			 f \mapsfrom  \mu f:(\tau, \theta) .~\lambda x_{\tau'}. t]\mem}}
+			 
+	
+	\infax[E-Let-V]
+	{\ghead
+	 {let~x_{\tau} ~=~v_1~in~{t_{2}}\mem}
+	 {\sbst{t_{2}}{x_\tau}{v_{1}}\mem}} 
+	
+	\infax[E-If-true]		
+	{\ghead
+		{\mathtt{if}~\mathtt{true}~\mathtt{then}~t_{1}~\mathtt{else}~t_{2}{\mem}}
+		{t_{1}{\mem}}}
+	
+	\infax[E-If-false]		
+	{\ghead
+		{\mathtt{if}~\mathtt{false}~\mathtt{then}~t_{1}~\mathtt{else}~t_{2}{\mem}}
+		{t_{2}{\mem}}}	
+
+	\infax[E-Match-Nil]
+	{\ghead
+		{match~\textbf{Nil}~with 
+  	 ~|~Nil~->~t_1~|~{Cons~x_1}_{\tau}~x_{\tau}~->{t_2}{\mem}~~}
+		{~~ {t_1} \mem}
+	}
+	
+	\infax[E-Match-Cons]
+	{\ghead
+		{match~\mathbf{Cons~n~l} ~with 
+  	 ~|~Nil~->~t_1~|~{Cons~x_1}_{\tau}~{x_2}_{\tau'}~->{t_2}{\mem}\\}
+		{{t_2}[{x_1}_{\tau} \mapsfrom n, {x_2}_{\tau'} \mapsfrom l] \mem} 
+		\text{   where n} \in \mathbb{N} \text{ and l is some list value} 
+	}	
+	
+	\infax[E-Deref]	 	
+	{\ghead
+	{r_\tau{\mem}}
+	{\mu_{}(r_\tau)}}
+
+	\infax[E-Assign]
+	{\ghead
+		{r_\tau := v\mem}
+		{()_{|\mu[r_{\tau} \mapsfrom ~ v]}}}
+\end{spacing}
+\caption{ \textbf{Mini-ML Semantics (Head Reduction Rules)} \hfill}
+\end{small}
+\end{figure}
+\vspace*{-0.4cm}
+	First of all, note that total application of built-in operators (+, $\bwedge$, =, ...) and list constructors (Cons, Nil) is defined by the set of delta rules. 
+	
+	For instance, the delta rule for equality is 
+   \fbox{$\delta(\mathtt{=}_{\tau}, (t,u))~\triangleq~t =_{\tau} u $} 	
+	where $=_\tau$ is equality modulo $\alpha$-equivalence defined for each type $\tau$ by structural induction).
+	Similarly, the delta rules for list constructors are defined by induction on the structure of lists: 
+	 $$\delta(Nil) = Nil \qquad \delta(Cons, (n, l)) = Cons~n~\delta(l) 
+	 \text{    if } n \in \mathbb{N} \text{ and } \delta(l) \text{ is defined } $$
+
+ Finally, there are two rules for the reduction inside a term, one for the application and one for \texttt{let} construct: 
+	\begin{figure}[H]
+	\begin{small}
 	\begin{spacing}{1.2} 	
-	
-	\infrule[E-Head]
-	{\gevalh{t}{\mu}{t'}{\mu'}}
-	{\geval{t}{\mu}{t'}{\mu'}}
-	
-	\infrule[E-Context]
+	\begin{adjustwidth}{-6em}{-6em}
+	\begin{minipage}[t]{0.41\linewidth}
+	\infrule[E-App-T]	
+	{{t_{1}}\mem \rightarrow {{t'}_{1}}\memp}
+	{{(t_{1}~v_2)}\mem \rightarrow {({t'}_{1}~v_2)}\memp}
+	\end{minipage}
+	\begin{minipage}[t]{0.45\linewidth}
+	\infrule[E-Let-T]
 	{{t_{1}}\mem \rightarrow {{t'}_{1}}\memp}
 	{\mathtt{let} ~ x_\tau = t_{1} ~ \mathtt{in}~ {t_{2}}\mem
 		\rightarrow 
 		\mathtt{let} ~ x_\tau = t_{1}' ~ \mathtt{in}~ {t_{2}}\memp}
+ \end{minipage}
+ \end{adjustwidth}
 \end{spacing}
-%\caption{ \textbf{Semantics Rules} \hfill}
+\end{small}
+\caption{ \textbf{Mini-ML Semantics (Context Reduction Rules)} \hfill}
 \label{mini-ml-def-sem}
 \end{figure}
-	The rule \textsc{E-Context} describes an evaluation step \textbf{inside} \textit{let} construction, under assumption that a sub-term $t_1$ is evaluated.
-	That is, \textsc{E-Context} rule does not alter the term's construction, but simplifies it contextually.
-	The rule \textit{E-Head} describes an evaluation step where term's construction is modified "on the top``, passing from one form to another.
-	
-	Note that the two syntactic details above (explicitly typed variables and A-normal form) are somehow irrelevant for semantics of Mini-ML.
-	Indeed, a semantics rules applies for a term which the typing system would reject as ill-typed. For instance, we have that 
-	$\evalstep{if~True~then~42~else~Nil}{1}{42}{1}$ 
-	even if this term is considered as ill-typed by a typing system.
-	Similarly, while A-normal form seems to restrain the expressiveness of the language, it is just a compilation trick to make our presentation shorter and easier to read. 
-	Indeed, we could compile any term $(t_1~t_2)$ to an equivalent A-normal form via \textit{let} expression: $(t_1~t_2) \simeq~let~x~=~t_2~in~(t_1~x)$.
 
-\subsection{Type System with Effects}
-	The Typing of Mini-ML is a monomorphic variant of ML-typing system$^{\cite{damas82popl}}$ enriched with a \textit{effect system} that keeps track of reference assignment and recursive function use inside each term.
+Also note that in our presentation semantics is defined for \textit{all} terms of Mini-ML, whether or not they are actually well-typed. 
 
-	\textit{Typing with effects} can be a sophisticated system (like  \textit{typing with \textbf{regions}}$^{\cite{Lucassen}}$), where each term is assigned by a finite set of some atomic observable side effects.	
-	The effect system we will use here is however much simpler side-effects \textit{over-approximation}, because it consists of just a couple of boolean expressions indicating the absence$\backslash$presence of side effects.
-	
-	That is, in typing relation \fbox{$\vdash t : \tau, \theta, \rho$}, together with a type $\tau$, a term $t$ is assigned a boolean $\theta$ which indicates whether a $t$ contains some reference assignment $r_{\tau'}:=v$ and an boolean 
-$\rho$ which indicates whether recursion is used inside $t$. 	
-	
-	The reason we choose such a minimalistic effects system is that it still suffices to avoid some undesirables cases where inlining procedure would fail like in example above TODO.
-	
-	The set of typing rules of ML-typing is given in the figure below:		
+\subsubsection{The Typing System of Mini-ML } 
+	The set of typing rules of ML-typing is given in the figure below:	
 \begin{figure}[H]
-\hrule
-\begin{adjustwidth}{0em}{-3em}
+%\hrule
+\begin{adjustwidth}{-0em}{-1em}
 \begin{small}
 \begin{minipage}[t]{0.49\linewidth}
 \begin{displaymath}
@@ -1007,7 +1087,7 @@ $\rho$ which indicates whether recursion is used inside $t$.
 	
 \dfrac
 	{\typing{\lambda x_{\tau_2}. t}{\tyarr[2][1][\theta_1][\rho_1]}{\bth}{\brh}}
-	{\typing{\mu f:~\tyarr[2][1][\theta_1][\textcolor{red}{\trh}].~
+	{\typing{\mu f:~(\tau_1, \theta_1) .~
 		\lambda x_{\tau_2}. t}
 		{\tyarr[2][1][\theta_1][\textcolor{red}{\trh}]}
 			{\bth}{\brh}}
@@ -1022,13 +1102,23 @@ $\rho$ which indicates whether recursion is used inside $t$.
 	{	\typing{if~v~then~t_1~else~t_2}
 		{\tau_1}{\theta_1 \bvee \theta_2}{\rho_1 \bvee \rho_2}}
 	{\textsc{  (T-if)}}	\\[1cm]	
+		
+\dfrac
+	{\typing{v}{int~list}{\bth}{\brh} \quad
+	 \typing{t_1}{\tau}{\theta_1}{\rho_2}  \quad
+	 \typing{t_2}{\tau}{\theta_2}{\rho_2}  }
+	{\typing{match~v~with ~|~Nil~->~t_1~|~Cons~x_{int}~x_{int~list}~->t_2}{\tau}{\theta_1 \bvee \theta_2}
+		{\rho_1 \bvee \rho_2}} 
+{\textsc{  (T-match)}}
+	
 \end{array}
 \end{displaymath}
 \end{minipage} 
  \hfill 
 \begin{minipage}[t]{0.49\linewidth}
 \begin{displaymath}
-\begin{array}{llr}
+\begin{array}{rrr}
+
 \hspace*{-1.5cm}
 \dfrac
 	{
@@ -1049,7 +1139,9 @@ $\rho$ which indicates whether recursion is used inside $t$.
 		{\tau_2}
 		{\theta_1 \bvee \theta_2}
 		{\rho_1 \bvee \rho_2}}
-	{\textsc{  (T-let)}} \\[1cm]					
+	{\textsc{  (T-let)}} \\[1cm]	
+					
+
 
 \hspace*{1cm}		
 \dfrac
@@ -1063,27 +1155,81 @@ $\rho$ which indicates whether recursion is used inside $t$.
 \dfrac
 	{}
 	{\typing{!r_{\tau}}{\tau}{\bth}{\brh}} 
-{\textsc{  (T-deref)}}\\[1cm]
-
-\hspace*{3cm}\fbox{\textsc{Mini-ML typing rules}}
+{\textsc{  (T-deref)}}
 
 \end{array}
 \end{displaymath}
 \end{minipage} 	 		 
 \end{small}
 \end{adjustwidth}
-\hrule
+%\hrule
+\caption{\textbf{Mini-ML Typing System With Effects}}
 \label{mini-ml-def-typ}	
 \end{figure}    
+	As we can see, the typing of Mini-ML is a monomorphic variant of ML-typing system$^{\cite{damas82popl}}$ enriched with a \textit{effect system} that keeps track of reference assignment and recursive function use inside each term.		
+	Each typing rule is of the form \fbox{$\vdash t : \tau, \theta, \rho$}. 
+  Here $\tau$ stands for term's type, while $\theta$ and $\rho$ indicate respectively whether some reference assignments, and some recursive calls appear inside $t$.
+ 
+  In the case of abstraction, we also need to track of function's \textit{latent} effects, represented by $\theta_1$ and $\rho_1$ above the function's arrow :
+  $$
+  \dfrac
+	{\typing{t_1}{\tau_1}{\theta_1}{\rho_1}}
+	{\typing{\lambda x_{\tau_2} . t_1}
+		{\tyarr[2][1][\theta_1][\rho_1]}{\bth}{\brh}}
+	{\textsc{  (T-lam)}} $$	 
+  
+  \textit{Latent effects} are effects produced by function's body. 
+  Thefore we can take them into account only at the moment of function's call:
+  $$\dfrac
+	{
+		\typing{t}{\tyarr[2][1][\textcolor{red}{\theta_1}][\textcolor{red}{\rho_1}]}{\theta_2}{\rho_2} \qquad
+		\typing{v}{\tau_2}{\bth}{\brh}}
+	{
+		\typing{t~v}{\tau_1}{\textcolor{red}{\theta_1} \bvee \theta_2}{\textcolor{red}{\rho_1} \bvee \rho_2}}
+	{
+		\textsc{  (T-app)}} $$
 
-\subsection{Type Soundness}
+	Nnote the absence of the environment $\Gamma$ that usually appears on left of $\vdash$. We do not use $\Gamma$ because we make the assumption that all scope issues are resolved before typing, so that typing relation is defined only for well-formed terms. 
+	 Consequently, because all variables are explicitly typed, we can always check the validity of typing judgement, without using $\Gamma$. 
+	 However, we can slightly simplify the explicit type of $\mu~f$ in the typing of recursive definitions:
+$$\dfrac 
+	{\typing{\lambda x_{\tau_2}. t}{\tyarr[2][1][\theta_1][\rho_1]}{\bth}{\brh}}
+	{\typing{\mu f:~(\tau_1, \theta_1) .~
+		\lambda x_{\tau_2}. t}
+		{\tyarr[2][1][\theta_1][\textcolor{red}{\trh}]}
+			{\bth}{\brh}}
+	{\textsc{  (T-rec)}}$$
+because, the argument's type $\tau_2$ and $\top_{\rho}$ can be deduced by typing system itself. \\
+
+	Finally, note that the typing system above gives a rough side-effects' \textit{over-approximation} by a pair of Boolean expressions just to indicate the absence/presence of side effects. 
+	For instance, in the rule \textsc{T-match}, 
+$$\dfrac
+	{\typing{v}{int~list}{\bth}{\brh} \quad
+	 \typing{t_1}{\tau}{\theta_1}{\rho_2}  \quad
+	 \typing{t_2}{\tau}{\theta_2}{\rho_2}  }
+	{\typing{match~v~with ~|~Nil~->~t_1~|~Cons~x_{int}~x_{int~list}~->t_2}{\tau}{\theta_1 \bvee \theta_2}
+		{\rho_1 \bvee \rho_2}} 
+{\textsc{  (T-match)}}$$
+	
+	if only one of the terms $t_1$ and $t_2$ produces side-effects, the overall expression is tracked as impure, even if the actual evaluation that expression can go through the pure branch.
+	
+	Of course, \textit{typing with effects} can be much more sophisticated system (like  \textit{typing with \textbf{regions}}$^{\cite{Lucassen}}$), where each term is assigned by a finite set of some atomic observable side effects. 
+	Such systems allow to keep a track of side-effects with a precision.	
+		
+	However, we choose to use the effects' tracking system above because, despite its simplicity, it still suffices to establish the soundness of inlining, as we show in the next section. 
+		
+\subsubsection{Type Soundness}
+
+
+
+
 \vspace*{-0.2cm}
 \begin{theorem}
  If $\typing{t_1}{\tau}{\theta}{\rho}$ then 
  \begin{itemize}
  \item[$\bullet$] if $\theta = \bth$:
     $\evalstep{t{_1}}{1}{t{_2}}{2} \brarr (\mu_1 = \mu_2 \bwedge 
-  \typing{t}{\tau}{\brh}{\rho})$
+  \typing{t}{\tau}{\brh}{\rho'})$ for some $\rho'$ such that $\rho \Rightarrow \rho'$ 
  \item[$\bullet$] if $\rho = \brh $: $\evalstar{t{_1}}{1}{v{_2}}{2}$
 
  
@@ -1093,42 +1239,9 @@ $\rho$ which indicates whether recursion is used inside $t$.
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
-\section{Inlining}
-
-\paragraph*{Outline}
- We begin a more formal description of inlining by imposing some
-restrictions on the typing system of ML. Without reducing drastically ML
-expressiveness, the source language will still cover a great number of real-life
-programming examples.
-
-Once we formally specified the domain and codomain of inlining transformation,
-we will give a precise definition \textit{small-step} of procedure itself,
-described as rewriting strategy by a set of inference rules in a
-\textit{small-step} manner.
-
-We will then state and prove that this definition corresponds to the procedure
-that is deterministic, always terminate and results in a entirely first-order
-program.
-
-Finally, after all syntactical problems pointed out and solved, we will
-concentrate our attention on the \textit{total correctness} of inlining
-transformation: using a well-know \textit{logical relations} technique, we will
-formalize the notion semantic equivalence between programs and show that for
-every couple of source and target programs, these programs are semantically
-equivalent.
- 
-The correctness of inlining we establish is \textit{total}: source language is
-not confined to terminating programs and an input program's non-termination is
-preserved by inlining. As \textit{Kahn natural semantics} is limited to
-establishing the \textit{partial} correctness, that explains our choice of an
-overall small-step style of programs operational semantics and inlining.
-
-
 \subsection{The Source Language \texorpdfstring{$\inlsrc$}{}}
 
-As we have seen in the previous example TODO, recursive definitions shall
+As we have seen in the previous example \ref{fig:rec-bad-ex}, recursive definitions shall
 operate only on arguments of some base type like \texttt{int}, \texttt{bool},
 etc. That does not mean we cannot parametrize the body of recursive function by
 a variable of some higher-order type:
@@ -1180,7 +1293,7 @@ compare them lexicographically starting by comparing their domain degrees $i$
 and $j$, and if those are equal, then by comparing their codomain degrees $k$
 and $l$.
 
-\paragraph*{The syntax and Semantics of $ML^{^{2}}$}
+\subsubsection{The syntax and Semantics of \texorpdfstring{$ML^{^{2}}$}{}}
 
 So far, we defined $ML^{^{n}}$ types for an arbitrary degree $n$. In
 practice, however, TODO the immense majority of high-order expressions
@@ -1215,7 +1328,7 @@ except the explicit typing annotation of variables :
 Likewise, the semantics $\inlsrc$ is given by exactly the same small-step 
 inferences rules we presented in TODO for ML.
 
-\paragraph*{The Typing Rules for $ML^{^{2}}$}
+\subsubsection{The Typing Rules for \texorpdfstring{$ML^{^{2}}$}{}}
 
 Ordering parameter types and putting language into $A-normal form$ only
 changes the source language syntax, without altering ML's expressiveness. To
@@ -1320,6 +1433,41 @@ TODO
         \textsc{constants} \\
 	\end{array}
 \end{displaymath}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Inlining}
+
+\paragraph*{Outline}
+ We begin a more formal description of inlining by imposing some
+restrictions on the typing system of ML. Without reducing drastically ML
+expressiveness, the source language will still cover a great number of real-life
+programming examples.
+
+Once we formally specified the domain and codomain of inlining transformation,
+we will give a precise definition \textit{small-step} of procedure itself,
+described as rewriting strategy by a set of inference rules in a
+\textit{small-step} manner.
+
+We will then state and prove that this definition corresponds to the procedure
+that is deterministic, always terminate and results in a entirely first-order
+program.
+
+Finally, after all syntactical problems pointed out and solved, we will
+concentrate our attention on the \textit{total correctness} of inlining
+transformation: using a well-know \textit{logical relations} technique, we will
+formalize the notion semantic equivalence between programs and show that for
+every couple of source and target programs, these programs are semantically
+equivalent.
+ 
+The correctness of inlining we establish is \textit{total}: source language is
+not confined to terminating programs and an input program's non-termination is
+preserved by inlining. As \textit{Kahn natural semantics} is limited to
+establishing the \textit{partial} correctness, that explains our choice of an
+overall small-step style of programs operational semantics and inlining.
+
 
 
 \subsection{Inlining As Rewriting Strategy}
@@ -1820,86 +1968,6 @@ blah blah
 \newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \appendix
-\section{Mini-ML SOS}
-
-
-\begin{figure}[H]
-	\begin{spacing}{2} 
-	
-	\infax[E-Op-$\delta$] 
-	{\ghead
-		{ c~v_1 \dots v_k}{\mem}
-		{ \delta(c,v_1 \dots v_k)}\mem \quad 
-		\text{if } k = Arity(c) \text{ and }\delta(c,v)\text{ is defined }} 
-	
-  \infax[E-Op-$\lambda$]
-	{\ghead
-		{{c~v_1 \dots v_k}{\mem}}
-		{\lambda x_{\tau}. c~v_1 \dots v_k ~ x_{\tau}}\quad 
-		\text{if } 1 \leq k < arity(c)}		
-	
-	\infax[E-AppFun] 
-	{\ghead
-		{ (\lambda x_\tau~v)\mem }
-		{ \sbst{t}{x_{\tau}}{v}}\mem } 
-	  
-	
-	\infax[E-AppRec]
-	{\ghead
-		{
-			(\mu f:~\tau.~
-				\lambda x_{\tau_2}. t~v)\mem}
-		{t[
-			 x_{\tau_2} \mapsfrom v, 
-			 f \mapsfrom  \mu f:~\tau.~\lambda x_{\tau_2}. t]\mem}}
-			 
-	
-	\infax[E-Let-V]
-	{\ghead
-	 {let~x_{\tau} ~=~v_1~in~{t_{2}}\mem}
-	 {\sbst{t_{2}}{x_\tau}{v_{1}}}\mem} 
-	
-	\infax[E-If-true]		
-	{\ghead
-		{\mathtt{if}~\mathtt{true}~\mathtt{then}~t_{1}~\mathtt{else}~t_{2}{\mem}}
-		{t_{1}{\mem}}}
-	
-	\infax[E-If-false]		
-	{\ghead
-		{\mathtt{if}~\mathtt{false}~\mathtt{then}~t_{1}~\mathtt{else}~t_{2}{\mem}}
-		{t_{2}{\mem}}}	
-
-	\infax[E-Deref]	 	
-	{\ghead
-	{r_\tau{\mem}}
-	{\mu_{}(r_\tau)}}
-
-	\infax[E-Assign]
-	{\ghead
-		{r_\tau := v\mem}
-		{()_{|\mu[r_{\tau} \mapsfrom ~ v]}}}
-	
-\end{spacing}
-\caption{ \textbf{\gml Semantics (Head Reduction Rules)} \hfill}
-\end{figure}
-  As we can see, the evaluation of constant operation $c$	\textit{partial} application transforms it into abstraction until the application becomes total. 
-  In their turn, \textbf{total} application of primitive operations is defined by a set of $\delta$-rules: 
-\begin{figure}[H]
-	\begin{spacing}{1.1} 
-	
- \hspace*{2cm}$\bullet\quad\delta(+, n, m) \triangleq ||n + m||$ 
- 	(where $n,m$ are integers)
- 	
- \hspace*{2cm}$\bullet\quad\delta(\mathtt{not}, b) \triangleq  ||\neg b||$ 
- 	(where $b \in \mathbb{B}$)
- 	
- \hspace*{2cm}$\bullet\quad\delta(\mathtt{=}_{\tau}, (t,u)) \triangleq t =_{\tau} u$ 
- 	
- 	\hspace*{2cm}\quad(where $=_\tau$ is structural equality modulo $\alpha$-equivalence for type $\tau$)\\
- \hspace*{2cm}\dots 	
-\end{spacing}
-\caption{ \textsc{Mini-ML Semantics ($\delta$ Rules)} \hfill}
-\end{figure}	
 
 
 \section{Detailed proofs} 

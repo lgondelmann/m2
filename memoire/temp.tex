@@ -1,3 +1,52 @@
+%The rule \textsc{E-Context} describes an evaluation step \textbf{inside} \textit{let} construction, under assumption that a sub-term $t_1$ is evaluated.
+%	That is, \textsc{E-Context} rule does not alter the term's construction, but simplifies it contextually.
+%	The rule \textit{E-Head} describes an evaluation step where term's construction is modified "on the top``, passing from one form to another. 
+%
+%  As we can see, the evaluation of constant operation $c$	\textit{partial} application transforms it into abstraction until the application becomes total. 
+%  In their turn, \textbf{total} application of primitive operations is defined by a set of $\delta$-rules: 
+%\begin{figure}[H]
+%	\begin{spacing}{1.1} 
+%	
+% \hspace*{2cm}$\bullet\quad\delta(+, n, m) \triangleq ||n + m||$ 
+% 	(where $n,m$ are integers)
+% 	
+% \hspace*{2cm}$\bullet\quad\delta(\mathtt{not}, b) \triangleq  ||\neg b||$ 
+% 	(where $b \in \mathbb{B}$)
+% 	
+% \hspace*{2cm}$\bullet\quad\delta(\mathtt{=}_{\tau}, (t,u)) \triangleq t =_{\tau} u$ 
+% 	
+% 	\hspace*{2cm}\quad(where $=_\tau$ is structural equality modulo $\alpha$-equivalence for type $\tau$)\\
+% \hspace*{2cm}\dots 	
+%\end{spacing}
+%\caption{ \textsc{Mini-ML Semantics ($\delta$ Rules)} \hfill}
+%\end{figure}		
+
+
+%\noindent	\textbf{Types and Effect indicators}	\indent  
+%	The Mini-ML types consist of a set of built-in primitive data types and an arrow type $\tyarr[][][\theta][\rho]$. 
+%	Labels $\theta$ and $\rho$, represent two distinct function's \textit{latent effects}:
+%	a boolean variable $\theta$ indicates whether a function's body contains some reference assignment, and $\rho$ indicates whether function's body contains some recursive call.
+%	Such a labelling keeps track of function's \textit{latent} effects in that sense that they become visible no sooner than function's body is evaluated, that is only \textit{after} function's call.\\
+%	
+%\noindent	\textbf{Programs}	\indent  
+%	Each Mini-ML program consists of declaring a list global references, each reference instantiated with some value, and then writing a program's body term. 
+%	Each term is either a value or a compound construction like application, pattern matching, etc. 
+%	Note Compound terms are put in \textbf{A-normal} form$^{\cite{Flanagan}}$: in applications, instead of applying a term to a term $t~t$, a term $t$ is applied directly to some value $v$. 
+%	Similarly, in pattern-matching and branching the matched expression is alreadt a value too. 
+%	A value can be a variable, an \textit{abstraction}, a \textit{recursive function}, or a \textit{constant}. Constants, on their turn, are either some elementary data like 42, \textit{True}, \textit{Cons 42 Cons 0 Nil}, or a n-ary operations such as \textit{+}, $\neg$, $=$.
+%	
+%	Note also that references, bindings, variables, and formal parameters of functions are all \textbf{explicitly typed}. \\
+%	Also note that terms are put in \textbf{A-normal} form\footnote{\cite{Flanagan}}: in applications, a term $t$ is always applied to some already value form $v$ where the result of every intermediate computation is named via a \textbf{let} construct.
+	
+%. Similarly, in $\underline{if~v~then~\dots}$ and $\underline{match~v~with~\dots}$ constructions, the matched expression $v$ is a value too. ,	
+
+%	
+%	Note that the two syntactic details above (explicitly typed variables and A-normal form) are somehow irrelevant for semantics of Mini-ML.
+%	Indeed, a semantics rules applies for a term which the typing system would reject as ill-typed. For instance, we have that 
+%	$\evalstep{if~True~then~42~else~Nil}{1}{42}{1}$ 
+%	even if this term is considered as ill-typed by a typing system.
+%	Similarly, while A-normal form seems to restrain the expressiveness of the language, it is just a compilation trick to make our presentation shorter and easier to read. 
+%	Indeed, we could compile any term $(t_1~t_2)$ to an equivalent A-normal form via \textit{let} expression: $(t_1~t_2) \simeq~let~x~=~t_2~in~(t_1~x)$.
 
 
 
