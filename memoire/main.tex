@@ -1285,21 +1285,27 @@ Formally, we have the following result:
 \end{proof}
 
 
-\subsection{The Source Language \texorpdfstring{$\inlsrc$}{}}
+\paragraph{\texorpdfstring{$\inlsrc$}{} Programming Language}
 
-As we have seen in the previous example \ref{fig:rec-bad-ex}, recursive definitions shall
-operate only on arguments of some base type like \texttt{int}, \texttt{bool},
-etc. That does not mean we cannot parametrize the body of recursive function by
-a variable of some higher-order type:
-\begin{footnotesize}
-$$ \lambda f_{int \rightarrow int}. \texttt{ rec } \text{apply } x_{int} .
+	As simple as Mini-ML language is, we can still write in it programs we cannot inline safely. 
+	In this subsection, we impose some restrictions on Mini-ML terms and types, so that the only programs we can write are those we can inline correctly.  
+	We also introduce some restrictions on the non-significant details in order to simplify our presentation a bit.
+	We call the resulting language $\inlsrc$, which is the input language on the inlining procedure defined in the next section.
+
+\paragraph{Ordering functional types}
+
+	We have already seen that recursive functions that modify its functional arguments inside recursive calls cannot be inlined. 
+	However, if each recursive call is made on functional argument that coincides with formal parameter of recursive function, this function can be inlined correctly. 
+	In other words, recursive function makes use of its higher-order arguments only outside recursive calls, as for instance in 	
+	$$(1)~ \texttt{ rec } \text{apply } f_{int \rightarrow int}~x_{int} .
+  \texttt{ if } x = 0 \texttt{ then } 42 \texttt{ else} \text{ apply }~ f~ (f~x) ,$$ we can push these arguments outside recursive definition, so that the program above becomes
+  $$(2)~ \lambda f_{int \rightarrow int}. \texttt{ rec } \text{apply } x_{int} .
   \texttt{ if } x = 0 \texttt{ then } 42 \texttt{ else} \text{ apply } (f~x)$$
-\end{footnotesize}
-To make this idea a little more general, if we order the formal
-parameters according to their type's degree in \textit{any} functional
-definition, that would make inlining more easy to define 
-and more easy to proof sound. 
-Formally, we force ML types to obey the following hierarchy :
+where, indeed (1) and (2) have the same meaning.	
+  In other words, a possible solution to eliminate undesirable recursive definitions, is to limit their use to first-order parameters only. \\
+ 
+ 	More generally, if we order the formal parameters of each higher-order definition, according to the degree of their type, then inlining of a program using these definitions becomes easier to define and easier to prove sound.
+  A straightforward way of defining such an order is to organise ML types in the following hierarchy:
 
 \begin{definition}[($ML^{^{n}}$)]
 \begin{displaymath}
@@ -1333,35 +1339,32 @@ We shall name such hierarchy by $ML^{^{n}}$ and the initial $ML$ typeset by
 $ML^\star$.
 \end{definition}
 
-Note that the set of $ML^{^{n}}$ types is totally ordered: indeed, for every
-couple of types $\tau^i \rightarrow \tau^k$ $\tau^j \rightarrow \tau^l$ we can
-compare them lexicographically starting by comparing their domain degrees $i$
-and $j$, and if those are equal, then by comparing their codomain degrees $k$
-and $l$.
+	It is important to see that $ML^{^{n}}$ is isomorphic $ML^{\star}$.
+This is true, because in our presentation all types are monomorphic, so that we can always transform a program from $ML^{\star}$ to $ML^{^{n}}$. 
+Consequently, restraining the source language typing to $ML^{^{n}}$ does not
+reduce the $ML^{star}$ expressiveness.
+	To simplify our presentation little further (especially for the semantic
+equivalence and the inlining correctness proof), we authorize the reference assignment only to the values of degree zero, so that the global store $\mu$
+always contains only first-order values. 
 
-\subsubsection{The syntax and Semantics of \texorpdfstring{$ML^{^{2}}$}{}}
+However, it is still can be proved that all definitions, theorems and proofs in the rest of this work can be extended without limiting $\mu$.
+%
+%Note that the set of $ML^{^{n}}$ types is totally ordered: indeed, for every
+%couple of types $\tau^i \rightarrow \tau^k$ $\tau^j \rightarrow \tau^l$ we can
+%compare them lexicographically starting by comparing their domain degrees $i$
+%and $j$, and if those are equal, then by comparing their codomain degrees $k$
+%and $l$.
 
-So far, we defined $ML^{^{n}}$ types for an arbitrary degree $n$. In
-practice, however, TODO the immense majority of high-order expressions
-limits on second-order programs like $folders$, $iterators$, $mappings$,
-etc.  For that reason, and for the sake of simplicity, we continue our
-presentation limiting it to $ML^{^{2}}$, an ML programs bounded to
-second-order degree.
+\subsubsection{\texorpdfstring{$ML^{^{2}}$}{}: Second-Order Functional Language}
 
-It is important to point out that $ML^{^{n}}$ is isomorphic $ML^{star}$,
-therefore restraining the source language typing to $ML^{^{n}}$ does not
-reduce the $ML^{star}$ expressiveness (though, the typing rules below will
-do).
+So far, we defined $ML^{^{n}}$ types for an arbitrary degree $n$. 
+In practice, however, the use of the most common high-order expressions such as $folders$, $iterators$, $mappings$ limits  to the first-order functions.
+That is, most of the functional programs are essentially second-order ones. 
+For that reason, and for the sake of simplicity, from now on we limit our presentation to $ML^{^{2}}$ where all programs are of second-order degree at most.
 
-To simplify our presentation little further (especially for the semantic
-equivalence and the inlining correctness proof), we confine mutable
-variables type $r_{\tau^i}$ to degree zero.  That is, the global store
-contains first-order values only.  Note, however, that all definitions,
-theorems and proofs for below can be easily extended for $ML^{^{n}}$ of
-arbitrary degree $n$ without store typing confinement.
-
-Overall, the syntax of source language $\inlT$ remains  identical to $ML$, 
-except the explicit typing annotation of variables :
+%
+%Overall, the syntax of source language $\inlT$ remains  identical to $ML$, 
+%except the explicit typing annotation of variables :
 %\begin{displaymath}
 %	\begin{array}{lll@{\hspace*{3cm}}l}
 %	t &::=& x_{\tau^{i}} ~|~ v~|~(t~v) ~|~\text{let } x_{\tau^{i}} = t
@@ -1371,16 +1374,13 @@ except the explicit typing annotation of variables :
 %        \mathbb{N}~|~\mathbb{B}~|~+~|~-~|~\bwedge~|~\dots & \text{constants}
 %	\end{array}
 %\end{displaymath}
-Likewise, the semantics $\inlsrc$ is given by exactly the same small-step 
-inferences rules we presented in TODO for ML.
+%Likewise, the semantics $\inlsrc$ is given by exactly the same small-step 
+%inferences rules we presented in TODO for ML.
 
-\subsubsection{The Typing Rules for \texorpdfstring{$ML^{^{2}}$}{}}
+\paragraph{Restrictions on The Typing of \texorpdfstring{$ML^{^{2}}$}{}}
 
-Ordering parameter types and putting language into $A-normal form$ only
-changes the source language syntax, without altering ML's expressiveness. To
-restraint $\inlsrc$ programs to the set of initial programs for which the
-inlining procedure will be \textit{total} and \textit{sound} is precisely
-the goal of typing rules.
+	Eliminating all $\inlsrc$ programs we cannot inline correctly can be done by 
+the imposing certain restruction on the typing system of $\inlsrc$.
  
 Obviously, the typing of variables,constants and mutable variable
 manipulation remains the same as for $ML$ (except explicit typing
@@ -1408,12 +1408,13 @@ annotations):
 	\end{multicols}
 \end{footnotesize}
 
-Maybe less obviously, the typing of function definitions and applications
-does not change either.  Indeed, the inlining of such expression as
+	Less obviously, the typing of function definitions and applications
+does not change either.  
+	Indeed, inlining of an expression such as
 $$ (\lambda f_{int \rightarrow int}.t~ (r_{int}:=42; \lambda x_{int}. x))$$
-would be incorrect. Fortunately, we have put $\inlsrc$ into $A-normal form$,
-so the term above is rejected by syntax, so keeping the same typing for
-abstractions and applications becomes possible: 
+would be incorrect. 
+	Fortunately, such expressions are not well-formed in $\inlsrc$, because they are not in $A-normal form$. That is, we can keep the same typing for
+abstractions and applications: 
 
 	\begin{footnotesize}
 		\begin{multicols}{2}	
@@ -1433,32 +1434,38 @@ abstractions and applications becomes possible:
 	\end{footnotesize}
 
 The interesting part is the typing of recursive functions and local
-variables.  As example above TODO shows, recursive functions should operate
-on first-order arguments only. Taking a currification into account, the
-typing of recursive functions is restraint to
+variables.  As our solution consist in limiting recursive functions to first-order arguments only, the typing rule for recursive functions becomes:
 	\begin{footnotesize}
 		\infrule[T$_{ML^{^2}}$-Rec] 
-		{\vdash t : \tau^{1}, \theta, \rho} 
-		{\vdash \text{rec }  f~x_{\tau^0}~. t : 
-			\tau^{0} \stackrel{\theta, \top_{\rho}}{\rightarrow}\tau^{1}, 
+		{\vdash t : \tau^{\textcolor{red}{1}}, \theta, \rho} 
+		{\vdash \mu f: (\tau\textcolor{red}{_1}, \theta) ~ \lambda x_{\tau\textcolor{red}{^0}}~. t : 
+			\tau^{\textcolor{red}{0}} \stackrel{\theta, \top_{\rho}}{\Rightarrow}\tau^{\textcolor{red}{1}}, 
 			\bot_{\theta}, 
 			\bot_{\rho}}
 	\end{footnotesize}
-Finally, as we illustrated in another example TODO, in expressions such as 
+Finally, to be able of inlining expressions of the form 
 "$\texttt{let } F_{\boldsymbol{i^{2}}} = t_2 \texttt{ in } t_1 $",
-the second-order term $t_2$ should free from any possible side-effects.
+we must be sure that the second-order term $t_2$ is free from any possible side-effects.
 So the general typing of \texttt{let} expression is given by
 	\begin{footnotesize}
 		\infrule[T$_{ML^{^2}}$-Let] 
-			{\vdash t_1 : \tau^i, \theta, \rho 
+			{\vdash t : \tau^i, \theta, \rho 
 			\qquad \vdash t' : \tau^j, \theta', \rho' 
-			\qquad (i = 2) \Rightarrow 
-			\boldsymbol{(\theta = \bot_{\theta}\bwedge \rho = \bot_{\rho})}} 
+			\qquad \textcolor{red}{(i = 2) \Rightarrow 
+			\boldsymbol{(\theta = \bot_{\theta}\bwedge \rho = \bot_{\rho})}}} 
 			{\vdash \text{ let } x_{\tau^i} = t \text{ in } t' 
 				: \tau^{j}, 
 				(\theta \bvee \theta'), 
 				(\rho \bvee \rho')}
 	\end{footnotesize}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Inlining}
+
 
 \paragraph*{Notations}
 
@@ -1480,11 +1487,6 @@ TODO
 	\end{array}
 \end{displaymath}
 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
-\section{Inlining}
 
 \paragraph*{Outline}
  We begin a more formal description of inlining by imposing some
