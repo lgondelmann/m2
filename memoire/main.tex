@@ -198,6 +198,7 @@ keepspaces=true,
 
 \newcommand{\hookdownarrow}{\mathrel{\rotatebox[origin=c]{180}{$\hookleftarrow$}}}
 \newcommand{\inlletarr}{\hookdownarrow}
+\newcommand{\inlletstar}{\hookdownarrow^{\star}}
 \newcommand{\inlletplus}{\hookdownarrow^{+}}
 \newcommand{\inlletNF}{\overset{\inlletplus}{NF}}
 \newcommand{\inllet}[2]{#1 \hookdownarrow #2}
@@ -846,7 +847,7 @@ we extend $\inlsrc$ language with logical annotations.
 	
 	Then, we introduce ${\inlsrc}$, a restriction of Mini-ML, where all programs causing inlining to fail are eliminated so that we can only write programs we can inline safely, like in the example of \texttt{sum\_iter}. 
 	
-\subsection{Mini-ML: Initial Source Language}
+\subsection{Mini-ML Programming Language}
 
 	Roughly speaking Mini-ML is equivalent to \textbf{PCF + state}, a standard experimental subject in computer science{\footnotesize$^{ \cite[p.~143]{Pierce:2002:TPL:509043}}$}. 
 	That is, Mini-ML consists of a simply-typed lambda-calculus with built-in primitive data types and recursive functions extended with global store of modifiable references.
@@ -1218,9 +1219,7 @@ $$\dfrac
 		
 	However, we choose to use the effects' tracking system above because, despite its simplicity, it still suffices to establish the soundness of inlining, as we show in the next section. 
 		
-\subsubsection{Properties of the Type System }
-
-\paragraph{Typing Soundness}	
+\subsection{Properties of Mini-ML Typing System with Effects}	
 
 	The most basic property	any type system is typing \textit{soundness}: "well-typed programs do not go wrong". 
 	Concretely, type soundness guarantees that a well-typed term is either a value or it can take a step according to the evaluation rules (\textit{progress}); moreover, if it actually takes a step of evaluation, then the resulting term is still well typed (\textit{preservation}).
@@ -1284,15 +1283,16 @@ Formally, we have the following result:
   But it is an established result, that all well-typed terms of this calculus are normalizing{\footnotesize$^{\cite{Tait67}}$}. 
 \end{proof}
 
+\subsection{From Mini-ML to Second-Order Functional Language \texorpdfstring{$ML^{^{2}}$}{}}
 
-\paragraph{\texorpdfstring{$\inlsrc$}{} Programming Language}
+%\paragraph{\texorpdfstring{$ML^{^{n}}$}{} Programming Language}
 
 	As simple as Mini-ML language is, we can still write in it programs we cannot inline safely. 
 	In this subsection, we impose some restrictions on Mini-ML terms and types, so that the only programs we can write are those we can inline correctly.  
 	We also introduce some restrictions on the non-significant details in order to simplify our presentation a bit.
 	We call the resulting language $\inlsrc$, which is the input language on the inlining procedure defined in the next section.
 
-\paragraph{Ordering functional types}
+\paragraph{Ordering Mini-ML types}
 
 	We have already seen that recursive functions that modify its functional arguments inside recursive calls cannot be inlined. 
 	However, if each recursive call is made on functional argument that coincides with formal parameter of recursive function, this function can be inlined correctly. 
@@ -1334,15 +1334,16 @@ This hierarchy is defined inductively (by strong induction on type's degree
 $i$): if $i=0$, then the base case consist of all base types such as $int$,
 $bool$, etc; otherwise, for $i > 0$, the set of possible types of degree $i+1$
 is an enumeration $\{\tau^{i} \rightarrow \tau^{k} ~|~ k \in [ 0 \dots (i+1) ]
-\}$ of all possible codomain inferior degrees including $(i+1)$.
-We shall name such hierarchy by $ML^{^{n}}$ and the initial $ML$ typeset by
-$ML^\star$.
+\}$ of all possible codomain inferior degrees including $(i+1)$. 
+
+Then, we define, for every $n \in \mathbb{N}$, $ML^{^{n}}$ as the union of all types of a degree up to $n$: $\bigcup_{~0 \leq n} \tau^i$.
 \end{definition}
 
-	It is important to see that $ML^{^{n}}$ is isomorphic $ML^{\star}$.
-This is true, because in our presentation all types are monomorphic, so that we can always transform a program from $ML^{\star}$ to $ML^{^{n}}$. 
-Consequently, restraining the source language typing to $ML^{^{n}}$ does not
-reduce the $ML^{star}$ expressiveness.
+	It is important to see that $ML^{^{n}}$ is isomorphic the set of Mini-ML types.
+This is true, because in our presentation all types are monomorphic, so that we can always transform a well-typed program in Mini-ML to a well-typed program in $ML^{^{n}}$. 
+	Consequently, restraining the source language typing to $ML^{^{n}}$ does not
+reduce the expressiveness of Mini-ML.
+
 	To simplify our presentation little further (especially for the semantic
 equivalence and the inlining correctness proof), we authorize the reference assignment only to the values of degree zero, so that the global store $\mu$
 always contains only first-order values. 
@@ -1355,32 +1356,17 @@ However, it is still can be proved that all definitions, theorems and proofs in 
 %and $j$, and if those are equal, then by comparing their codomain degrees $k$
 %and $l$.
 
-\subsubsection{\texorpdfstring{$ML^{^{2}}$}{}: Second-Order Functional Language}
+
 
 So far, we defined $ML^{^{n}}$ types for an arbitrary degree $n$. 
 In practice, however, the use of the most common high-order expressions such as $folders$, $iterators$, $mappings$ limits  to the first-order functions.
 That is, most of the functional programs are essentially second-order ones. 
 For that reason, and for the sake of simplicity, from now on we limit our presentation to $ML^{^{2}}$ where all programs are of second-order degree at most.
 
-%
-%Overall, the syntax of source language $\inlT$ remains  identical to $ML$, 
-%except the explicit typing annotation of variables :
-%\begin{displaymath}
-%	\begin{array}{lll@{\hspace*{3cm}}l}
-%	t &::=& x_{\tau^{i}} ~|~ v~|~(t~v) ~|~\text{let } x_{\tau^{i}} = t
-%        \text{ in } t ~|~ r_{\tau^i} := v ~|~ !r_{\tau^i} & \textsc{terms}\\ v
-%        &::=& \lambda x_{\tau^{i}}. t ~|~ \text{rec } f x_{\tau^{i}}:~\tau^{i}.t
-%        ~|~ c & \textsc{values} \\ c &::=& \text{()} ~|~
-%        \mathbb{N}~|~\mathbb{B}~|~+~|~-~|~\bwedge~|~\dots & \text{constants}
-%	\end{array}
-%\end{displaymath}
-%Likewise, the semantics $\inlsrc$ is given by exactly the same small-step 
-%inferences rules we presented in TODO for ML.
-
 \paragraph{Restrictions on The Typing of \texorpdfstring{$ML^{^{2}}$}{}}
 
 	Eliminating all $\inlsrc$ programs we cannot inline correctly can be done by 
-the imposing certain restruction on the typing system of $\inlsrc$.
+the imposing certain restriction on the typing system of $\inlsrc$.
  
 Obviously, the typing of variables,constants and mutable variable
 manipulation remains the same as for $ML$ (except explicit typing
@@ -1459,108 +1445,62 @@ So the general typing of \texttt{let} expression is given by
 				(\rho \bvee \rho')}
 	\end{footnotesize}
 
-
+\paragraph{Restricting Codomain Type}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
+
 \section{Inlining}
 
-
-\paragraph*{Notations}
-
-TODO
-
-\begin{displaymath}
-	\begin{array}{lll@{\hspace*{3cm}}l}
-			L &::=& F ~|~ l \qquad \text{with}\qquad l~::=~ x ~|~ f &
-        \textsc{binders} \\ 
-      t &::=& l ~|~ v~|~(t~v) ~|~\text{let } L = t 
-        \text{ in } t ~|~ r := v ~|~ !r & 
-        \textsc{terms}\\ 
-      v &::=& \lambda l. t ~|~
-        \text{rec } f x :~\tau . t ~|~ c ~|~ & 
-        \textsc{values} \\ 
-      c &::=&
-        \text{()} ~|~ \mathbb{N}~|~\mathbb{B}~|~+~|~-~|~\bwedge~| ~\dots &
-        \textsc{constants} \\
-	\end{array}
-\end{displaymath}
-
-
-\paragraph*{Outline}
- We begin a more formal description of inlining by imposing some
-restrictions on the typing system of ML. Without reducing drastically ML
-expressiveness, the source language will still cover a great number of real-life
-programming examples.
-
-Once we formally specified the domain and codomain of inlining transformation,
-we will give a precise definition \textit{small-step} of procedure itself,
-described as rewriting strategy by a set of inference rules in a
-\textit{small-step} manner.
-
-We will then state and prove that this definition corresponds to the procedure
-that is deterministic, always terminate and results in a entirely first-order
-program.
-
-Finally, after all syntactical problems pointed out and solved, we will
-concentrate our attention on the \textit{total correctness} of inlining
-transformation: using a well-know \textit{logical relations} technique, we will
-formalize the notion semantic equivalence between programs and show that for
-every couple of source and target programs, these programs are semantically
-equivalent.
+ In the previous section we defined $\inlsrc$, the domain language of inlining procedure. 
+ In this section we give a formal definition for the inlining procedure itself.
+ We present inlining as a \textit{small-step} rewriting strategy given a set of inference rules.
  
-The correctness of inlining we establish is \textit{total}: source language is
-not confined to terminating programs and an input program's non-termination is
-preserved by inlining. As \textit{Kahn natural semantics} is limited to
-establishing the \textit{partial} correctness, that explains our choice of an
-overall small-step style of programs operational semantics and inlining.
+ We split our presentation in two consecutive steps: first, we define the inlining of second-order variables; then we define the inlining of second-order applications.
+ For each of these steps we state and prove that it corresponds to a \textit{deterministic} procedure, that always \textit{terminates}, resulting in an entirely first-order program.
+ 
+	Using a well-know \textit{logical relations} technique, we conclude this section by giving a proof of inlining \textit{total correctness}, i.e. we prove that for every source program, its inlining and the source program itself are semantically equivalent.\\
+
+	Finally, to make presentation more readable, we introduce the following notations:\\
+ \hspace*{0.5cm} - $x,y,...$ denote variables of some zero-degree type: \texttt{int, bool, ...};\\
+ \hspace*{0.5cm} - $f,g,...$ denote variables of some first-order type: \texttt{int -> int, int -> bool -> int, ...};\\ 
+ \hspace*{0.5cm} - $F,G,...$ denote variables of some second-order type: \texttt{(int -> bool) -> int}, ....
+
+%
+%With these notations, the syntax of $\inlsrc$ can be represented as follows:
+%\begin{spacing}{1.3}
+%\begin{displaymath}
+%	\begin{array}{lll@{\hspace*{3cm}}l}
+%			L &::=& F ~|~ l \qquad \text{with }  l~::=~ x ~|~ f &
+%        \textsc{binders} \\ 
+%      t &::=&  v~|~(t~v) ~|~\text{let } L = t 
+%        \text{ in } t ~|~ r := v ~|~ !r & 
+%        \textsc{terms}\\ 
+%      v &::= & L ~|~ \lambda l. t ~|~
+%        \text{rec } f~x :(\tau_1, \theta). t ~|~ c  & 
+%        \textsc{values} \\ 
+%      c &::=&
+%        \text{()} ~|~ \mathbb{N}~|~\mathbb{B}~|~+~|~-~|~\bwedge~| ~\dots &
+%        \textsc{constants} \\
+%	\end{array}
+%\end{displaymath}
+%\end{spacing}
 
 
-
-\subsection{Inlining As Rewriting Strategy}
-
-Short description of two steps 
+\subsection{Inlining Second-Order Local Variables}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{Inlining Second-Order Variables}
-
-Our first goal is to transform the input language $\inlT$ in such way that it
-would contain no more second order binders. As we are interested in programs, 
-i.e. well-typed closed terms, the only possible way for a variable $F$ to 
-appear in a term $t$ of $\inlT$ is to be introduced by some local binding 
-expression $\tmlet{F}{t_1}{t_2}$ (programs like $\lambda F. t$ will be
-rejected by typing system). Of course, that does not mean that we have to define 
-the inlining procedure for programs only. The definition we are going to give
-should simply eliminate all local second-order bindings, ignoring the eventual
-free second-order variables.
-
-That is, with respect to our notations, the syntax of the resulting language
- $\inlS$ should respect the following grammar :\\[1em]\indent 
-  $ s ::= l~|~w~|~(s~w) ~|~ \tmlet{l}{s_1}{s_2} ~|~ r:= c ~|~ !r \hfill \textsc{(Terms)}$ \\\indent 
-  $ w ::= \lambda l. s ~|~ \tmrec{f}{x}{\tau}{s}\hfill \textsc{(Values)}$ \\\indent 
-  $ l ::= x ~|~ f \hfill \textsc{(Binders)}$ \\\indent 
-  $ c ::= x ~|~ \overline{n}~|~... \hfill \textsc{(Constants)}$\\[1em]
-
-It is straightforward to see that $\inlS \subsetneq \inlT$. In particular,
-terms of $S$ are in \textit{A-Normal Forms}, respects all typing restrictions 
-we imposed on terms of $\inlT$ and has exactly the same \textit{CBV} semantics. 
-
-Our goal is then to define the inlining procedure and show that it always
-terminates, resulting in some term $s \in \inlS$.
-%Most importantly, we will
-%show that inlining procedure preserves the meaining of the source p 
-To acheive this goal, let us start by describing all possible forms that
-inlining procedure can take in \textit{one step}.
-
+	Our first goal is to inline second order binders $F,G,...$ inside every incoming $\inlsrc$ program \texttt{P}. 
+	Indeed, we can inline \textit{all} second order binders of \texttt{P}, because by definition \texttt{P} is a well-typed closed term of some first-order type. 
+  Consequently, higher-order variables can occur in P only under the context of some local binding expression $\tmlet{F}{t_1}{t_2}$.
+  
+	That is, our goal is to define inlining of second order variables as a procedure \fbox{$\inlletstar : \inlsrc \longrightarrow S$}, where $S \subsetneq \inlsrc $ such that no more second-order variables occur in a program of $S$.
+	To acheive this goal, we first define $\hookdownarrow$, inlining in \textit{one step}: 
 \begin{definition}[(One Step local bindings Inlining, $\hookdownarrow$)]
-   Let $t$ be a term of the source language $\inlT$ such that $t \not\in
-   \inlS$ and $t \neq F $. Thus $t$ contains at least one local binding of
-   some second-order variable $F$ introduced by $\tmlet{F}{t_0}{t_1}$
-   construction.
+	Let $t$ be a term of $\inlsrc$ such that $t \not\in \inlS$. 
+  Thus $t$ contains at least one occurence of some variable $F$ introduced by $\tmlet{F}{t_0}{t_1}$ construction.
 
-Then the inlining of local bindings of $t$, is defined as a rewriting
-strategy $\inllet{t}{t'}$ by the set of inference rules of
-\cref{fig:inl-let-d}.
+	In that case, we define one step of inlining, $\inllet{t}{t'}$ by the set of inference rules below:
+%\cref{fig:inl-let-d}.
 
 \label{inlletrule-macro}
 \newcommandx{\inlletrule}[5]
@@ -1579,36 +1519,60 @@ strategy $\inllet{t}{t'}$ by the set of inference rules of
   \begin{footnotesize}
 	\begin{spacing}{1.01}
 	\hrulefill
-	\begin{adjustwidth}{6em}{-14em}
+	\begin{adjustwidth}{10em}{-17em}
 		\begin{multicols}{2}
-		\infrule[$I_1$-Let$_0$]{}
+		\infrule[$I_1$-Let$_0$]
+		{ s_1, s_2  \in S}
 			{\boldsymbol{\tmlet{F}{s_1}{s_2} \hookdownarrow 				
 			\tmsbst{s_2}{F}{s_1}}}
 		\end{multicols}
 		\vspace*{-2em}
 	\end{adjustwidth}
-	\begin{adjustwidth}{-8em}{-4em}
+	\begin{adjustwidth}{-5em}{-2em}
 		\begin{multicols}{2}	
 		\inlletrule{Fun}
 			{t_1}{t'_1}
  			{\lambda l. \boldsymbol{t_1}}{\lambda l.\boldsymbol{t'_1}}
 		\inlletrule{App$_1$}
 			{t_1}{t'_1}
-			{(\boldsymbol{t_1}v)}{(\boldsymbol{t'_1}v)}
+			{(\boldsymbol{t_1}v_2)}{(\boldsymbol{t'_1}v_2)}
 		\inlletrule{Let$_1$}
 			{t_1}{t'_1}
 			{\tmlet{\varslash{l}{F}}{\boldsymbol{t_1}}{t_2}}
 			{\tmlet{\varslash{l}{F}}{\boldsymbol{t'_1}}{t_2}}
+			
+		\infrule[$I_1$-If$_1$]
+		{ \boldsymbol{t_1 \hookdownarrow t_1'} }
+			{ if~v~then~\boldsymbol{t_1}~else~t_2 \hookdownarrow
+				if~v~then~\boldsymbol{t_1'}~else~t_2 }					
+			
+	\infrule[$I_1$-Match$_1$]
+		{ \boldsymbol{t_1 \hookdownarrow t_1'}  \quad s_1 \in S }
+			{~~~~~ match~v~with~Nil~->~ \boldsymbol{t_1}~|~Cons~x~y -> t_2 \hookdownarrow \\ 
+				match~v~with~Nil~->~ \boldsymbol{t_1'}~|~Cons~x~y -> t_2}					
+			
 		\inlletrule{Rec}{t_1}{t'_1}
- 			{\tmrec{f}{x}{\tau}{\boldsymbol{t_1}}}
- 			{\tmrec{f}{x}{\tau}{\boldsymbol{t'_1}}}
-		\inlletrule{App$_2$}
-			{v}{v'}
-			{(s\boldsymbol{v})}{(s\boldsymbol{v'})}	
-		\inlletrule{Let$_2$}
-			{t_2}{t'_2}
-			{\tmlet{\varslash{l}{F}}{t_1}{\boldsymbol{t_2}}}
-			{\tmlet{\varslash{l}{F}}{t_1}{\boldsymbol{t'_2}}}
+ 			{\tmrec{f}{x}{(\tau,\theta)}{\boldsymbol{t_1}}}
+ 			{\tmrec{f}{x}{(\tau,\theta)}{\boldsymbol{t'_1}}}
+ 			
+		\infrule[$I_1$-App$_2$]
+		{ \boldsymbol{v_2 \hookdownarrow v_2'} \quad s_1 \in S }
+			{(s_1\boldsymbol{v_2}) \hookdownarrow (s_1\boldsymbol{v_2'})}		
+
+		\infrule[$I_1$-Let$_2$]
+		{ \boldsymbol{t_2 \hookdownarrow t_2'} \quad s_1 \in S }
+			{\tmlet{F}{s_1}{\boldsymbol{t_2}} \hookdownarrow \tmlet{F}{s_1}{\boldsymbol{t_2'}} }		
+
+		\infrule[$I_1$-If$_2$]
+		{ \boldsymbol{t_2 \hookdownarrow t_2'}  \quad s_1 \in S }
+			{ if~v~then~s_1~else~\boldsymbol{t_2} \hookdownarrow
+				if~v~then~s_1~else~\boldsymbol{t_2'} }	
+				
+		\infrule[$I_1$-Match$_2$]
+		{ \boldsymbol{t_2 \hookdownarrow t_2'}  \quad s_1 \in S }
+			{~~~~~match~v~with~Nil~->~s_1~|~Cons~x~y -> \boldsymbol{t_2} \hookdownarrow \\ 
+				match~v~with~Nil~->~s_1~|~Cons~x~y -> \boldsymbol{t_2'}}					
+
 		\end{multicols}
 	\end{adjustwidth}	
 	\hrulefill
@@ -1619,13 +1583,13 @@ strategy $\inllet{t}{t'}$ by the set of inference rules of
 	\end{figure}
 \end{definition}
 
-As we can see, the $\ilarr$ relation consist in the head reduction rule
+As we can see, the $\ilarr$ relation consists in the head reduction rule
 \textsc{I$_1$-Let$_0$} and the set of contextual reductions are defined
 recursively, from left to right, on the immediate sub-term where a
-second-local binding take place. Then, the first phase of inlining is
-defined as follows:
+second-local binding take place. Then, the first step of inlining is
+defined as the reflexive, transitive closure of $\hookdownarrow$:
 
-\begin{definition}([Multi-Step Inlining, $\inlletplus$]) The multi-step
+\begin{definition}([Multi-Step Inlining, $\inlletstar$]) The multi-step
   inlining $\inlletplus$ is the transitive closure of one-step
   inlining. That is, it is the smallest relation defined by the following
   inference rules:
@@ -1696,7 +1660,7 @@ For detailed proof see \ref{inllet-nforms-p}.
 
 
 \newpage
-\subsubsection*{Inlining Second-Order Applications}
+\subsection{Inlining Second-Order Applications}
 
 - output language subset
 
@@ -1795,7 +1759,9 @@ $$\dfrac{\inllet{t}{t'}}{\inllett{t}{t'}}{~~(\textsc{$I_1$-step})}
 - theorem 2	
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Semantic Equivalence Relation}
+
+
+\subsection{Correctness Proof for Inlining}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{Semantic Equivalence Between Closed Terms}
@@ -1970,10 +1936,34 @@ $$\dfrac{\inllet{t}{t'}}{\inllett{t}{t'}}{~~(\textsc{$I_1$-step})}
 	\end{proof}
 
 
+
+
+
 \subsubsection*{Output Language}
 TODO: Nice figure 
 
 %\subsection{Inlining Higher-Order Programs}
+
+
+%The correctness of inlining we establish is \textit{total}: source language is
+%not confined to terminating programs and an input program's non-termination is
+%preserved by inlining. As \textit{Kahn natural semantics} is limited to
+%establishing the \textit{partial} correctness, that explains our choice of an
+%overall small-step style of programs operational semantics and inlining. 
+% 
+% 
+%	Finally, we give the proof of concentrate our attention on the \textit{total correctness} of inlining
+%transformation: using a well-know \textit{logical relations} technique, we will
+%formalize the notion semantic equivalence between programs and show that for
+%every couple of source and target programs, these programs are semantically
+%equivalent.
+% 
+%The correctness of inlining we establish is \textit{total}: source language is
+%not confined to terminating programs and an input program's non-termination is
+%preserved by inlining. As \textit{Kahn natural semantics} is limited to
+%establishing the \textit{partial} correctness, that explains our choice of an
+%overall small-step style of programs operational semantics and inlining.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage

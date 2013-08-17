@@ -1,3 +1,49 @@
+as a rewriting strategy 
+, for which $\inlletstar$ will be its reflexive, transitive closure.
+
+It is straightforward to see that $\inlS \subsetneq \inlT$. In particular,
+terms of $S$ are in \textit{A-Normal Forms}, respects all typing restrictions 
+we imposed on terms of $\inlT$ and has exactly the same \textit{CBV} semantics. 
+
+Our goal is then to define the inlining procedure and show that it always
+terminates, resulting in some term $s \in \inlS$.
+%Most importantly, we will
+%show that inlining procedure preserves the meaining of the source p 
+
+
+Our first goal is to transform the input language $\inlT$ in such way that it
+would contain no more second order binders. As we are interested in programs, 
+i.e. well-typed closed terms, the only possible way for a variable $F$ to 
+appear in a term $t$ of $\inlT$ is to be introduced by some local binding 
+expression $\tmlet{F}{t_1}{t_2}$ (programs like $\lambda F. t$ will be
+rejected by typing system). Of course, that does not mean that we have to define 
+the inlining procedure for programs only. The definition we are going to give
+should simply eliminate all local second-order bindings, ignoring the eventual
+free second-order variables.
+
+
+That is, the domain of inlining procedure is given by $\inlS$, a proper subset of $\inlsrc$, defined as follows:\\
+  $ s ::= l~|~w~|~(s~w) ~|~ \tmlet{l}{s_1}{s_2} ~|~ r:= c ~|~ !r \hfill \textsc{(Terms)}$ \\\indent 
+  $ w ::= \lambda l. s ~|~ \tmrec{f}{x}{\tau}{s}\hfill \textsc{(Values)}$ \\\indent 
+  $ l ::= x ~|~ f \hfill \textsc{(Binders)}$ \\\indent 
+  $ c ::= x ~|~ \overline{n}~|~... \hfill \textsc{(Constants)}$\\[1em]
+
+
+%
+%Overall, the syntax of source language $\inlT$ remains  identical to $ML$, 
+%except the explicit typing annotation of variables :
+%\begin{displaymath}
+%	\begin{array}{lll@{\hspace*{3cm}}l}
+%	t &::=& x_{\tau^{i}} ~|~ v~|~(t~v) ~|~\text{let } x_{\tau^{i}} = t
+%        \text{ in } t ~|~ r_{\tau^i} := v ~|~ !r_{\tau^i} & \textsc{terms}\\ v
+%        &::=& \lambda x_{\tau^{i}}. t ~|~ \text{rec } f x_{\tau^{i}}:~\tau^{i}.t
+%        ~|~ c & \textsc{values} \\ c &::=& \text{()} ~|~
+%        \mathbb{N}~|~\mathbb{B}~|~+~|~-~|~\bwedge~|~\dots & \text{constants}
+%	\end{array}
+%\end{displaymath}
+%Likewise, the semantics $\inlsrc$ is given by exactly the same small-step 
+%inferences rules we presented in TODO for ML.
+
 %The rule \textsc{E-Context} describes an evaluation step \textbf{inside} \textit{let} construction, under assumption that a sub-term $t_1$ is evaluated.
 %	That is, \textsc{E-Context} rule does not alter the term's construction, but simplifies it contextually.
 %	The rule \textit{E-Head} describes an evaluation step where term's construction is modified "on the top``, passing from one form to another. 
