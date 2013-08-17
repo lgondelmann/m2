@@ -143,12 +143,16 @@ keepspaces=true,
 \label{proclamations}
 \newtheoremstyle{plain}
 {\topsep}{\topsep}{\upshape}{}{}{:~}{ }
-{\textsc{\hspace{-1.55cm} #2 \quad #1} \textsc{#3}}
+{\textsc{\hspace{-1.55cm} #2 \quad \textcolor{black}{#1}} \textsc{\textcolor{black}{#3}}}
 \theoremstyle{plain}
 \newtheorem{definition}{Definition}[subsection]
 \newtheorem{lemma}[definition]{Lemma}
 \newtheorem{theorem}[definition]{Theorem}
 \newtheorem{corr}[definition]{Corrolary}
+
+\renewenvironment{proof}{\noindent \textcolor{blue}{\textit{Proof.}}}
+{{\begin{tiny}\textcolor{blue}{$\blacksquare$}\end{tiny}}\\}
+
 
 
 \label{ML-Terms marcos}
@@ -199,7 +203,7 @@ keepspaces=true,
 \newcommand{\hookdownarrow}{\mathrel{\rotatebox[origin=c]{180}{$\hookleftarrow$}}}
 \newcommand{\inlletarr}{\hookdownarrow}
 \newcommand{\inlletstar}{\hookdownarrow^{\star}}
-\newcommand{\inlletplus}{\hookdownarrow^{+}}
+\newcommand{\inlletplus}{\inlletstar}
 \newcommand{\inlletNF}{\overset{\inlletplus}{NF}}
 \newcommand{\inllet}[2]{#1 \hookdownarrow #2}
 \newcommand{\inllett}[2]{#1 \inlletplus #2}
@@ -1446,10 +1450,15 @@ So the general typing of \texttt{let} expression is given by
 	\end{footnotesize}
 
 \paragraph{Restricting Codomain Type}
+\paragraph{Notations}
+Finally, to make presentation more readable, we introduce the following notations:\\
+ \hspace*{0.5cm} - $x,y,...$ denote variables of some zero-degree type: \texttt{int, bool, ...};\\
+ \hspace*{0.5cm} - $f,g,...$ denote variables of some first-order type: \texttt{int -> int, int -> bool -> int, ...};\\ 
+ \hspace*{0.5cm} - $F,G,...$ denote variables of some second-order type: \texttt{(int -> bool) -> int}, ....
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+\newpage
 \section{Inlining}
 
  In the previous section we defined $\inlsrc$, the domain language of inlining procedure. 
@@ -1459,13 +1468,10 @@ So the general typing of \texttt{let} expression is given by
  We split our presentation in two consecutive steps: first, we define the inlining of second-order variables; then we define the inlining of second-order applications.
  For each of these steps we state and prove that it corresponds to a \textit{deterministic} procedure, that always \textit{terminates}, resulting in an entirely first-order program.
  
-	Using a well-know \textit{logical relations} technique, we conclude this section by giving a proof of inlining \textit{total correctness}, i.e. we prove that for every source program, its inlining and the source program itself are semantically equivalent.\\
+	Finally, using a well-know \textit{logical relations} technique, we conclude by giving the proof of inlining \textit{total correctness}. 
+	That is, we prove that for every source program, its inlining and the source program itself are semantically equivalent.\\
 
-	Finally, to make presentation more readable, we introduce the following notations:\\
- \hspace*{0.5cm} - $x,y,...$ denote variables of some zero-degree type: \texttt{int, bool, ...};\\
- \hspace*{0.5cm} - $f,g,...$ denote variables of some first-order type: \texttt{int -> int, int -> bool -> int, ...};\\ 
- \hspace*{0.5cm} - $F,G,...$ denote variables of some second-order type: \texttt{(int -> bool) -> int}, ....
-
+	
 %
 %With these notations, the syntax of $\inlsrc$ can be represented as follows:
 %\begin{spacing}{1.3}
@@ -1489,17 +1495,17 @@ So the general typing of \texttt{let} expression is given by
 
 \subsection{Inlining Second-Order Local Variables}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	Our first goal is to inline second order binders $F,G,...$ inside every incoming $\inlsrc$ program \texttt{P}. 
-	Indeed, we can inline \textit{all} second order binders of \texttt{P}, because by definition \texttt{P} is a well-typed closed term of some first-order type. 
-  Consequently, higher-order variables can occur in P only under the context of some local binding expression $\tmlet{F}{t_1}{t_2}$.
-  
-	That is, our goal is to define inlining of second order variables as a procedure \fbox{$\inlletstar : \inlsrc \longrightarrow S$}, where $S \subsetneq \inlsrc $ such that no more second-order variables occur in a program of $S$.
-	To acheive this goal, we first define $\hookdownarrow$, inlining in \textit{one step}: 
+	Our first goal is to inline second order binders $F,G,...$ inside any $\inlsrc$ program \texttt{P}. 
+	Intuitively, this is possible, because by definition \texttt{P} is a well-typed closed term of some first-order type, so that a variable $F$ cannot be neither bound by some function, neither free in \texttt{P}. Consequently, the only higher-order variables that can possibly occur in \texttt{P} are introduced by local binding expression $\tmlet{F}{t_1}{t_2}$.
+	Our goal is thus to define inlining of second order variables as a procedure  $\inlletstar : \inlsrc \longrightarrow S$, where $S$ is a subset of $\inlsrc$ such that 
+	 in any $s \in S$ no second-order variables occurs any more inside $s$. \\
+	 
+	A possible way to acheive this goal, is to define $\inlletstar$ as a reflexive, transitive closure of the \textit{small-step rewriting strategy}  $\inlletarr$: 
 \begin{definition}[(One Step local bindings Inlining, $\hookdownarrow$)]
 	Let $t$ be a term of $\inlsrc$ such that $t \not\in \inlS$. 
-  Thus $t$ contains at least one occurence of some variable $F$ introduced by $\tmlet{F}{t_0}{t_1}$ construction.
+  Then, $t$ contains at least one occurence of some variable $F$ introduced by $\tmlet{F}{t_0}{t_1}$ construct.
 
-	In that case, we define one step of inlining, $\inllet{t}{t'}$ by the set of inference rules below:
+	In that case, a step of inlining, $\inllet{t}{t'}$ is defined by the set of inference rules below:
 %\cref{fig:inl-let-d}.
 
 \label{inlletrule-macro}
@@ -1583,79 +1589,94 @@ So the general typing of \texttt{let} expression is given by
 	\end{figure}
 \end{definition}
 
-As we can see, the $\ilarr$ relation consists in the head reduction rule
-\textsc{I$_1$-Let$_0$} and the set of contextual reductions are defined
-recursively, from left to right, on the immediate sub-term where a
-second-local binding take place. Then, the first step of inlining is
-defined as the reflexive, transitive closure of $\hookdownarrow$:
+	As we can see, a step of $\ilarr$ either follows head reduction rule
+\textsc{I$_1$-Let$_0$}, or takes the form of one of the contextual reductions ordered from left to right, depending on the sub-term where appears a second-local binding.\\
 
-\begin{definition}([Multi-Step Inlining, $\inlletstar$]) The multi-step
-  inlining $\inlletplus$ is the transitive closure of one-step
-  inlining. That is, it is the smallest relation defined by the following
-  inference rules:
-
-
-$$\dfrac{\inllet{t}{t'}}{\inllett{t}{t'}}{~~(\textsc{$I_1$-step})}
-\quad\dfrac{\inllett{t}{t'} 
-\qquad \inllett{t'}{t''}}{\inllett{t}{t''}}{~~(\textsc{$I_1$-trans})}$$
-\end{definition}
-
-To achieve the goal we have fixed above, it is useful to state the following
-auxiliary lemmas and definitions :
-
-\begin{lemma}[(Determinacy of $\inlletplus$)] 
-	$\forall n \in \mathbb{N}.~ \forall t, t_1, t_2.
-		(t \inlletarr^{n} {t_1} \bwedge t \inlletarr^{n} {t_2}) \brarr
+	First off all, we need to check that the definition above corresponds indeed to a deterministic rewriting strategy:
+\begin{lemma}[(Determinacy of $\inlletarr$)] 
+	$\forall t, t_1, t_2.
+		(t \inlletarr {t_1} \bwedge t \inlletarr {t_2}) \brarr
 			t_1 = t_2$.	\label{inllet-determ-l}	
 \end{lemma}
-\begin{proof} See \ref{inllet-determ-p}. \end{proof}
+\begin{proof} Straightforward induction on the derivation of $t \inlletarr {t_1}$, observing that in each case only one rule applies. \end{proof} 
 
-\begin{lemma}[($\inlletplus$ Preservation Properties)]
-For any well-typed term $t$ such that\\ $\typerule{t}{\tau}{\theta}{\rho}$, if $\inllett{t}{t'}$ then
+	Secondly, we need to check that each step of $\inlletarr$ preserves the well-typedness and the well-formedness of the source term:
+\begin{lemma}[($\inlletarr$ Preservation Properties)]
+For any well-typed term $t$ such that\\ $\typerule{t}{\tau}{\theta}{\rho}$ and $\inllet{t}{t'}$, the following properties hold:
 \begin{displaymath}
 \begin{array}{l@{\hspace*{1cm}}l@{\hspace*{1cm}}l}
 	(1)& FV(t') \subseteq FV(t) & \textsc{(free variables inclusion)} \\
-	(2)& \typerule{t'}{\tau}{\theta}{\rho} &\textsc{(typing preservation)} \\
-	(3)& t' \in \inlT & \textsc{(A-normal form preservation)}
+	(2)& \typerule{t'}{\tau}{\theta}{\rho} &\textsc{(typing and effects preservation)} \\
+	(3)& t' \in \inlT & \textsc{(A-normal form preservation)} \vspace*{-1cm}
 \end{array}
 \end{displaymath}
  \label{inllet-prop-l}
 \end{lemma}
 \begin{proof}
- By induction on the derivation of $\inllet{t}{t'}$. For detailed proof see
- \ref{inllet-prop-p}.
+	By simultaneous straightforward induction on the derivation of $\inllet{t}{t'}$. 
+	The only interesting case is the head reduction \textsc{I$_1$-Let$_0$}:
+	\infrule[$I_1$-Let$_0$]
+		{ s_1, s_2  \in S}
+			{\boldsymbol{\tmlet{F}{s_1}{s_2} \hookdownarrow 				
+			\tmsbst{s_2}{F}{s_1}}}
+	Here, one can check that (1) holds by simply computing  FV(t) and FV(t').
+	(2) holds, because none of the following constructions can be a term of $\inlsrc$ : 
+$$\textit{(t~F) \qquad r~:=~F \qquad if~F~then~... else ... \qquad match~F~with~...}$$
+	Finally, from theorem hypotheses it follows that $\typerule{s1}{\tau^2}{\bth}{\brh}$.	
+	Therefore, by \cref{preserv-prop2-d}, (3) holds. 
  \end{proof}
 
-
-
-\begin{definition}[(Normal Forms For $\inlletplus$)]
-	The set of normal forms for $\inlletplus$,  $\inlletNF$, is defined as follows: \quad
+	It remains now to prove that $\inlletstar$ always terminate, resulting in a term $s \in S$.  
+	To do so, we define the set of normal forms $\inlletNF$, and then prove the following statements below: 
+\begin{definition}[(Normal Forms $\inlletstar$)]
+	%The set of normal forms for $\inlletplus$,  $\inlletNF$, is defined as follows: \quad	
  $ \inlletNF \triangleq \{ t | t \in \inlT \bwedge 
- \forall t' \in \inlT. t~\cancel{\inlletplus}~t' \} $
+ \forall t' \in \inlT. t~\cancel{\inlletarr}~t' \} $
 \end{definition}
 
-\begin{lemma}[(Normal Forms For $\inlletarr^\star$)] 
-$ \inlletNF \backslash \{ F \} = \inlS.$
+\begin{lemma}[(Normal Forms For $\inlletstar$)] 
+$ \inlletNF  = \inlS.$
 \label{inllet-nforms-l}
 \end{lemma}
 \begin{proof}
-For detailed proof see \ref{inllet-nforms-p}.
+Obverse that, by definition of $\inlletarr$, we have immediately $\inlS \subseteq  \inlletNF$. The other direction can be proven by showing the contrapositive $t \not\in \inlS \Rightarrow t \not\in \inlletNF$ which is trivially true.
 \end{proof}
 
 \begin{theorem}[(Termination of $\inlletplus$)] 
-		The multi-step inlining always terminates: \\
-		$\forall t_0~
-	 			!\exists t_n : 
-	 				  (\inllett{t_0}{t_n}) \brarr (t_n \in \inlletNF).$
+		$\forall t_0 \in \inlsrc ~
+	 			\exists n \in \mathbb{N}:  
+	 				  (\inllett{t_0}{t_n}) \bwedge (t_n \in \inlletNF).$
 \label{inllet-term-l}
 \end{theorem}
-\begin{proof} For detailed proof see \ref{inllet-term-p}. \end{proof}
+\begin{proof} 
+	Let $t_0$ be a well-typed term of $\inlsrc$.  Denote by $\#letF(t_0)$ the number of second-order sub-expressions of the form $\tmlet{F}{t_1}{t_2}$ that occur in $t_0$. 
  
+	If $\#letF(t_0) = 0$, then by definition of $S$, $t_0 \in S$. By \cref{inllet-nforms-l}, we have immediately $t_0 \in \inlletNF$.
+	
+	Otherwise, $\#letF(t_0) = k$ for some $k > 0$.
+	Then, it suffices to prove for any rewriting step $\inlletarr t_{i} \inlletarr  t_{i+1}$ of the reduction chain starting from $ t_0$, that $\#letF(t_{i})$ > $\#letF(t_{i+1})$. 
+	
+	
+	Let $ t_i \inlletarr t_{i+1}$ be a step of the chain above. We prove the statement above by induction on the derivation of $ t_i \inlletarr t_{i+1}$.
+
+	Either $ t_i \inlletarr t_{i+1}$ is head reduction described \textsc{I$_1$-Let$_0$}: 
+	$$ t_i = \boldsymbol{\tmlet{F}{s_1}{s_2}} \inlletarr \boldsymbol{\tmsbst{s_2}{F}{s_1}} = t_{i+1} \quad \text{ for some } s_1, s_2  \in S.$$ 
+	In that case, we have immediately: 
+	$$ \#letF(t_i) = 1 > \#letF(t_i+1) = 0.$$
+	
+	Otherwise, $ t_i \inlletarr t_{i+1}$ follows one of contextual rules \textsc{I$_1$-Let$_1$}, \textsc{I$_1$-App$_1$}, ... , in which case, the proof is done by applying directly the induction hypothesis on the immediate sub-derivation	of each considered rule.
+	
+	We showed that the result above holds for \textit{any} step of the chain above. 
+	It follows then that the sequence $k = \#letF(t_0) > \#letF(t_1) >  ... > \#letF(t_i) > ... $ is strictly decreasing, so that there exist some $n$, for which $\#letF(t_n) = 0$, and $ t_{i} \inlletarr ... \inlletarr t_n \in \inlletNF$. 
+	By \cref{inllet-determ-l}, the rewriting strategy $\inlletarr$ is deterministic, so the chain above is uniquely defined.
+	Theferore, $n$ is uniquely defined too, which is exactly what we wanted to prove. 
+\end{proof}
+
+
+Finally, the main result of this subsection follows immediately from the theorems above:
 \begin{corr}[(Second-Order Local Bindings Inlining)] blah\\
- $\forall t.~ 
-	 			!\exists s : 
-	 				(t \in \inlT \bwedge t \not\in \inlS) \brarr 
-	 				  (\inllett{t}{s} \bwedge s \in \inlS).$
+ $\forall t \in \inlT.~ t \not\in \inlS \brarr 
+	 				  !\exists s \in \inlT: \inllett{t}{s} \bwedge s \in \inlS.$
 \end{corr}
 
 
@@ -2077,12 +2098,12 @@ Finally, the proof of \textsc{(T-Let)} follows exactly the same scheme that in t
 	\subsection{Inlining Second-Order Local Bindings}
 	
 
-\begin{lemma}[(determinacy of $\inlletplus$)] 
-	$\forall n \in \mathbb{N}.~ \forall t, t_1, t_2.
-		(t \inlletarr^{n} {t_1} \bwedge t \inlletarr^{n} {t_2}) \brarr
-			t_1 = t_2$.	
-	\label{inllet-determ-p}	
-\end{lemma}
+%\begin{lemma}[(determinacy of $\inlletplus$)] 
+%	$\forall n \in \mathbb{N}.~ \forall t, t_1, t_2.
+%		(t \inlletarr^{n} {t_1} \bwedge t \inlletarr^{n} {t_2}) \brarr
+%			t_1 = t_2$.	
+%	\label{inllet-determ-p}	
+%\end{lemma}
 
 \begin{proof}
 Start by proving the base case (\textsc{$I_1$-step}) by case analysis, for each possible form of $t$, on the leftmost immediate sub-term of $t$ containing an occurrence of some second-order variable $F$. 

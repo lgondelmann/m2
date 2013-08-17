@@ -1,3 +1,33 @@
+\section*{inl1}
+% Then, the first step of inlining is
+%defined as the reflexive, transitive closure of $\hookdownarrow$:
+%	that $\#letF(t_{i})$ >$\#letF(t_{i+1})$. 
+%\begin{definition}([Multi-Step Inlining, $\inlletstar$]) The multi-step
+%  inlining $\inlletplus$ is the transitive closure of one-step
+%  inlining. That is, it is the smallest relation defined by the following
+%  inference rules:
+%$$\dfrac{\inllet{t}{t'}}{\inllett{t}{t'}}{~~(\textsc{$I_1$-step})}
+%\quad\dfrac{\inllett{t}{t'} 
+%\qquad \inllett{t'}{t''}}{\inllett{t}{t''}}{~~(\textsc{$I_1$-trans})}$$
+%\end{definition}
+
+ %\inlletarr t_1 \inlletarr ... \inlletarr t_{i} \inlletarr  t_{i+1}  \inlletarr ...$
+%
+%
+%%	From that we deduce that there is at least one reduction step $\inlletarr$ from $t_0$. 
+%
+%	Let $t_0$ be a term of $\inlsrc$. If $t_0 \in S$, then by the lemma above, we have immediately that $t_0 \in \inlletNF$. 
+%	Otherwise $t \not\in S$, so there is a positive number of second-order sub-expressions of the form $\tmlet{F}{t_1}{t_2}$ inside $t_0$. 
+%	Denote this number by $#letF(t_0)$. 
+%	
+%	
+%	$$\forall i \geq 0. #letF(t_i) > #letF(t_{i+1}) $$.  
+%	
+%	inside For detailed proof see \ref{inllet-term-p}. 
+---------------------------------
+
+
+
 as a rewriting strategy 
 , for which $\inlletstar$ will be its reflexive, transitive closure.
 
