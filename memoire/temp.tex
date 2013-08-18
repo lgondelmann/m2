@@ -25,7 +25,60 @@
 %	
 %	inside For detailed proof see \ref{inllet-term-p}. 
 ---------------------------------
+\section{inl2}
 
+%
+%\begin{definition}([Multi-Step Inlining, $\inlletplus$]) 
+%The multi-step inlining $\inlletplus$ is the transitive closure of one-step
+%inlining.  That is, it is the smallest relation defined by the following
+%inference rules:
+
+%\begin{figure}[H]
+%	\begin{spacing}{1.01}
+%	\hrulefill
+%	\begin{adjustwidth}{-8em}{0em}
+%
+%		\begin{multicols}{3}
+%		\infrule[$I_1$-Step]{\inllet{t}{t'}{\inllett{t}{t'} 			
+%			\tmsbst{s_2}{F}{s_1}}}
+%		\inllettrule{$I_1$-Trans}{t_2}{t'_2}
+%			{\tmlet{\varslash{l}{F}}{t_1}{\boldsymbol{t_2}}}
+%			{\tmlet{\varslash{l}{F}}{t_1}{\boldsymbol{t'_2}}}
+%		\end{multicols}
+%	\end{adjustwidth}	
+%	\hrulefill
+%	\end{spacing}
+%	\caption{ \textbf{Multi-Step Inlining of Second-Order Local Bindings}\hfill}
+% 	\label{fig:inl-let-d}
+%	\end{figure}
+
+$$\dfrac{\inllet{t}{t'}}{\inllett{t}{t'}}{~~(\textsc{$I_1$-step})}
+\quad\dfrac{\inllett{t}{t'} 
+\qquad \inllett{t'}{t''}}{\inllett{t}{t''}}{~~(\textsc{$I_1$-trans})}$$
+\end{definition}
+
+- sos definition
+- theorem 2	
+\begin{lemma}[(Determinacy of $\icarr$)] 
+	$\forall s, s_1, s_2.
+		(s \icarr {s_1} \bwedge t \icarr {s_2}) \brarr
+			s_1 = s_2$.	\label{ic-determ-l}	
+\end{lemma}
+\begin{proof} Similar to the proof of \ref{inllet-determ-l}. \end{proof} 
+	
+\begin{lemma}[($\inlletarr$ Preservation Properties)]
+For any well-typed term $t$ such that\\ $\typerule{t}{\tau}{\theta}{\rho}$ and $\ic{s}{s'}$, the following properties hold:
+\begin{displaymath}
+\begin{array}{l@{\hspace*{1cm}}l@{\hspace*{1cm}}l}
+	(1)& FV(t') \subseteq FV(t) & \textsc{(free variables inclusion)} \\
+	(2)& t' \in \inlT & \textsc{(A-normal form preservation)}\\ 
+	(3)& \typerule{t'}{\tau}{\theta}{\rho} &\textsc{(typing and effects preservation)}
+	\end{array}
+\end{displaymath}
+ \label{ic-prop-l}
+\end{lemma}	
+
+------------------------------------------------------------------------------
 
 
 as a rewriting strategy 
