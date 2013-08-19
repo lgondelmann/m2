@@ -7,6 +7,48 @@
 
 	
 
+%
+%
+%Finally, after all syntactical problems pointed out and solved, we will
+%concentrate our attention on the \textit{total correctness} of inlining
+%transformation: using a well-know \textit{logical relations} technique, we will
+%formalize the notion semantic equivalence between programs and show that for
+%every couple of source and target programs, these programs are semantically
+%equivalent.
+% 
+%The correctness of inlining we establish is \textit{total}: source language is
+%not confined to terminating programs and an input program's non-termination is
+%preserved by inlining. As \textit{Kahn natural semantics} is limited to
+%establishing the \textit{partial} correctness, that explains our choice of an
+%overall small-step style of programs operational semantics and inlining.
+
+%
+%context: deductive program verification~\cite{filliatre11sttt}
+%
+%main idea = if a program is using a HO function to write a loop, its
+%proof of correctness should not be more difficult than its imperative
+%counterpart using a for/while loop
+%
+%motivating examples
+%
+%related work 
+
+
+%	The computational part of an \textit{ISL} should be not too narrow so that it would allow verification of some non-trivial or real-practice-like programs. 
+
+
+% 
+%\subsection*{Related Work} 
+
+ 
+%
+
+
+
+
+%Without reducing drastically ML expressiveness, the source language will still cover a great number of real-life
+%programming examples.
+
 %\subsection*{The Context of Deductive Program Verification}
 	 section 5 $ghost-\inlsrc$ language, a version of $\inlsrc$ enriched by ghost code, which is the part of the source code that is not to be executed, but which provides a useful information about executable code during the verification process.
  Using the technique of \textit{bisimulation}, we show that ghost-code can be erased from the source program safely, without altering its meaning.  
