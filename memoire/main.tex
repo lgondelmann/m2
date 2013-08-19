@@ -1604,22 +1604,27 @@ Obverse that, by definition of $\inlletarr$, we have immediately $\inlS \subsete
 \end{proof}
 
 A possible way to prove the normalisation of $\ilarrt$ is to find a measure $\varphi$, such that for each step $\il{s_{i}}{s_{i+1}}$ of the reduction chain $ s_0 \icarrt ... \ilarrt s_i \ilarrt s_{i+1} \ilarrt ...$, we get $\varphi(s_{i}) >  \varphi(s_{i+1}) $. \\ 
-For $\ilarr$, such measure is actually easy to find: we simply define $\varphi$ as the number of second-order local bindings of a given term.
+For $\ilarr$, such measure is not difficult to find: we simply define $\varphi$ as the number of second-order local bindings of a given term.
 
-The following lemma can be easily proved:
+Then, we can prove the following auxiliary lemma:
 
 \begin{lemma}[(Decreasing Measure for $\inlletplus$)] 
 If $\il{t}{t'}$, then $\varphi(t) > \varphi(t')$.
+\hypertarget{desc-meas-1}{}
 \end{lemma}
 \begin{proof}
-By induction on the derivation $\il{t}{t'}$.
+By induction on the derivation $\il{t}{t'}$. \\
 
-\noindent\textit{Case} (\textsc{I}$_{1}$-\textsc{Let}$_0$) \\
+\noindent\textit{Case} (\textsc{I}$_{1}$-\textsc{Let}$_0$):
+$\qquad \dfrac{}{\varphi(let~F~=~s_1~in~s_2) = 1 > 0 = \varphi(s_2 [F \mapsfrom s_1])}$\\[0.5cm]
 
+\noindent\textit{Case} (\textsc{I}$_{1}$-\textsc{App}$_1$):
 
+$  \hspace*{4cm}\dfrac{\il{t_1}{t_1'}}{\il{(t_1~v)}{(t_1'~v)}}$\\[0.6cm]
+By induction hypothesis on $\il{t_1}{t_1'}$ we get $\varphi(t_1) > \varphi(t_1')$.
+Thus, $${\varphi(t_1~v_2) = \varphi(t_1) + \varphi(v_2) > \varphi(t_1') + \varphi(v_2) = \varphi(t_1'~v_2)}$$
 
-
-\end{proof}
+Other cases can be proven similarly to (\textsc{I}$_{1}$-\textsc{App}$_1$). \end{proof}
 
 
 \begin{theorem}[(Termination of $\inlletplus$)] 
@@ -1629,31 +1634,18 @@ By induction on the derivation $\il{t}{t'}$.
 \label{inllet-term-l}
 \end{theorem}
 \begin{proof} 
-	Let $t_0$ be a well-typed term of $\inlsrc$.  Denote by $\#letF(t_0)$ the number of second-order sub-expressions of the form $\tmlet{F}{t_1}{t_2}$ that occur in $t_0$. 
- 
-	If $\#letF(t_0) = 0$, then by definition of $S$, $t_0 \in S$. By \cref{inllet-nforms-l}, we have immediately $t_0 \in \inlletNF$.
+	Let $t_0$ be a well-typed term of $\inlsrc$. 
+	If	$t_0 \in S$, then by \cref{inllet-nforms-l}, we have immediately $t_0 \in \inlletNF$. \\
 	
-	Otherwise, $\#letF(t_0) = k$ for some $k > 0$.
-	Then, it suffices to prove for any rewriting step $\inlletarr t_{i} \inlletarr  t_{i+1}$ of the reduction chain starting from $ t_0$, that $\#letF(t_{i})$ > $\#letF(t_{i+1})$. 
-	
-	
-	Let $ t_i \inlletarr t_{i+1}$ be a step of the chain above. We prove the statement above by induction on the derivation of $ t_i \inlletarr t_{i+1}$.
-
-	Either $ t_i \inlletarr t_{i+1}$ is head reduction described \textsc{I$_1$-Let$_0$}: 
-	$$ t_i = \boldsymbol{\tmlet{F}{s_1}{s_2}} \inlletarr \boldsymbol{\tmsbst{s_2}{F}{s_1}} = t_{i+1} \quad \text{ for some } s_1, s_2  \in S.$$ 
-	In that case, we have immediately: 
-	$$ \#letF(t_i) = 1 > \#letF(t_i+1) = 0.$$
-	
-	Otherwise, $ t_i \inlletarr t_{i+1}$ follows one of contextual rules \textsc{I$_1$-Let$_1$}, \textsc{I$_1$-App$_1$}, ... , in which case, the proof is done by applying directly the induction hypothesis on the immediate sub-derivation	of each considered rule.
-	
-	We showed that the result above holds for \textit{any} step of the chain above. 
-	It follows then that the sequence $k = \#letF(t_0) > \#letF(t_1) >  ... > \#letF(t_i) > ... $ is strictly decreasing, so that there exist some $n$, for which $\#letF(t_n) = 0$, and $ t_{i} \inlletarr ... \inlletarr t_n \in \inlletNF$. 
+	Otherwise, let $t_0 \ilarr t_1 \ilarr ... \ilarr t_j$ be a reduction chain of inlining steps. 
+	By auxiliary lemma \hypertarget{decr-meas-1}{above} holds for \textit{every} step of this chain.
+	Thereofre, the sequence $k = \varphi(t_0) > \varphi(t_1) >  ... > \varphi(t_i) > ... $ is strictly decreasing, so there exists some $n$, for which $\varphi = 0$, and $ t_{i} \inlletarr ... \inlletarr t_n \in \inlletNF$. 
 	By \cref{inllet-determ-l}, the rewriting strategy $\inlletarr$ is deterministic, so the chain above is uniquely defined.
-	Theferore, $n$ is uniquely defined too, which is exactly what we wanted to prove. 
+	Theferore, $n$ is uniquely defined too, which is exactly what we wanted to prove. 	
 \end{proof}
 
 
-Finally, the main result of this subsection follows immediately from the theorems above:
+The main result of this subsection follows immediately from the theorems above:
 \begin{corr}[(Second-Order Local Bindings Inlining)] 
 ~\\
  $\forall t \in \inlT.~ t \not\in \inlS \brarr 
