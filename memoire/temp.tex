@@ -78,6 +78,7 @@ For any well-typed term $t$ such that\\ $\typerule{t}{\tau}{\theta}{\rho}$ and $
  \label{ic-prop-l}
 \end{lemma}	
 
+	\textit{in both cases} the executable application's \textbf{size is strictly smaller}.  
 ------------------------------------------------------------------------------
 
 
@@ -110,6 +111,33 @@ That is, the domain of inlining procedure is given by $\inlS$, a proper subset o
   $ w ::= \lambda l. s ~|~ \tmrec{f}{x}{\tau}{s}\hfill \textsc{(Values)}$ \\\indent 
   $ l ::= x ~|~ f \hfill \textsc{(Binders)}$ \\\indent 
   $ c ::= x ~|~ \overline{n}~|~... \hfill \textsc{(Constants)}$\\[1em]
+
+In the latter case, even thought we do not know statically which of applications $(u_1~\vartheta)$, $(u_2~\vartheta)$  will be eventually evaluated, we  know that  \textit{in both cases},  the \textbf{size} of the evaluated application is \textbf{strictly smaller}, than the size of the inlined application itself.
+	
+	We need to generalize this idea for the rewriting contextual rules from the \cref{fig:inl-app-c-d}, comparing the size of \textit{all} executable second-order applications inside $s_{i}$ and $s_{i+1}$. 
+	
+	
+		
+	
+	
+	That is, for each step  of $\ic{s_{i}}{s_{i+1}}$, we can take as measure $\varphi$ the ordered pair ($\#_{App^2}(s_{i})$, $\max$($\Sigma_{App^2}(u_{i}~\vartheta)$).
+	
+		Denote by $\#_{App^2}(s_{i})$ the number of executable second-order applications, and by $\Sigma_{App^2}(u_{i}~\vartheta)$ the size of each second-order application inside of $s_{i}$. 
+	
+		
+On the other hand, applying \textsc{I$_2$-Let$_0$} does not \textit{decrease} neither the size of $s_{i}$, nor the the number of second-order applications of $s_{i}$
+		\icrulehead
+		{Let$_0$}
+		{(\boldsymbol{(}\tmlet{l}{u_1}{u_2}\boldsymbol{)} \boldsymbol{\vartheta})}
+		{\tmlet{l}{u_1}{\boldsymbol{(u_2~\vartheta)}}} 
+		{u_1, u_2, \vartheta \in U}	
+ Finally, rules \textsc{I$_2$-If$_0$} and \textsc{I$_2$-Match$_0$} even \textit{increase} this number by one:
+
+
+	However, the second look on the last two rules tells us that the number second-order applications of $s_{i+1}$ that will be \textit{\textbf{eventually}} evaluated does not actually \textit{increase}.
+	
+	Indeed, during evaluation, \textbf{one and only one branch} of \texttt{'if'} or \texttt{'match with'} expression will be executed.
+	Thus, for each of the four rules above, either the number of executable second-order applications is \textbf{strictly decreasing} from one to zero, or this number \textbf{remains} one. 
 
 
 %

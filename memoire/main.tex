@@ -1677,7 +1677,8 @@ Finally, the main result of this subsection follows immediately from the theorem
 \begin{corr}[(Second-Order Local Bindings Inlining)] 
 ~\\
  $\forall t \in \inlT.~ t \not\in \inlS \brarr 
-	 				  !\exists s \in \inlT: \inllett{t}{s} \bwedge s \in \inlS.$
+	 				  \exists !s \in \inlT: \inllett{t}{s}.$
+\label{inllet-corr}
 \end{corr}
 
 
@@ -1740,7 +1741,7 @@ $\overset{\inlletstar}{I(\textit{P})}$.
 		{Let$_0$}
 		{(\boldsymbol{(}\tmlet{l}{u_1}{u_2}\boldsymbol{)} \boldsymbol{\vartheta})}
 		{\tmlet{l}{u_1}{\boldsymbol{(u_2~\vartheta)}}} 
-		{u_1, u_2, \vartheta \in U}	
+		{u_1, u_2, \vartheta \in U ~~~ (u_1, u_2:\tau^2)}	
 		\vspace*{0.5cm}
 	\icrulehead
 		{Match$_0$}
@@ -1871,50 +1872,103 @@ $ \icNF  = U.$
 \begin{proof} Same as for \cref{inllet-nforms-l}.
 \end{proof}
 
+\paragraph{Termination of $\icarrt$}
+
+The proof of normalisation theorem for $\icarrt$ relies on the idea, similar to the proof of normalisation of $\icarrt$: for each step $\ic{s_{i}}{s_{i+1}}$ of the reduction chain $ s_0 \icarrt ... \icarrt s_i \icarrt s_{i+1} \icarrt ...$, we prove that there is some measure $\varphi$, such that  $\varphi(s_{i}) >  \varphi(s_{i+1}) $. \\ 
+
+	In the case of $\inlletarr$, we defined $\varphi (t_{i})$ as $\#LetF(t_{i})$, the number of second-order let constructions. 
+	To find out how to define $\varphi (t_{i})$ for $\icarrt$, let us take a look on the rewriting rules from the \cref{fig:inl-app-h-d}.
+	As we can observe, during any evaluation of $s_{i+1}$ of the rules \textsc{I$_2$-If$_0$} and \textsc{I$_2$-Match$_0$}, \textbf{one and only one branch} of \texttt{"if"} or \texttt{"match with"} expression will be executed.	
+	
+	From the rules 
+%		\begin{footnotesize}
+%	\begin{adjustwidth}{-10em}{0em}
+%	\begin{multicols}{2}
+%	\icrulehead
+%		{Let$_0$}
+%		{(\boldsymbol{(}\tmlet{l}{u_1}{u_2}\boldsymbol{)} \boldsymbol{\vartheta})}
+%		{\tmlet{l}{u_1}{\boldsymbol{(u_2~\vartheta)}}} 
+%		{u_1, u_2, \vartheta \in U}	
+%
+%	\icrulehead
+%		{Match$_0$}
+%		{(\boldsymbol{(}match~v~with~Nil~->~ u_1~|~Cons~x~y -> u_2{)} \boldsymbol{\vartheta}) \\}
+%		{match~v~with~Nil~->~ \boldsymbol{(u_1~\vartheta)}~|~Cons~x~y -> \boldsymbol{(u_2~\vartheta)}}
+%		{u_1, u_2, \vartheta \in U, ~~~ (u_1, u_2:\tau^2)}				
+%	\end{multicols}
+%		\end{adjustwidth}	
+%		\end{footnotesize}	
+	 That is, in three of four base cases of $\icarr$ (\textsc{I$_2$-If$_0$},\textsc{I$_2$-Match$_0$},\textsc{I$_2$-Let$_0$}) the number second-order applications of $s_{i+1}$ that are \textit{\textbf{eventually}} evaluated remains the same as for $s_{i}$, and in the case of \textsc{I$_2$-App$_0$}, this number goes straight from one to zero. This observation gives us the idea of defining $\varphi$ as follows:
+	
+\begin{definition}
+	Let $s$ be a term $\in S$. 
+	
+	Then either $s \in U$. In that case $\varphi(s) = 0$.
+	
+	Otherwise,  $s \not\in U$, so there is some second-order application $(s' w')$ inside $s$. Then by induction on the structure of $s$, we define $\varphi(s)$, with the following case analysis of all possible contexts in which $(s' w')$ may appear in $s$.
+\begin{displaymath}
+	\begin{array}{lll@{\hspace*{3cm}}l}
+	\varphi(\lambda f. u~\vartheta) &=& 1 \\ 
+	 
+	\varphi(\boldsymbol{(}match~v~with~Nil~->~u_1~|~Cons~x~y -> u_2{)} \vartheta) \quad \text{with}~u_1, u_2:\tau^2 &=& 3 \\
+	 
+	\varphi(\boldsymbol{(}let~x~=~u_1~in~u_2{)} \vartheta) \quad \text{with}~u_1, u_2:\tau^2 &=& 3 \\
+	 
+	\varphi(\boldsymbol{(}if~v~then~u_1~else~u_2) \vartheta \boldsymbol{)}) \quad \text{with}~u_1, u_2:\tau^2 &=& 3 \\
+	 
+	\varphi(s_1 w_2) \quad \text{with}~s_1:\tau^2  &=& 1 + \varphi(s_1) + \varphi(w_2) \ \\
+	
+	\varphi(s_1 w_2) \quad \text{with}~s_1:\tau^1  &=& \varphi(s_1) + \varphi(w_2) \ \\	 
+	 
+	\varphi(\lambda l. s_1) &=& \varphi(s_1) \\  
+	
+	\varphi(\tmrec{f}{x}{(\tau^1, \theta)}{s_1}) &=& \varphi(s_1) \\ 	 
+	 
+	\varphi(let~x~=~s_1~in~s_2) &=& \varphi(s_1) + \varphi(w_2) \\
+	 
+	\varphi(if~v~then~s_1~else~s_2) &=& \varphi(s_1) + \varphi(s_2) \\
+
+	\varphi(match~v~with~Nil~->~s_1~|~Cons~x~y -> s_2) &=& \varphi(s_1) + \varphi(s_2) \\
+	\end{array}
+\end{displaymath}	
+	\end{definition}	
+
+	
 \begin{theorem}[(Termination of $\icarrt$)] 
 		$\forall s_0 \in S ~
 	 			\exists n \in \mathbb{N}:  
 	 				  (\ict{s_0}{s_n}) \bwedge (s_n \in \icNF).$
 \label{ic-term-l}
 \end{theorem}
-%\begin{proof} 
-%	Let $t_0$ be a well-typed term of $\inlsrc$.  Denote by $\#letF(t_0)$ the number of second-order sub-expressions of the form $\tmlet{F}{t_1}{t_2}$ that occur in $t_0$. 
-% 
-%	If $\#letF(t_0) = 0$, then by definition of $S$, $t_0 \in S$. By \cref{inllet-nforms-l}, we have immediately $t_0 \in \inlletNF$.
-%	
-%	Otherwise, $\#letF(t_0) = k$ for some $k > 0$.
-%	Then, it suffices to prove for any rewriting step $\inlletarr t_{i} \inlletarr  t_{i+1}$ of the reduction chain starting from $ t_0$, that $\#letF(t_{i})$ > $\#letF(t_{i+1})$. 
-%	
-%	
-%	Let $ t_i \inlletarr t_{i+1}$ be a step of the chain above. We prove the statement above by induction on the derivation of $ t_i \inlletarr t_{i+1}$.
-%
-%	Either $ t_i \inlletarr t_{i+1}$ is head reduction described \textsc{I$_1$-Let$_0$}: 
-%	$$ t_i = \boldsymbol{\tmlet{F}{s_1}{s_2}} \inlletarr \boldsymbol{\tmsbst{s_2}{F}{s_1}} = t_{i+1} \quad \text{ for some } s_1, s_2  \in S.$$ 
-%	In that case, we have immediately: 
-%	$$ \#letF(t_i) = 1 > \#letF(t_i+1) = 0.$$
-%	
-%	Otherwise, $ t_i \inlletarr t_{i+1}$ follows one of contextual rules \textsc{I$_1$-Let$_1$}, \textsc{I$_1$-App$_1$}, ... , in which case, the proof is done by applying directly the induction hypothesis on the immediate sub-derivation	of each considered rule.
-%	
-%	We showed that the result above holds for \textit{any} step of the chain above. 
-%	It follows then that the sequence $k = \#letF(t_0) > \#letF(t_1) >  ... > \#letF(t_i) > ... $ is strictly decreasing, so that there exist some $n$, for which $\#letF(t_n) = 0$, and $ t_{i} \inlletarr ... \inlletarr t_n \in \inlletNF$. 
-%	By \cref{inllet-determ-l}, the rewriting strategy $\inlletarr$ is deterministic, so the chain above is uniquely defined.
-%	Theferore, $n$ is uniquely defined too, which is exactly what we wanted to prove. 
-%\end{proof}
+\begin{proof}
+	With the definition above, we can easily prove by induction on the derivation of $\ic{s_{i}}{s_{i+1}}$ that $\varphi(s_{i}) > \varphi(s_{i+1})$ for each step $\ic{s_{i}}{s_{i+1}}$ of the reduction chain $ s_0 \icarrt ... \icarrt s_i \icarrt s_{i+1} \icarrt ...$. 
+	It follows then that the sequence $k = \varphi(s_0) > \varphi(s_1) >  ... > \varphi(s_i) > ... $ is strictly decreasing, so that there exist some $n$, for which $\varphi(t_n) = 0$, and $ s_{i} \inlletarr ... \inlletarr s_n \in \icNF$. 
+	By \cref{ic-determ-l}, the rewriting strategy $\icarrt$ is deterministic, so the chain above is uniquely defined.
+	Theferore, $n$ is uniquely defined too, which is exactly what we wanted to prove. 
+\end{proof}
 
+From the theorems of this and previous subsection, it follows that 
 
-%Finally, the main result of this subsection follows immediately from the theorems above:
-%\begin{corr}[(Second-Order Local Bindings Inlining)] 
-%~\\
-% $\forall t \in \inlT.~ t \not\in \inlS \brarr 
-%	 				  !\exists s \in \inlT: \inllett{t}{s} \bwedge s \in \inlS.$
-%\end{corr} 
+\begin{corr}[(Second-Order Application Inlining)] 
+~\\
+ $\forall s \in S.~ s \not\in U \brarr 
+	 				  \exists !u \in U: \ict{s}{u}.$
+\end{corr} 
  
- 
+ Finally, from the corollary above and \cref{inllet-corr} we get:
+ \begin{corr}[(Second-Order Inlining)] 
+~\\
+ $\forall t \in \inlsrc.~ t \not\in S \brarr \exists !s: !u \in U: \ict{s}{u}.$
+\end{corr} 
+	That is, our first goal to prove inlining terminating and always resulting in a first-order program is achieved. 
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \subsection{Correctness Proof for Inlining}
+
+	Our final goal is to prove that inlining preserves the \textit{meaning} of the source term. 
+  	
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{Semantic Equivalence Between Closed Terms}
