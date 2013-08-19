@@ -394,7 +394,7 @@ by either interactive proof assistants or automated theorem provers.
 
 	Until recently, interactive proof assistants were predominating
 in verification practice.
-	Indeed, such problems as linear arithmetic, floating-point number analysis,
+	Indeed, problems involving linear arithmetic, floating-point number analysis,
 or array bounds check, occur ubiquitously in any realistic software
  verification process, but were not supported by the earlier models of automated theorem provers, leaving no choice but to use proof assistants.
 	
@@ -417,22 +417,37 @@ or array bounds check, occur ubiquitously in any realistic software
 %	FramaC$^{\cite{Cuoq}}$'s \textit{isl} relies on \textit{CIL} (C Intermediate Language) which contains a simplified subset of the C programming language. \\
 %	
 
-  HERE RELATED WORK \\
-
-  However, our evaluation of large-scale functional programming corpora shows that most of higher-order expressions encountered in practice are expressions such as \textit{iterators} \textit{mappings}, and \textit{folders} for whom, intuitively, verification can be done in a way similar to the verification of a program with a simple imperative loop.
-  We start our discussion by an informal discussion that explores this intuition and presents the key ideas of the present work. 
-%	So the question is : as long as using automated theorem provers remains impossible for proving higher-order programs, should we always resort to more sophisticated, less automated tools in order to prove even a simple program of every-day functional programming practice such as a program using \textit{Array.iter} ?  
+  \subsection{Related Work}	
   
-
-%	Besides evaluation, we provide a prototype that implements the \textit{inlining} technique for a small fragment of WhyML, the specification language of an existing software verification platform Why3$^{\cite{boogie11why3}}$ developed by the Toccata team\footnote{\url{http://toccata.lri.fr/}}. 
-%	
-
+  
+	The aim of this memoire is somehow different from the works above. 
+	Our goal is not to describe the most general class of higher-order expressions that can be inlined, but to make rather a practical investigation about the potential of higer-order inlining in deductive verification discipline.  
 	
+	As we will show later in evaluation section, many of higher-order definitions of real projects does not require all the power of ML.
+	On the contrary, most of higher-order expressions encountered in practice are expressions such as \textit{iterators} \textit{mappings}, and \textit{folders}.
+	The goal of this work is thus to show that the verification of programs using these expressions can be done in a similar way to the verification of a programs using  simple imperative loop. 
 
-%\subsection*{The Context of Deductive Program Verification}
+	\subsection{Outline}	
+	
+  We start our discussion by giving some of the key-ideas of inlining informally.
+  Then, in Section 2 we describe the a simple functional programming language in which we can write interesting programs we want to inline. 
+  
+   
 
+%		The rest of our work is dedicated to a more formal description of inlining. 
+%	In the section 2, we present Mini-ML, a tiny, but pertinent fragment of Ocaml, in which we can write programs like our introductory examples. 
+%	To eliminate all possible programs on which inlining would fail, we restrain Mini-ML to a subset of second-order Mini-ML programs of a particular form, $\inlsrc$, that contains only the programs on which inlining procedure can operate safely. 
+
+	Section 3 give then a formal definition of inlining of procedure itself and prove 
+	prove some results, like termination and soundness of the procedure. 
+
+
+	Section 4 is somehow orthogonal to the rest of work. It presents briefly the logic in which we can write annotations for our examples. It also introduces the notion ghost-code, which will be useful to annotate programs more easily. 
 	
+	 Finally, Section 5 illustrates how the inlining procedure works on the examples involving the most common higher-order definitions such as \textit{List.map}, \textit{List.fold}, etc. 
 	
+ 
+  
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
 \subsection*{An Introductory Example}		
@@ -476,8 +491,11 @@ or array bounds check, occur ubiquitously in any realistic software
 \begin{small}
 $$\frac { \{P \land B \}\ S\ \{P\} }
 { \{P \}\ \textbf{while}\ B\ \textbf{do}\ S\ \textbf{done}\ \{\neg B \land P\}}$$
-\end{small} where \texttt{P} is the loop invariant, which is to be preserved by the loop body \texttt{S}, and \texttt{B} is the loop condition, that once becoming false, must have caused the loop to stop. Here is how \texttt{sum\_loop} can be specified and proved in Why3. 
-A natural specification of \texttt{sum\_loop} would be :
+\end{small} 
+where \texttt{P} stands the loop invariant and B is the loop condition.
+% that once becoming false, must have caused the loop to stop. 
+Here is how \texttt{sum\_loop} can be specified and proved in Why3. 
+A natural way to specify and annotate \texttt{sum\_loop} is:
 %	
 % $\sum_{~0\leq i < n} a[i]$,
 \begin{small}
@@ -487,14 +505,14 @@ let sum_loop (a: array int)
   let s = ref 0 in
   let i = ref 0 in
   while !i < a.length do
-    $\textcolor{OliveGreen}{\textbf{invariant }\{~P \bwedge 0 \leq !i \leq n~\}}$
+    $\textcolor{OliveGreen}{\textbf{invariant }\{~P \}}$
     s := !s + a[!i];
     i := !i + 1
   done; !s 
  	\end{whycode}
  \end{small}
-where the \textit{loop invariant} P $ \triangleq !s = \sum_{~0\leq j < i} a[j]$ and $n$ is the length of array \texttt{a}. 
-The verification conditions computed automatically by Why3 from these specifications are:
+where the  P is a shortcut for $ !s = \sum_{~0\leq j < i} a[j] \bwedge 0 \leq !i \leq n~$ and $n$ for the length of array \texttt{a}. 
+The verification conditions computed automatically by Why3 from these annotations are:
 \begin{footnotesize}
 \begin{displaymath}
 \begin{array}{ll@{\hspace*{2em}}r}
@@ -514,7 +532,7 @@ The verification conditions computed automatically by Why3 from these specificat
 
 (vc3)
 	& P \bwedge i < n \vdash 0 \leq i \leq n 
-	& \textsc{(bound check)} \\
+	& \textsc{(array bound check)} \\
 
 (vc4)
 	& P \bwedge i \geq n \vdash s = \sum_{~0 \leq j < n} a[j] 
@@ -523,12 +541,12 @@ The verification conditions computed automatically by Why3 from these specificat
 \end{displaymath}
 \end{footnotesize}
 
-	All these verification conditions are basic first-order formulas with linear arithmetic. 
+	All these verification conditions are first-order formulas with linear arithmetic. 
 	They are proved by Alt-Ergo SMT solver instantly. \\
 	
-	Back to \texttt{sum\_iter}. Is there anything similar to \textit{Hoare logic} rule for \texttt{while} loop?
-	Can we find a way to provide a specification for the functional program as easily as for the imperative one? 
-	And most importantly, can we get from \texttt{sum\_iter} specification the verifications conditions that would be roughly the same as vc1-vc4 ?
+	So, is there anything similar to the \textit{Hoare logic} rule for \texttt{while} loop?
+	Can we find a way to annotate and specify a functional program as easily as for the imperative one? 
+	Can we get from \texttt{sum\_iter} annotations the verifications conditions that would be roughly the same as vc1-vc4 ?
 	
 \subsection*{A Technical Solution: Inlining}
 	\qquad One possible solution is higher-order program \textit{inlining}.
@@ -540,11 +558,11 @@ each higher-order expression into an expression of first-order degree.
 	The rest of the source program, that is, any expression of first-order
 type, remains syntactically unchanged. 
 
-	It is obviously not possible to inline just any higher-order program. 
-	In the next subsection we show two examples where inlining transformation fails because the necessary restrictions are not imposed on the source language. 
-	However, in the case of \texttt{sum\_iter} program, inlining it does procude a correct result of a first-order program equivalent to the \texttt{sum\_iter} above.
+	It is obviously not possible to inline any higher-order program. 
+	In the next subsection we show two examples where inlining fails. 
+	However, in the case of \texttt{sum\_iter} program, inlining does produce a correct result of a first-order program equivalent to the \texttt{sum\_iter} above.
 	Here is how. 
-	First we inline the definition of \texttt{Array.iter}, then substitute its formal parameter \texttt{f} by the function \texttt{fun x -> s:= !s + x}, so that the source code becomes:
+	First we inline the definition of \texttt{array\_iter}, then substitute its formal parameter \texttt{f} by the function \texttt{fun x -> s:= !s + x}, so that the source code becomes:
 
 
 \begin{adjustwidth}{-1em}{-2em}
@@ -559,9 +577,9 @@ type, remains syntactically unchanged.
    
    let sum_iter (a: array int) =		 
      let s = ref 0 in
-     array\_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}$ a  
+     array_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}$ a  
      
-  (* source code *)   
+  (*(1.1) source code *)   
  	\end{whycode}
  	\end{minipage}\hfill\vline
  \begin{minipage}[t]{0.45\linewidth} 
@@ -577,14 +595,14 @@ type, remains syntactically unchanged.
        in loop 0   
      in Array.iter $\textcolor{Sepia}{\text{\textvisiblespace}}$ a   
      
-    (* after inlining *)
+    (*(1.2) after inlining *)
  	\end{whycode}
  	\end{minipage}
  \end{footnotesize}
 \end{adjustwidth}
 
-It remains to specify the source code in such way that inlining would transform the source code specification into a specification that should suffice to prove the inlined program above. 
-This can be achieved by extending the definition of \texttt{array\_iter} with additional parameter \textcolor{blue}{\texttt{\textbf{inv:int-> prop}}} which stands for the loop invariant $P$. 
+It remains to annotate (1.2) so that inlining would transform it into an annotated code that should suffice to prove the inlined program above. 
+This can be achieved by extending the definition of \texttt{array\_iter} with an additional parameter \textcolor{blue}{\texttt{\textbf{inv:int-> prop}}} which stands for the loop invariant $P$. 
 \begin{small}
 \begin{whycode}  
    let array_iter ($\textcolor{red}{\text{f:int -> unit}}$) (b: int array) ($\textcolor{red}{\text{inv:int -> int array -> prop}}$)    
@@ -599,10 +617,10 @@ This can be achieved by extending the definition of \texttt{array\_iter} with ad
 \end{whycode}
 \end{small}
 
-It is important to see that the specification on the initial program is not only higher-order, but that it is \textit{partial}: it provides no information about behaviour of its functional parameter \texttt{f}. 
-	For instance, it keeps no track of potential side-effects produced by \texttt{f}). 
-	However, in the example we discuss here, as in many other realistic examples, while the auxiliary function \texttt{loop} of \texttt{array\_iter} simulates to imperative loop reiteration by recursion, the body of \texttt{f} corresponds exactly to the body of the loop. 
-	That's why it becomes possible to provide the missing part of specification by instantiating  \textcolor{blue}{\texttt{\textbf{inv}}} with the actual loop invariant \textcolor{blue}{$\lambda i_{int}.\lambda c_{\texttt{int array}}. \sum_{~0\leq j < i} a[j] $} inside the call of \texttt{array\_iter}:
+It is important to see that the specification above is not only higher-order, but also \textit{partial}: it provides no information about behaviour of its functional parameter \texttt{f}. 
+	For instance, it keeps no track of potential side-effects produced by \texttt{f}. 
+%	However, in the example we discuss here, as in many other realistic examples, the auxiliary function \texttt{loop} of \texttt{array\_iter} simulates to imperative loop reiteration by recursion, the body of \texttt{f} corresponds exactly to the body of the loop. 
+	However, we can provide the missing part of specification by instantiating  \textcolor{blue}{\texttt{\textbf{inv}}} with the actual loop invariant \textcolor{blue}{$\lambda i_{int}.\lambda c_{\texttt{int array}}. \sum_{~0\leq j < i} a[j] $} inside the call of \texttt{array\_iter}:
 \begin{small}
 \begin{whycode} 
  let sum_iter (a: array int) =		 
@@ -612,33 +630,10 @@ It is important to see that the specification on the initial program is not only
 \end{whycode}
 \end{small}
 
-Another advantage of dispatching the loop invariant between partially specified definition of iterator and iterator's application to actual statement about the iterated function $f$ is that now we need to specify \texttt{array\_iter} only once, and instantiate the partial specification in the context of each call independently.
+After inlining processing, we get:
 
-In the case of \texttt{sum\_iter}, here is how a specified source code looks before and after inlining:
-
-\begin{adjustwidth}{-4em}{-2em}
 \begin{footnotesize}
-\begin{minipage}[t]{0.3\linewidth}
 \begin{whycode}  
-   let array_iter ($\textcolor{red}{\text{f:int -> unit}}$) (b: int array) 
-                  ($\textcolor{red}{\text{inv:int -> int array -> prop}}$)    
-     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} 0~b \}}}$
-     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} b.length~b }\}}$  
-   = let rec loop (i: int)
-       $\textcolor{OliveGreen}{ \text{requires \{~\textcolor{red}{inv} i b} \bwedge \text{0 <= i <= b.length}~\}}$
-       $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} b.length~b}\}}$ =    
-       = if i < b.length then ($\textcolor{red}{\text{f}}$ b[i]; loop (i+1)) 
-     in loop 0
-   
-   let sum_iter (a: array int) =		 
-     let s = ref 0 in 
-     Array.iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}~$ a
-                $\textcolor{red}{(\lambda i_{int}.\lambda c_{\texttt{int array}}. \sum_{~0\leq j < i} a[j])}$                                  
-           (*specified code before inlining*)
-\end{whycode}
-\end{minipage}\hfill\vline
-\begin{minipage}[t]{0.48\linewidth}
-	\begin{whycode}  
    let sum_iter (a: array int)		
      let s = ref 0 in
      let array_iter $\textcolor{Sepia}{\text{\textvisiblespace}}$ (b: int array) $\textcolor{Sepia}{\text{\textvisiblespace}}$
@@ -654,23 +649,21 @@ In the case of \texttt{sum\_iter}, here is how a specified source code looks bef
      in Array.iter $\textcolor{Sepia}{\text{\textvisiblespace}}~a~\textcolor{Sepia}{\text{\textvisiblespace}}$   
                (*specified code after inlining*)
  	\end{whycode}
- 	\end{minipage}
  \end{footnotesize}
-\end{adjustwidth}
 
-	As we can see, the specification of \texttt{sum\_iter} after inlining is now expressed by within first-order logic.
-	Furthermore, one can check, using Why3, that it generates verification conditions similar to VCs \texttt{vc1-vc4}. 
+
+As we can see, the key-idea is to represent the loop invariant of while construction, splitting it between the specification of iterator's definition and the annotation-like formula of iterator's call.
+The advantage of this trick is that we need to write the specification of iterator only once, and to pass each call's invariant formula independently from the other calls.
+
+	So, the specification of \texttt{sum\_iter} after inlining is now expressed by within first-order logic.
+	Furthermore, it results in verification conditions similar to VCs \texttt{vc1-vc4}. 
 	In particular, these VCs are all proved by Alt-Ergo as instantly as \texttt{vc1-vc4}, so that the inlined program using \texttt{array\_iter} is proved with respect to the initial specification.
  
  \subsection*{Incompleteness and Correctness of Inlining}
  
 The most important thing to understand about inlining is that, by its
-nature, inlining is a \textit{syntactic} transformation; there is a little
-chance of any correlation per se between inlining of a source program and its
-formal semantics. Therefore, our main concern will be the
-\textbf{correctness} of inlining: it should be \textit{deterministic} and
-always \textit{terminating} procedure, whose output has exactly the
-same \textit{meaning} that the corresponding source program. 
+nature, inlining is a \textit{syntactic} transformation. 
+Our main concern will be the \textbf{correctness} of inlining: it should be \textit{deterministic} and always \textit{terminating} procedure, whose output has exactly the same \textit{meaning} that the corresponding source program. 
  
 %Obviously, we need to design the inlining procedure in such way that, when applied to a program that only \textit{makse use} of high-order expressions, but returns some
 %first-order data like \texttt{int} or \textit{list bool}, it transforms the initial program in a purely first-order program like in the introductory example above. 
@@ -683,18 +676,20 @@ same \textit{meaning} that the corresponding source program.
 %applications of a functional to functions, and these are precisely what
 %inlining aims to simplify). 
 
-It might seem at first look that we could inline any relatively simple higher-order ML program of some base type, alike in the case of \texttt{sum\_iter} above, because the only higher-order expressions that might appear inside are either local definitions or applications of a functional to functions, which are precisely what inlining aims to simplify.	 
+It might seem at first look that we could inline any relatively simple higher-order ML program alike in the case of \texttt{sum\_iter} above, because the only higher-order expressions that might appear inside are either local definitions or applications of a functional to functions, which are precisely what inlining aims to simplify.	 
 
-
-%So can we take the entire set of ML programs as the domain of inlining
-%function ?  Would it always be possible to transform a higher-order program
-%into a first-order program that contains no higher-order content ?
-
- Unfortunately, if we do not impose any restriction on it, the set of ML programs contains even very basic small programs, for which inlining would fail, producing an incorrect result. 
- Let us illustrate this with the following two examples. \\
+Here are two examples of simple higher-order programs for which inlining fails.
+%
+%%So can we take the entire set of ML programs as the domain of inlining
+%%function ?  Would it always be possible to transform a higher-order program
+%%into a first-order program that contains no higher-order content ?
+%
+% Unfortunately, if we do not impose any restriction on the set of ML programs contains even very basic small programs, for which inlining would fail, producing an incorrect result. 
+% Let us illustrate this with the following two examples. \\
 
 One interesting feature of ML is its possibility to write programs with side
-effects: we can assign a reference. Suppose now that we want to inline
+effects. For instance, we can assign a reference. 
+Suppose now that we want to inline
 	$$ t \triangleq 
 	\tmlet 
             {\textcolor{blue}
@@ -713,10 +708,10 @@ $\textcolor{blue}{F}$ has multiple occurrences in $t_1$, the variable
 assignment $r:=42$ will be duplicated, and if $F$ does not occur in $t_1$,
 then it will be lost. 
 	Even if $\textcolor{blue}{F}$ occurs just once in
-$t_1$, we cannot be sure, that the initial order of assignments is
+$t_1$, we cannot be sure that the initial order of assignments is
 preserved.
  	And if we replace $r:=42$ in the example above by some recursive
-call that loops infinitely, from an non-terminating program $t$ we get an eventually
+call that loops infinitely, from a non-terminating program $t$ we get an possibly
 terminating program $I(t)$, so again the semantics is not preserved. \\
 
 Recursive functions with  higer-order parameters is another (de)motivating
@@ -742,16 +737,16 @@ example: suppose we want to inline two different programs $t$ and $t'$ :\vspace{
   \end{footnotesize}
    
   \end{figure}  \vspace{-0.4cm}
-As we suggested above, inlining of both programs consists in replacing,
+\indent As we suggested above, inlining consists in replacing,
 inside application $(\textcolor{blue}{F}~\textcolor{red}{\lambda y_{int}. t_0})$, 
-local variable $\textcolor{blue}{F}$ by its definition and
+the local variable $\textcolor{blue}{F}$ by its definition and
 then substituting inside the body of recursive function $f$ the formal parameter
-$\textcolor{blue}{g}$ by actual argument 
+$\textcolor{blue}{g}$ by the actual argument 
 $\textcolor{red}{\lambda y_{int}. t_0}$. 
 However substituting $\textcolor{blue}{g}$ inside recursive call 
 $((f~\textcolor{Sepia}{\boldsymbol{g}})~(x - 1))$ does not make any sense,
-because the output would still contain a higher order expression that cannot be
-simplified, that is, inlining would fail. The only solution would therefore be to
+because the output would still contain a higher-order expression that cannot be
+simplified, that is, inlining would fail. The only solution would therefore to
 simply erase inside every recursive call any formal parameter of functional
 type:
 	\begin{footnotesize}
@@ -764,44 +759,20 @@ type:
   	{\texttt{ if }x = 0\texttt{ then }(\textcolor{red}{\lambda y_{int}.t_0}~x)
     \texttt{ else }(f~\textcolor{blue}{\text{\textvisiblespace}}~(x-1))} $$
 	\end{footnotesize}
-By chance, the formal parameter $g$ remains unchanged inside recursive call
+\indent By chance, the formal parameter $g$ remains unchanged inside recursive call
 $((f~g)~x)$, so $t$ and $I(t)$ do have the same semantics. Unfortunately, in the
-recursive call of program $t'$, instead of $g$ we have a constant function
-$\lambda y. 0$, and the safety of inlining is broken: for instance, if for some
+case of program $t'$, instead of $g$ we have a constant function
+$\lambda y. 0$, so that the soundness of inlining is broken: for instance, if for some
 non-null integer x the call $(\lambda y. t_0~x)$ loops, then while $(t'~x)$ will
-return zero, $(I(t')~x)$ will loop too.
+return zero, $(I(t')~x)$ will loop too. \\
 
-Of course, the incompleteness of inlining for such expressive language as ML is
-not a surprise; some restrictions should be imposed on the source language.  
-	However, the aim of this work is not to describe the most general
-class of higher-order expressions that can be inlined, but a 
-practical investigation about the potential of higer-order inlining in deductive
-verification discipline. As we will show later in evaluation section, the
-immense majority of higher-order definitions of real projects does not require
-all the power of ML.
+There may be several solutions to this problem. We could define inlining, without guaranteeing that semantics of the source program is preserved. 
+However, our solution consists in defining a subset of ML programs each of which can be inlined soundly. 
+
+
 % 
 %\subsection*{Related Work} 
- 
-\subsection*{Outline}	
-		The rest of our work is dedicated to a more formal description of inlining. 
-	In the section 2, we present Mini-ML, a tiny, but pertinent fragment of Ocaml, in which we can write programs like our introductory examples. 
-	To eliminate all possible programs on which inlining would fail, we restrain Mini-ML to a subset of second-order Mini-ML programs of a particular form, $\inlsrc$, that contains only the programs on which inlining procedure can operate safely. 
 
-	In the section 3, we give a precise definition inlining of procedure itself, described as rewriting strategy by a set of inference rules in a \textit{small-step} manner.
- We then state and prove that this definition corresponds to the procedure 
-that is deterministic, always terminate and results in a entirely first-order
-program of $\inlsrc$.
- We conclude this section by establishing the \textit{total correctness} of inlining
-transformation, using a well-know \textit{logical relations} technique, we 
-formalize the notion semantic equivalence between programs.
-
- In the section 4 we introduce $ghost-\inlsrc$ language, a version of $\inlsrc$ enriched by ghost code, which is the part of the source code that is not to be executed, but which provides a useful information about executable code during the verification process.
- Using the technique of \textit{bisimulation}, we show that ghost-code can be erased from the source program safely, without altering its meaning.  
-	We conclude this section by a brief description of the second-order logic in which  ghost-code and logical annotations can be written for programs of  $\inlsrc$.
-
- Finally, we conclude our presentation by a discussion about the experimental evaluation and possible extensions of inlining procedure in the future.
-we extend $\inlsrc$ language with logical annotations.  
- 
  
 %
 
@@ -1450,8 +1421,17 @@ So the general typing of \texttt{let} expression is given by
 	\end{footnotesize}
 
 \paragraph{Restricting Codomain Type}
+ 
+	Obviously, if $t$ is a $\inlsrc$ program of some second-order type $\tau^2$, we cannot  transform $t$ into some first-order program. 
+	From now on, we suppose that whenever we talk about inlining a higher-order program $t$,$t$ itself is a program of some first-order type.
+
+
 \paragraph{Notations}
-Finally, to make presentation more readable, we introduce the following notations:\\
+
+	Sometimes, we will write programs of $\inlsrc$ in the syntax of WhyML, like we did in the introduction. 
+	However, the correspondence between $\inlsrc$ and a fragment of WhyML we use will be always straightforward and intuitive.
+
+	Finally, to make the rest of presentation more readable, we introduce the following notations:\\
  \hspace*{0.5cm} - $x,y,...$ denote variables of some zero-degree type: \texttt{int, bool, ...};\\
  \hspace*{0.5cm} - $f,g,...$ denote variables of some first-order type: \texttt{int -> int, int -> bool -> int, ...};\\ 
  \hspace*{0.5cm} - $F,G,...$ denote variables of some second-order type: \texttt{(int -> bool) -> int}, ....

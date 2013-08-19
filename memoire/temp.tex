@@ -1,3 +1,20 @@
+
+%	So the question is : as long as using automated theorem provers remains impossible for proving higher-order programs, should we always resort to more sophisticated, less automated tools in order to prove even a simple program of every-day functional programming practice such as a program using \textit{Array.iter} ?  
+  
+
+%	Besides evaluation, we provide a prototype that implements the \textit{inlining} technique for a small fragment of WhyML, the specification language of an existing software verification platform Why3$^{\cite{boogie11why3}}$ developed by the Toccata team\footnote{\url{http://toccata.lri.fr/}}. 
+%	
+
+	
+
+%\subsection*{The Context of Deductive Program Verification}
+	 section 5 $ghost-\inlsrc$ language, a version of $\inlsrc$ enriched by ghost code, which is the part of the source code that is not to be executed, but which provides a useful information about executable code during the verification process.
+ Using the technique of \textit{bisimulation}, we show that ghost-code can be erased from the source program safely, without altering its meaning.  
+	We conclude this section by a brief description of the second-order logic in which  ghost-code and logical annotations can be written for programs of  $\inlsrc$.
+
+ Finally, we conclude our presentation by a discussion about the experimental evaluation and possible extensions of inlining procedure in the future.
+we extend $\inlsrc$ language with logical annotations.  
+
 \section*{inl1}
 % Then, the first step of inlining is
 %defined as the reflexive, transitive closure of $\hookdownarrow$:
@@ -117,7 +134,48 @@ In the latter case, even thought we do not know statically which of applications
 	We need to generalize this idea for the rewriting contextual rules from the \cref{fig:inl-app-c-d}, comparing the size of \textit{all} executable second-order applications inside $s_{i}$ and $s_{i+1}$. 
 	
 	
-		
+		\begin{adjustwidth}{-4em}{-2em}
+\begin{footnotesize}
+\begin{minipage}[t]{0.3\linewidth}
+\begin{whycode}  
+   let array_iter ($\textcolor{red}{\text{f:int -> unit}}$) (b: int array) 
+                  ($\textcolor{red}{\text{inv:int -> int array -> prop}}$)    
+     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} 0~b \}}}$
+     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} b.length~b }\}}$  
+   = let rec loop (i: int)
+       $\textcolor{OliveGreen}{ \text{requires \{~\textcolor{red}{inv} i b} \bwedge \text{0 <= i <= b.length}~\}}$
+       $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} b.length~b}\}}$ =    
+       = if i < b.length then ($\textcolor{red}{\text{f}}$ b[i]; loop (i+1)) 
+     in loop 0
+   
+   let sum_iter (a: array int) =		 
+     let s = ref 0 in 
+     Array.iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}~$ a
+                $\textcolor{red}{(\lambda i_{int}.\lambda c_{\texttt{int array}}. \sum_{~0\leq j < i} a[j])}$                                  
+           (*specified code before inlining*)
+\end{whycode}
+\end{minipage}\hfill\vline
+\begin{minipage}[t]{0.48\linewidth}
+	\begin{whycode}  
+   let sum_iter (a: array int)		
+     let s = ref 0 in
+     let array_iter $\textcolor{Sepia}{\text{\textvisiblespace}}$ (b: int array) $\textcolor{Sepia}{\text{\textvisiblespace}}$
+     $\textcolor{OliveGreen}{\text{requires} \{~\underline{!s = \sum_{~0\leq j < 0} b[j]}}~\}$      
+     $\textcolor{OliveGreen}{\text{ensures~~}\{~\underline{!s = \sum_{~0\leq j < b.length} b[j]}\}}$    
+     = let rec loop (i: int) = 
+         $\textcolor{OliveGreen}{ \text{requires} \{~\underline{!s = \sum_{~0\leq j < i} b[j] } \bwedge \text{0 <= i <= b.length}~\}}$
+         $\textcolor{OliveGreen}{\text{ensures~~}\{~\underline{!s = \sum_{~0\leq j < b.length} b[j]}\}}$   
+         = if i < b.length then  
+         ($\textcolor{Sepia}{\text{\underline{s := !s + b[i]}}}$ ; 
+          loop (i + 1)) 
+       in loop 0   
+     in Array.iter $\textcolor{Sepia}{\text{\textvisiblespace}}~a~\textcolor{Sepia}{\text{\textvisiblespace}}$   
+               (*specified code after inlining*)
+ 	\end{whycode}
+ 	\end{minipage}
+ \end{footnotesize}
+\end{adjustwidth}
+
 	
 	
 	That is, for each step  of $\ic{s_{i}}{s_{i+1}}$, we can take as measure $\varphi$ the ordered pair ($\#_{App^2}(s_{i})$, $\max$($\Sigma_{App^2}(u_{i}~\vartheta)$).
