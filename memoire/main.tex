@@ -62,7 +62,7 @@
   {0.1in}% espacement numéro/titre <--- valeur à changer
   {}% police spécifique du titre
 \titlespacing*{\subsubsection}
-  {-0.0in}% espacement gauche
+  {-0.4in}% espacement gauche
   {0.2in}% espacement avant
   {0.2in}% espacement après
   [0.1in]% espacement à droite
@@ -1960,30 +1960,42 @@ From the theorems of this and previous subsection, it follows that
 ~\\
  $\forall t \in \inlsrc.~ t \not\in S \brarr \exists !s: !u \in U: \ict{s}{u}.$
 \end{corr} 
-	That is, our first goal to prove inlining terminating and always resulting in a first-order program is achieved. 
+	That is, our initial goal to prove inlining terminating and always resulting in a first-order program is achieved. 
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\subsection{Correctness Proof for Inlining}
+\subsection{Total Correctness of Inlining}
 
-	Our final goal is to prove that inlining preserves the \textit{meaning} of the source term. 
-  	
-
+	Our final goal is to prove the correction of inlining, i.e. to prove the \textit{meaning} of source term is preserved. 
+	
+	This can be understood as proving the inlining procedure \textit{partial correctness}: if the source \texttt{P} program evaluates giving some value \texttt{V}, then the inlining output \texttt{O} evaluation terminates too and gives the same value \texttt{V}. 
+	
+	However, as we defined each of two inlining phases $I_1$ (i.e. $\ilarrt$),$I_2$ (i.e. $\icarrt$) in a \textit{small-step} manner, we can actually prove the \textit{total correctness} of inlining, showing additionally that if the source \texttt{P} program does not terminate, then \texttt{O} does not terminates neither.
+	
+	To do so, first we formalize $\thicksim$, the notion of semantic equivalence between two programs.
+	
+	Then, for each of two inlining steps $I_1$ (i.e. $\ilarrt$),$I_2$ (i.e. $\icarrt$), we prove that for each pair of the initial program P $\in \inlsrc$ and corresponding output $I_2(I_1(P))$,  $P \thicksim I_2(I1(P))$.
+		 
+	
+	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{Semantic Equivalence Between Closed Terms}
+\subsubsection{Semantic Equivalence Between Closed Terms}
+
+\textit{Logical relations} is a technique introduced in Friedman$^{\cite{Fri:75}}$, Plotkin$^{\cite{plotkin1973lambda}}$ and others.
+	Various results in lambda-calculus and type theory were established by this technique$^{\cite{MitchellM85}}$.
+	Here we use logical relations to define the semantics equivalence below: 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{semantic equivalence}
 \begin{definition}[(Semantic Equivalence)]
-	Let $t$ and $t'$ be two well-typed closed terms of the source 
-	language such that 
+	Let $t$ and $t'$ be two well-typed closed terms,	such that 
 	
-	$$
+	$$ t,t' \in \inlsrc  \quad 
 		\typerule{t}{\tau}{\theta}{\rho}{} \quad \typerule{t'}{\tau}{\theta}{\rho}{} 
 	$$
 
-	We define $\eqv{t}$, the \textit{semantic equivalence} between $t$ and $t'$, 
+	Then we define $\eqv{t}$, the \textit{semantic equivalence} between $t$ and $t'$, 
 	by induction on the structure of type $\ty$ :
 	
 	\begin{itemize}
@@ -1992,8 +2004,8 @@ From the theorems of this and previous subsection, it follows that
 			if $\ty{} = \ty{}^0$ for some base type $\ty{}^0$, then $\eqv{t}$ iff
 			$$	\forall \mu_0.(\evalinfty{t}{\mu_0} \bwedge \evalinfty{t'}{\mu_0})~
 					\bvee ~ \exists \mu_1 \exists v: 
-					\evalstar{t}{0}{v}{1} \bwedge \evalstar{t'}{0}{v}{1} $$
-		
+					\evalstar{t}{0}{v}{1} \bwedge \evalstar{t'}{0}{v}{1}, $$
+			where $\forall \mu_0.\evalinfty{t}{\mu_0}$ means that for any initial state $\mu_0$, the evaluation $t$ diverges.
 		\item[$(\beta)$]
 			if $\ty = \tyarr$ for some types $\ty[1], \ty[2]$,
 			then\\[0.2cm]
@@ -2009,18 +2021,16 @@ From the theorems of this and previous subsection, it follows that
 				\bwedge~\eqv{v_1})$				
 	\end{itemize}
 	\end{definition}
-
-
+\vspace*{0.5cm}
+First we need to check the following basic lemmas:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	\begin{lemma} 
-		The semantic equivalence 	terms, $\thicksim$, is reflexive, 	
+		The semantic relation, $\thicksim$, is reflexive, 	
 		symmetric and transitive relation.
 	\end{lemma}
 	
 	\begin{proof}
-		By straightforward induction on the structure of type of the terms, using 
-		the fact that $\rightarrow^\star$ is an evaluation strategy, thus 
-		deterministic.
+		By straightforward induction on the structure of type $\tau$.
 	\end{proof}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2032,12 +2042,12 @@ From the theorems of this and previous subsection, it follows that
 	\end{lemma}
 	
 	\begin{proof} By induction on the structure of type $\ty[t]$.
-	For Detailed proof, see \ref{equiv-def-p}.
+	For detailed proof, see \ref{equiv-def-p}.
 	\end{proof}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	
-	\begin{lemma}
+	\begin{lemma}[(Equivalence for Parallel Reductions)]
 		For any pair of states $\mu_0$, $\mu_1$ such that
 		$\evalstar{{t_0}}{0}{{t_1}}{1}$ and $\evalstar{{t'_0}}{0}{{t'_1}}{1}$
 		if $\eqv{t_0}$ then $\eqv{t_1}$.
@@ -2046,7 +2056,7 @@ From the theorems of this and previous subsection, it follows that
 	
 	\begin{proof}
 		By induction on the structure of type of $t_0$. 
-		For Detailed proof, see \ref{equiv-red2-p}.
+		For detailed proof, see \ref{equiv-red2-p}.
 	\end{proof}		
 
 	\begin{corr} 
@@ -2057,14 +2067,12 @@ From the theorems of this and previous subsection, it follows that
 	\end{corr}
 	
 	
-	
-	\begin{lemma}
+	\begin{lemma}[(Equivalence for Reduction Step)]
 		For any state $\mu_0$, if $\evalstep{{t_0}}{0}{{t_1}}{0}$, then
 		$t_0 \thicksim t_1$.
 	\end{lemma}	
 	\begin{proof}
-		By Straightforward observation that $\rightarrow$ is an evaluation
-		strategy, thus deterministic.
+		By Straightforward observation that $\rightarrow$ is deterministic.
 	\end{proof}		
 
 	\begin{corr} 
@@ -2072,12 +2080,28 @@ From the theorems of this and previous subsection, it follows that
 		$t \thicksim v$.
 	\end{corr}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{Semantics Equivalence Between Parallel Substitutions}
+\subsubsection{Semantics Equivalence Between Parallel Substitutions}
 
+  With the definition above, the total correctness of inlining is formulated as follows:
+  \begin{theorem}[(Total Correctness)]
+   $ \forall t \in \inlsrc. t \thicksim I_2(I_1(t)) $
+  \end{theorem}
+
+	Clearly, we can prove it, if we prove two theorems below:
+	\begin{lemma}[(Total Correctness for $\ilarr$)]
+   $ \forall t,t' \in \inlsrc. \il{t}{t'} \Rightarrow t \thicksim t'$
+  \end{lemma}
+
+	\begin{lemma}[(Total Correctness for $\icarr$)]
+   $ \forall s,s' \in S. \ic{s}{s'} \Rightarrow s \thicksim s'$
+  \end{lemma}
   
-
-
-
+  Intuitively, in both cases, the proof should at some point involve an induction on the derivation of inlining relation. 
+  Then, whenever we apply an induction hypothesis on sub-derivation $\il{t}{t'}$ or $\ic{t}{t'}$, we have to be sure that $\eqv{t}$ is well-defined. 
+  
+  The technical difficulty is that in the case of abstractions and recursive functions, $t$ and $t'$ are not necessary closed, so $\eqv{t}$ may have no sense.  
+	We can resolve this difficulty, if instead of proving the theorem's statement for closed terms only, we generalize it to all closed instances of an open term $t$, using the definition below:
+ 
 	\begin{definition}[(parallel substitutions)]
 	Let $t$ be any well-typed term, $t_1, \dots t_n$ well-typed 
 	\textit{\textbf{closed}} terms, and $x_1, \dots, x_n$ distinct variables.
@@ -2125,11 +2149,8 @@ From the theorems of this and previous subsection, it follows that
 	Note that from (1) it follows, that both $(t\sigma)$ and 
 	$(t\sigma')$ are terms that well-typed, and from (2) and (3) it follows 
 	that both $(t\sigma)$ and	 $(t\sigma')$ are \textit{\textbf{closed}} terms.
-	
-	The next lemma captures the intuition that plugging free variables
-        inside a term by semantically equivalent, even thought syntactically
-        different programs gives two programs for which the semantic
-        equivalence is preserved:
+
+	Also we have to prove the following lemma:	
 	
 	\begin{lemma} 
 		$\forall t. \forall (\sigma, \sigma'). ~\eqvsbst{\sigma}{t}
@@ -2138,16 +2159,40 @@ From the theorems of this and previous subsection, it follows that
 	\end{lemma}
 
 	\begin{proof}
-		By induction on the structure of term $t$. For detailed proof, see
-		\ref{equiv-subst-p}.
+		By induction on the structure of term $t$. 
+		%For detailed proof, see 		\ref{equiv-subst-p}.
 	\end{proof}
 
 
 
 
 
-\subsubsection*{Output Language}
-TODO: Nice figure 
+\subsubsection{Proof of Total Correctness}
+
+
+	With the definitions above, we can formulate the total correctness lemmas as follows:
+ \begin{lemma}[(Total Correctness for $\ilarr$, Strengthened)]
+   $$ \forall t,t' \in \inlsrc. \il{t}{t'} \Rightarrow (\forall \sigma, \sigma'. \sigma \thicksim_t \sigma' \Rightarrow t\sigma \thicksim t'\sigma')$$
+  \end{lemma}
+	\begin{proof}
+	 By induction on derivation $\il{t}{t'}$.
+	\end{proof}	  
+  
+	\begin{lemma}[(Total Correctness for $\icarr$, Strengthened)]
+     $$ \forall s,s' \in \inlsrc. \ic{s}{s'} \Rightarrow (\forall \sigma, \sigma'. \sigma \thicksim_s \sigma' \Rightarrow s\sigma \thicksim s'\sigma')$$
+  \end{lemma}
+	\begin{proof}
+	 By induction on derivation $\ic{s}{s'}$.
+	\end{proof}	  
+	
+  \begin{theorem}[(Total Correctness)]
+   $ \forall t \in \inlsrc. t \thicksim I_2(I_1(t)) $
+  \end{theorem}	
+	\begin{proof}
+	 Todo.
+	\end{proof}	 
+	
+%TODO: Nice figure %
 
 %\subsection{Inlining Higher-Order Programs}
 
@@ -2173,49 +2218,47 @@ TODO: Nice figure
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
+
 \section{Specification Language}
+%
+%\subsection{Ghost Code}
+%
+%\begin{definition}[blah blah] blah
+%\end{definition}
+%
+%\begin{theorem}[blah] 
+%blah
+%\end{theorem}
+%
+%\begin{lemma}[blah blah blah]
+%blah
+%\end{lemma}
+%
+%type system, erasure, proof of correctness of erasure
+%
+%\subsection{Annotations}
+%
+%requires, ensures, assert
+%
+%\section{Putting Pieces Together}
+%
+%\subsection{Orthogonality}
+%
+%inlining adapted to specification language
 
-\subsection{Ghost Code}
-
-\begin{definition}[blah blah] blah
-\end{definition}
-
-\begin{theorem}[blah] 
-blah
-\end{theorem}
-
-\begin{lemma}[blah blah blah]
-blah
-\end{lemma}
-
-type system, erasure, proof of correctness of erasure
-
-\subsection{Annotations}
-
-requires, ensures, assert
-
-\section{Putting Pieces Together}
-
-\subsection{Orthogonality}
-
-inlining adapted to specification language
-
-\subsection{Experimental Evaluation}
+\section{Experimental Evaluation}
 
 \section{Conclusion and Perspectives}
 
-blah blah
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
-\section*{Appendices}
-\newpage
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\appendix
-
-
 \section{Detailed proofs} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
 
  \subsection{Programming Language}
 
@@ -2384,9 +2427,9 @@ Back to \ref{inllet-nforms-l}.
 		From the formulation of lemma, it follows that
 		$$	\typerule{t}{\tyarr[1][2][\theta_0][\rho_0]}{\theta}{\rho}{} ~~ 
 				\typerule{t'}{\tyarr[1][2][\theta_0][\rho_0]}{\theta}{\rho}{}.$$
-		where $\ty[2]$ can be either the some first-order type $\tyord{0}[2]$ or
+		where $\ty[2]$ can be either some first-order type $\tyord{0}[2]$ or
 		some arrow type $\tyarr[21][22][\theta_1][\rho_1].$ 
-		We prove the lemma by induction on the structure of type $\ty[t]$.
+		Then, we prove the lemma by induction on the structure of type $\ty[t]$.
 	\begin{itemize}		
 	
 		\item[$(\Rightarrow)$] Assume $\eqv{t}$. Thus 		
@@ -2396,7 +2439,7 @@ Back to \ref{inllet-nforms-l}.
 		\item[$(\alpha)$] if $\ty[\tmapp{t'}{v'}] = \tyord{0}[2]$, then
 		by definition of $\eqv{t}$, for any initial state $\mu_0$ either 
 		$\tmapp{t'}{v'}$ and $\tmapp{t'}{v'}$ diverge both, 
-		or there is some pair of values $v_1, v'_1$ and a state $\mu_1$ such that 
+		or there is a pair of values $v_1, v'_1$ and a state $\mu_1$ such that 
 		$$\evalstar{\tmapp{t}{v}}{0}{{v_1}}{1} 
 			\bwedge \evalstar{\tmapp{t'}{v'}}{0}{{v'_1}}{1} \bwedge~\eqv{v_1}.$$
 		
@@ -2414,32 +2457,28 @@ Back to \ref{inllet-nforms-l}.
 		$$\evalstar{\tmapp{\tmapp{t}{v}}{v_0}}{0}{{v_1}}{1} \bwedge
 		\evalstar{\tmapp{\tmapp{t'}{v'}}{v'_0}}{0}{{v'_1}}{1} \bwedge~\eqv{v_1}.$$
 		
-		Obviously, if both $t$ and $t'$ both diverge,
-		then so do $\tmapp{t}{v}$ and $\tmapp{t'}{v'}$, and consequently 
-		$\tmapp{\tmapp{t'}{v'}}{v'_0}$ and $\tmapp{\tmapp{t'}{v'}}{v'_0}$.
-		Otherwise, from the equivalence $\eqv{t}$ we can deduce that there are
-		some values $v_2$, $v'_2$ and some intermediate state $\mu_2$ such that
+		If both $t$ and $t'$ both diverge,
+		then so do 
+		$\tmapp{\tmapp{t'}{v'}}{v'_0}$ and $\tmapp{\tmapp{t'}{v'}}{v'_0}$. 
+		Otherwise, there are
+		some values $v_2$, $v'_2$ and intermediate state $\mu_2$ such that
 		$$\evalstar{\tmapp{\tmapp{t}{v}}{v_0}}{0}{\tmapp{v_2}{v_0}}{2} \bwedge
 		\evalstar{\tmapp{\tmapp{t'}{v'}}{v'_0}}{0}{\tmapp{v'_2}{v'_0}}{2} 
 		\bwedge~\eqv{v_2}$$	
-		By induction hypothesis on $\ty[\tmapp{t}{v}]=\ty[v]$, as $\eqv{v_2}$, we 
+		Then by induction hypothesis on $\ty[\tmapp{t}{v}]=\ty[v_2]$, we 
 		get	$$ \tmapp{v_2}{v_0} \thicksim \tmapp{v'_2}{v'_0}.$$ Therefore, 
 		$\tmapp{v_2}{v_0}$ diverges if and only if $\tmapp{v_2'}{v_0'}$ diverges 
 		too, so again, $\tmapp{\tmapp{t'}{v'}}{v'_0}$ diverges if and only if 
-		$\tmapp{\tmapp{t'}{v'}}{v'_0}$ diverges (by determinism of 
-		$\rightarrow^\star$). Otherwise for some values $v_1, v'_1$ and a state
-		$\mu_1$:
+		$\tmapp{\tmapp{t'}{v'}}{v'_0}$ diverges. Otherwise there exist some values $v_1, v'_1$ and state $\mu_1$ such that:
 		$$\evalstar{\tmapp{v_2}{v_0}}{2}{{v_1}}{1} \bwedge
 		\evalstar{\tmapp{v_2}{v'_0}}{2}{{v'_1}}{1} 
-		\bwedge~\eqv{v_1}.$$ There, putting reduction chains together allow us to 
-		conclude that $\tmapp{t}{v} \thicksim \tmapp{t'}{v'}.$ 
+		\bwedge~\eqv{v_1},$$ which allows us to deduce that $\tmapp{t}{v} \thicksim \tmapp{t'}{v'}.$ 
 		\end{itemize}
 		
 	
 		\item[$(\Leftarrow)$] Assume $(\forall v_0, v'.~\eqv{v}~\Rightarrow
-		\tmapp{t}{v} \thicksim \tmapp{t'}{v'})$. From the definition of 
-		\mbox{$\tmapp{t}{v}\thicksim\tmapp{t'}{v'}$} we almost immediate have 
-		that $\eqv{t}$. Back to \ref{equiv-def-l}.
+		\tmapp{t}{v} \thicksim \tmapp{t'}{v'})$. 
+		Then we have $\eqv{t}$ simply by definition of $\thicksim$. Back to \ref{equiv-def-l}.
 				
 		\end{itemize}	
 	\end{proof}
@@ -2458,48 +2497,46 @@ Back to \ref{inllet-nforms-l}.
 		
 			\begin{itemize}
 			\item[$(\alpha_1)$] if $t_0$ diverges, then by definition of 
-			$\eqv{t_0}$, $t'_0$ diverges too. Also, $\rightarrow^\star$ being 
+			$\eqv{t_0}$, $t'_0$ diverges too. $\rightarrow^\star$ being 
 			deterministic, both $t_1$ and $t'_1$ diverge. Symmetrically, if 
-			$t'_0$ diverges, $t_1$ and $t'_1$ diverge both as well. Therefore,
-			$$\eqv{t_1}.$$
+			$t'_0$ diverges, $t_1$ and $t'_1$ diverge both as well. 
 						
-			\item[$(\alpha_2)$] Otherwise, neither $t_0$ or $t_{0}'$ diverge. Then
-				as $\eqv{t_0}$ by hypothesis, it follows that 
+			\item[$(\alpha_2)$] Otherwise, neither $t_0$ nor $t_{0}'$ diverges. 
+			 By hypothesis we have that $\eqv{t_0}$. Thus,  
 					$$ \exists \mu_2 \exists v: 
 					\evalstar{{t_0}}{0}{v}{2} \bwedge \evalstar{{t'_0}}{0}{v}{2}.$$
-				The evaluation $\rightarrow^\star$ being deterministic, we have 
-				necessarily that
+				from which it follows that 
 					$$\evalstar{{t_1}}{1}{v}{2} \bwedge \evalstar{{t'_1}}{1}{v}{2}.$$
-				As the state $\mu_1$ depends uniquely on the arbitrarily chosen 
+				As $\mu_1$ depends uniquely on the arbitrarily chosen 
 				$\mu_0$, we deduce again that $$\eqv{t_1}.$$					
 			\end{itemize}			
 			
-		\item[$(\beta)$] if $\ty$ is an arrow type $\tyarr$ for some types 
-		$\ty[1], \ty[2]$,	let $v_0, v'_0$ be two arbitrary values satisfying:
+		\item[$(\beta)$] Otherwise $\ty$ is an arrow type $\tyarr$ for some types 
+		$\ty[1], \ty[2]$.	
+		
+		let $v_0, v'_0$ be two arbitrary values satisfying:
 		$$~\eqv{v_0}~\bwedge \typerule{v_0}{\ty[1]}{\bth}{\brh}{}.$$
 		By hypothesis, we have the reduction steps:
 		$$\evalstar{{t_0}}{0}{{t_1}}{1}\quad\evalstar{{t'_0}}{0}{{t'_1}}{1}$$						which induce respectively: 
 		$$\evalstar{\tmapp{t_0}{v_0}}{0}{\tmapp{t_1}{v_0}}{1} \quad
 		\evalstar{\tmapp{t'_0}{v'_0}}{0}{\tmapp{t'_1}{v'_0}}{1}$$	
 		From the definition of $\eqv{t_0}$, it follows that
-		$${\tmapp{t_0}{v_0}} \thicksim {\tmapp{t'_0}{v'_0}}.$$
+		${\tmapp{t_0}{v_0}} \thicksim {\tmapp{t'_0}{v'_0}}.$
+		
 		Therefore, the induction hypothesis on $\ty[2]$ yields 
-		$${\tmapp{t_1}{v_0}}\thicksim{\tmapp{t'_1}{v'_0}}.$$
-		Finally, as $v_0, v'_0$ are arbitrary chosen values (satisfying the
-		two conditions above), the result holds for any such values, 
-		therefore by lemma \ref{equiv-def-l},
-		$$\eqv{t_1}.$$ Back to \ref{equiv-red2-l}.	
+		${\tmapp{t_1}{v_0}}\thicksim{\tmapp{t'_1}{v'_0}}.$
+		
+		Therefore by lemma \ref{equiv-def-l},
+		$\eqv{t_1}.$ Back to \ref{equiv-red2-l}.	
 		\end{itemize}	
 	\end{proof}		
+%	\begin{lemma}
+%	\label{equiv-subst-p}
+%	\end{lemma}
 
-	\begin{lemma}
-
-	\label{equiv-subst-p}
-	\end{lemma}
-
-	\begin{proof}
-	Back to \ref{equiv-subst-l}.
-	\end{proof}
+%	\begin{proof}
+%	Back to \ref{equiv-subst-l}.
+%	\end{proof}
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
