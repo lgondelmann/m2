@@ -1929,9 +1929,6 @@ For the remaining rules, the result follows from a immediate use of the inductio
 		$\forall s_0 \in S ~
 	 			\exists n \in \mathbb{N}:  
 	 				  (\ict{s_0}{s_n}) \bwedge (s_n \in \icNF).$
-	 				  
-	 				  
-	 				  
 \label{ic-term-l}
 \end{theorem}
 \begin{proof}
@@ -1941,12 +1938,9 @@ For the remaining rules, the result follows from a immediate use of the inductio
 %	Theferore, $n$ is uniquely defined too, which is exactly what we wanted to prove. 
 Same as the proof of \cref{inllet-term-l}.
 \end{proof}
-
 \begin{corr}[(Second-Order Application Inlining)] 
-~\\
  $\forall s \in S.~ s \not\in U \brarr 
-	 				  \exists !u \in U: \ict{s}{u}.$
-\end{corr} 
+	 				  \exists !u \in U: \ict{s}{u}.$\end{corr} 
  Finally, from the corollary above and \cref{inllet-corr} we conclude that 
  \begin{corr}[(Second-Order Inlining)] 
  $\forall P \in \inlsrc.~ \exists !u \in U: u = I_2(I_1(P)) .$
@@ -1962,13 +1956,17 @@ Same as the proof of \cref{inllet-term-l}.
 
 	Our final goal is to prove the correction of inlining, i.e. to prove the \textit{meaning} of source term is preserved. 
 	
-	This can be understood as proving the inlining procedure \textit{partial correctness}: if the source \texttt{P} program evaluates giving some value \texttt{V}, then the inlining output \texttt{O} evaluation terminates too and gives the same value \texttt{V}. 
+	This can be understood as proving the inlining procedure \textit{partial correctness} or as \textit{total correctness}.
 	
-	However, as we defined each of two inlining phases $I_1$ (i.e. $\ilarrt$),$I_2$ (i.e. $\icarrt$) in a \textit{small-step} manner, we can actually prove the \textit{total correctness} of inlining, showing additionally that if the source \texttt{P} program does not terminate, then \texttt{O} does not terminates neither.
+	\textit{Partial correctness} of inlining guarantees that if the source \texttt{P} program evaluates giving some value \texttt{V}, then the inlining output \texttt{O} evaluation terminates too and gives the same value \texttt{V}. 
 	
-	To do so, first we formalize $\thicksim$, the notion of semantic equivalence between two programs.
+	 \textit{Total correctness} of inlining extends this statement for diverging programs: if the source \texttt{P} program does not terminate, then \texttt{O} does not terminates neither.
 	
-	Then, for each of two inlining steps $I_1$ (i.e. $\ilarrt$),$I_2$ (i.e. $\icarrt$), we prove that for each pair of the initial program P $\in \inlsrc$ and corresponding output $I_2(I_1(P))$,  $P \thicksim I_2(I1(P))$.
+	As we defined each of two inlining phases, $\ilarrt$ and $\icarrt$ in a \textit{small-step} manner, we will prove the \textit{total correctness} of inlining.
+	
+	To do so, we start by formalizing $\thicksim$, the notion of semantic equivalence between two programs.
+%	
+%	Then, for each of two inlining steps $I_1$ (i.e. $\ilarrt$),$I_2$ (i.e. $\icarrt$), we prove that for each pair of the initial program P $\in \inlsrc$ and corresponding output $I_2(I_1(P))$,  $P \thicksim I_2(I1(P))$.
 		 
 	
 	
@@ -2015,7 +2013,7 @@ Same as the proof of \cref{inllet-term-l}.
 	\end{itemize}
 	\end{definition}
 \vspace*{0.5cm}
-First we need to check the following basic lemmas:
+We need to check the following 	lemmas:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	\begin{lemma} 
 		The semantic relation, $\thicksim$, is reflexive, 	
@@ -2040,10 +2038,8 @@ First we need to check the following basic lemmas:
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	
-	\begin{lemma}[(Equivalence for Parallel Reductions)]
-		For any pair of states $\mu_0$, $\mu_1$ such that
-		$\evalstar{{t_0}}{0}{{t_1}}{1}$ and $\evalstar{{t'_0}}{0}{{t'_1}}{1}$
-		if $\eqv{t_0}$ then $\eqv{t_1}$.
+	\begin{lemma} 
+	$\forall \mu_0, \mu_1, t.\evalstar{{t_0}}{0}{{t_1}}{1} \bwedge \evalstar{{t_0'}}{0}{{t_1'}}{1} \bwedge \eqv{t_0} \Rightarrow \eqv{t_1}$.
 		\label{equiv-red2-l}
 	\end{lemma}
 	
@@ -2051,11 +2047,8 @@ First we need to check the following basic lemmas:
 		By induction on the structure of type of $t_0$. 
 		For detailed proof, see \ref{equiv-red2-p}.
 	\end{proof}		
-
 	\begin{corr} 
-		For any pair of states $\mu_0$, $\mu_1$ such that
-		$\evalstar{{t}}{0}{{v}}{1}$ and \mbox{$\evalstar{{t'}}{0}{{v'}}{1}$},
-		if $\eqv{t}$ then $\eqv{v_1}$.
+		$\forall \mu_0, \mu_1.\evalstar{{t}}{0}{{v}}{1} \bwedge \evalstar{{t'}}{0}{{v'}}{1} \bwedge \eqv{t} \Rightarrow \eqv{v_1}$.
 		\label{equivalence parallel preservation corr}
 	\end{corr}
 	
@@ -2065,7 +2058,7 @@ First we need to check the following basic lemmas:
 		$t_0 \thicksim t_1$.
 	\end{lemma}	
 	\begin{proof}
-		By Straightforward observation that $\rightarrow$ is deterministic.
+		By straightforward observation that $\rightarrow$ is deterministic.
 	\end{proof}		
 
 	\begin{corr} 
@@ -2076,11 +2069,12 @@ First we need to check the following basic lemmas:
 \subsubsection*{Semantics Equivalence Between Parallel Substitutions}
 
   With the definition above, the total correctness of inlining is formulated as follows:
+  
   \begin{theorem}[(Total Correctness)]
    $ \forall t \in \inlsrc. t \thicksim I_2(I_1(t)) $
   \end{theorem}
 
-	Clearly, we can prove it, if we prove two theorems below:
+	To prove it, we need to show two lemmas below:
 	\begin{lemma}[(Total Correctness for $\ilarr$)]
    $ \forall t,t' \in \inlsrc. \il{t}{t'} \Rightarrow t \thicksim t'$
   \end{lemma}
@@ -2089,8 +2083,8 @@ First we need to check the following basic lemmas:
    $ \forall s,s' \in S. \ic{s}{s'} \Rightarrow s \thicksim s'$
   \end{lemma}
   
-  Intuitively, in both cases, the proof should at some point involve an induction on the derivation of inlining relation. 
-  Then, whenever we apply an induction hypothesis on sub-derivation $\il{t}{t'}$ or $\ic{t}{t'}$, we have to be sure that $\eqv{t}$ is well-defined. 
+ 	To prove these lemmas, on their turn, we need to reason by induction on the derivation rules of inlining. 
+  Consequently, whenever we apply an induction hypothesis on sub-derivation $\il{t}{t'}$ or $\ic{t}{t'}$, we have to be sure that $\eqv{t}$ is well-defined. 
   
   The technical difficulty is that in the case of abstractions and recursive functions, $t$ and $t'$ are not necessary closed, so $\eqv{t}$ may have no sense.  
 	We can resolve this difficulty, if instead of proving the theorem's statement for closed terms only, we generalize it to all closed instances of an open term $t$, using the definition below:
