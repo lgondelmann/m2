@@ -150,8 +150,9 @@ keepspaces=true,
 \newtheorem{theorem}[definition]{Theorem}
 \newtheorem{corr}[definition]{Corrolary}
 
-\renewenvironment{proof}{\noindent \textcolor{blue}{\textit{Proof.}}}
-{{\begin{tiny}\textcolor{blue}{$\blacksquare$}\end{tiny}}\\}
+\renewenvironment{proof}{\noindent \begin{adjustwidth}{1.5em}{} \textcolor{blue}{\textit{Proof.}}}
+{{\begin{tiny}\textcolor{blue}{$\blacksquare$}\end{tiny}}
+\end{adjustwidth}~\\\noindent}
 
 
 
@@ -1186,14 +1187,13 @@ $\vdash t' : \tau, \theta', \rho'$ holds for some $\theta'$, $\rho'$.
  \begin{lemma}[(Substitution Lemma, Strengthened)] ~ 
  \hypertarget{subst-lemma}{}
 \label{subst-lemma}
-\begin{itemize}
+
 %
 %\item 
 %If $\typing{t_1}{\tau_1}{\theta_1}{\rho_1}$ and $\typing{v}{\tyarr[2][3][\textcolor{red}{\bth}][\textcolor{black}{\rho_2}]}{\bth}{\brh}$, ~~then $\typing{t_1[x_{\tau_2 \Rightarrow \tau_3} \mapsfrom v]}{\tau_1}{\theta_1}{\rho_3}$~~for some $\rho_2$ and $\rho_3$. 
 
-\item 
 If $\typing{t_1}{\tau_1}{\theta_1}{\rho_1}$ and $\typing{v}{\tau_2}{\bth}{\brh}$, ~~then $\typing{t_1[x_{\tau_2} \mapsfrom v]}{\tau_1}{\theta_1}{\rho_2}$~~for some $\rho_1$ and $\rho_2$. 
-\end{itemize}
+
 \end{lemma}
 \begin{proof}
   By straightforward induction on the typing derivation of $t_1$.
@@ -1555,22 +1555,21 @@ So, we have to restrain term $t_2$ to be free from any possible side-effects:
 	As we see, a step of $\ilarr$ is either a head reduction of let expression given by
 \textsc{I$_1$-Let$_0$}, or one of contextual reductions above.\\
 
-	We need to check that the definition above corresponds indeed to a deterministic rewriting strategy:
+	We need to check that $\ilarr$ verifies the properties below:
+	
 \begin{lemma}[(Determinacy of $\inlletarr$)] 
 	$\forall t, t_1, t_2.
 		(t \inlletarr {t_1} \bwedge t \inlletarr {t_2}) \brarr
 			t_1 = t_2$.	\label{inllet-determ-l}	
 \end{lemma}
 \begin{proof} Straightforward induction on the derivation of $t \inlletarr {t_1}$, observing that in each case only one rule applies. \end{proof} 
-
-	We also need to check that each step of $\inlletarr$ preserves the well-typedness and the well-formedness of the source term:
 \begin{lemma}[($\inlletarr$ Preservation Properties)]
 For any well-typed term $t$ such that\\ $\typerule{t}{\tau}{\theta}{\rho}$ and $\inllet{t}{t'}$, the following properties hold:
 \begin{displaymath}
 \begin{array}{l@{\hspace*{1cm}}l@{\hspace*{1cm}}l}
 	(1)& FV(t') \subseteq FV(t) & \textsc{(free variables inclusion)} \\
 	(2)& t' \in \inlT & \textsc{(A-normal form preservation)}\\ 
-	(3)& \typerule{t'}{\tau}{\theta}{\rho} &\textsc{(typing and effects preservation)} \vspace*{-1cm}
+	(3)& \typerule{t'}{\tau}{\theta}{\rho} &\textsc{(typing and effects preservation)} \vspace*{-0.2cm}
 \end{array}
 \end{displaymath}
  \label{inllet-prop-l}
@@ -1589,7 +1588,7 @@ $$\textit{(t~F) \qquad r~:=~F \qquad if~F~then~... else ... \qquad match~F~with~
 	Therefore, (3) follows from the \hyperlink{subst-lemma}{substitution lemma} above. 
  \end{proof}
 
-	It remains to prove that $\inlletstar$ always terminate, and results in a term $s \in S$.  
+It remains to prove that $\inlletstar$ always terminate, and results in a term $s \in S$.  
 	To do so, we define the set of normal forms $\inlletNF$, and prove the following statements below: 
 \begin{definition}[(Normal Forms $\inlletstar$)]
 	%The set of normal forms for $\inlletplus$,  $\inlletNF$, is defined as follows: \quad	
@@ -1605,10 +1604,11 @@ $ \inlletNF  = \inlS.$
 Obverse that, by definition of $\inlletarr$, we have immediately $\inlS \subseteq  \inlletNF$. The other direction can be proven by showing the contrapositive $t \not\in \inlS \Rightarrow t \not\in \inlletNF$ which is trivially true.
 \end{proof}
 
-A possible way to prove the normalisation of $\ilarrt$ is to find a measure $\varphi$, such that for each step $\il{s_{i}}{s_{i+1}}$ of the reduction chain $ s_0 \icarrt ... \ilarrt s_i \ilarrt s_{i+1} \ilarrt ...$, we get $\varphi(s_{i}) >  \varphi(s_{i+1}) $. \\ 
-For $\ilarr$, such measure is not difficult to find: we simply define $\varphi$ as the number of second-order local bindings of a given term.
 
-Then, we can prove the following auxiliary lemma:
+\hypertarget{measure-idea}{}
+ A possible way to prove the normalisation of $\ilarrt$ is to find a measure $\varphi$, such that for each step $\il{s_{i}}{s_{i+1}}$ of the reduction chain $ s_0 \ilarr ... \ilarr s_i \ilarr s_{i+1} \ilarr ...$, we get $\varphi(s_{i}) >  \varphi(s_{i+1}) $. 
+
+Here such a measure can be found easily: we simply define $\varphi$ as the number of second-order local bindings of a given term. We start by proving the auxiliary lemma below:
 
 \begin{lemma}[(Decreasing Measure for $\inlletplus$)] 
 If $\il{t}{t'}$, then $\varphi(t) > \varphi(t')$.
@@ -1626,9 +1626,8 @@ $  \hspace*{4cm}\dfrac{\il{t_1}{t_1'}}{\il{(t_1~v)}{(t_1'~v)}}$\\[0.6cm]
 By induction hypothesis on $\il{t_1}{t_1'}$ we get $\varphi(t_1) > \varphi(t_1')$.
 Thus, $${\varphi(t_1~v_2) = \varphi(t_1) + \varphi(v_2) > \varphi(t_1') + \varphi(v_2) = \varphi(t_1'~v_2)}$$
 
-Other cases can be proven similarly to (\textsc{I}$_{1}$-\textsc{App}$_1$). \end{proof}
-
-
+Other cases are similar to (\textsc{I}$_{1}$-\textsc{App}$_1$). \end{proof}
+Now we can proof the termination of $\inlletplus$ as follows:
 \begin{theorem}[(Termination of $\inlletplus$)] 
 		$\forall t_0 \in \inlsrc ~
 	 			\exists n \in \mathbb{N}:  
@@ -1640,13 +1639,11 @@ Other cases can be proven similarly to (\textsc{I}$_{1}$-\textsc{App}$_1$). \end
 	If	$t_0 \in S$, then by \cref{inllet-nforms-l}, we have immediately $t_0 \in \inlletNF$. \\
 	
 	Otherwise, let $t_0 \ilarr t_1 \ilarr ... \ilarr t_j$ be a reduction chain of inlining steps. 
-	By auxiliary lemma \hypertarget{decr-meas-1}{above} holds for \textit{every} step of this chain.
-	Thereofre, the sequence $k = \varphi(t_0) > \varphi(t_1) >  ... > \varphi(t_i) > ... $ is strictly decreasing, so there exists some $n$, for which $\varphi = 0$, and $ t_{i} \inlletarr ... \inlletarr t_n \in \inlletNF$. 
+	The auxiliary lemma \hyperlink{decr-meas-1}{above} applies for \textit{every} step of this chain.
+	Consequently, the sequence $k = \varphi(t_0) > \varphi(t_1) >  ... > \varphi(t_i) > ... $ is strictly decreasing, so there exists some $n$, for which $\varphi = 0$, and $ t_{i} \inlletarr ... \inlletarr t_n \in \inlletNF$. 
 	By \cref{inllet-determ-l}, the rewriting strategy $\inlletarr$ is deterministic, so the chain above is uniquely defined.
 	Theferore, $n$ is uniquely defined too, which is exactly what we wanted to prove. 	
 \end{proof}
-
-
 The main result of this subsection follows immediately from the theorems above:
 \begin{corr}[(Second-Order Local Bindings Inlining)] 
 ~\\
@@ -1658,11 +1655,11 @@ The main result of this subsection follows immediately from the theorems above:
 
 \subsection{Inlining Second-Order Applications}
 
-	In the previous subsection, we transformed an arbitrary program \textit{P} $ \in \inlsrc$ into program of $S$, a subset of $\inlsrc$ where all second-order variables are eliminated. 
-	We note resulting program by  ${I_1(\textit{P})}$.
-	Our goal now is to inline all possible \textbf{second-order applications} that may appear in $I_1\textit{P})$. 
+	In the previous subsection, we transform an arbitrary program \textit{P} $ \in \inlsrc$ into program of $S$, the subset of $\inlsrc$ where all second-order variables are eliminated. 
+	Call this program ${I_1(\textit{P})}$.
+	Our goal now is to inline all possible \textbf{second-order applications} that may appear in $I_1(\textit{P})$. Call the resulting program ${I_2(I_1(\textit{P}))}$. 
 
-	We define inlining of second order as function $\icarrt : S \longrightarrow U$, where $U$ is a subset of first-order programs of $\inlsrc$.
+	We define inlining of second order applications as function $\icarrt : S \longrightarrow U$, where $U$ is a subset of first-order programs of $\inlsrc$.
 	This function is the transitive, reflexive closure of the \textit{small-step rewriting strategy} $\icarr$ defined below: 
 \label{icrule-macro}
 \newcommandx{\icrule}[6]
@@ -1695,6 +1692,7 @@ The main result of this subsection follows immediately from the theorems above:
 	\begin{adjustwidth}{-10em}{0em}
 
 	\begin{multicols}{2}
+	\hypertarget{Rule-def-I$_2$-App$_0$}{}
 	\icrulehead
 		{App$_0$}
 		{(\lambda f. u~\vartheta)}
@@ -1702,6 +1700,7 @@ The main result of this subsection follows immediately from the theorems above:
 		{u,\vartheta \in U} 
 	\vspace*{0.5cm}
 	
+	\hypertarget{Rule-def-I$_2$-If$_0$}{}
 	\icrulehead
 		{If$_0$}
 		{(\boldsymbol{(}if~v~then~u_1~else~u_2{)} \boldsymbol{\vartheta}) \\}
@@ -1709,13 +1708,13 @@ The main result of this subsection follows immediately from the theorems above:
 		{u_1, u_2, \vartheta \in U, ~~~ (u_1, u_2:\tau^2)}	
 
 	\icrulehead
-		{Let$_0$}
+		{Let$_0$\hypertarget{Rule-def-I$_2$-Let$_0$}{}}
 		{(\boldsymbol{(}\tmlet{l}{u_1}{u_2}\boldsymbol{)} \boldsymbol{\vartheta})}
 		{\tmlet{l}{u_1}{\boldsymbol{(u_2~\vartheta)}}} 
 		{u_1, u_2, \vartheta \in U ~~~ (u_1, u_2:\tau^2)}	
 		\vspace*{0.5cm}
 	\icrulehead
-		{Match$_0$}
+		{Match$_0$\hypertarget{Rule-def-I$_2$-Match$_0$}{}}
 		{(\boldsymbol{(}match~v~with~Nil~->~ u_1~|~Cons~x~y -> u_2{)} \boldsymbol{\vartheta}) \\}
 		{match~v~with~Nil~->~ \boldsymbol{(u_1~\vartheta)}~|~Cons~x~y -> \boldsymbol{(u_2~\vartheta)}}
 		{u_1, u_2, \vartheta \in U, ~~~ (u_1, u_2:\tau^2)}				
@@ -1728,7 +1727,7 @@ The main result of this subsection follows immediately from the theorems above:
 
 Otherwise, $s$ contains at least two second-order applications. 
 So, there is at least one proper sub-term of $s$ of the from $(s_1 w_1)$ with $s_1 : \tau^2$. 
-In that case, a step of inlining of $s$ is defined inductively as inlining of the leftmost immediate subterm of $s$ in which $(s_1 w_1)$ appears. 
+In that case, a step of inlining of $s$ is defined inductively as inlining of the leftmost immediate subterm of $s$ in which $(s_1 w_1)$ occurs. 
 That is, a step $\ic{s}{s'}$ is defined by the inferences rules below:
 	\begin{figure}[H]
 	\begin{footnotesize}
@@ -1799,15 +1798,15 @@ That is, a step $\ic{s}{s'}$ is defined by the inferences rules below:
 %	One can check that \cref{fig:inl-app-h-d} describes indeed the only possible cases to inline terms such as $s$, for which all sub-terms are to be already first-order expressions.  
 %	  \\
 
-It remains to check that inlining of applications verifies the properties below.
+It remains to check that inlining of applications verifies the properties below:
 
 \begin{lemma}[(Determinacy of $\icarr$)] 
 	$\forall s, s_1, s_2.
 		(s \icarr {s_1} \bwedge s \icarr {s_2}) \brarr
 			s_1 = s_2$.	\label{ic-determ-l}	
 \end{lemma}
-\begin{proof} Similar to the proof of \ref{inllet-determ-l}. \end{proof} 
-
+\begin{proof} Similar to the proof of \ref{inllet-determ-l}. 
+\end{proof} 
 \begin{lemma}[($\icarr$ Preservation Properties)]
 For any well-typed term $s$ such that\\ $\typerule{s}{\tau}{\theta}{\rho}$ and $\ic{s}{s'}$, the following properties hold:
 \begin{displaymath}
@@ -1820,7 +1819,7 @@ For any well-typed term $s$ such that\\ $\typerule{s}{\tau}{\theta}{\rho}$ and $
  \label{ic-prop-l}
 \end{lemma}	
 \begin{proof}
-	By induction on the derivation of $\ic{t}{t'}$.  \\
+	By induction on the derivation of $\ic{s}{s'}$.  \\
 	
 	\textsc{Case (I$_2$-App$_0$)}:
 	\icrulehead
@@ -1831,7 +1830,7 @@ For any well-typed term $s$ such that\\ $\typerule{s}{\tau}{\theta}{\rho}$ and $
 	\vspace*{0.3cm}
 	Here, one can check that (1) holds by simply computing  FV(t) and FV(t').
 	(2) holds, because A-Normal form is invariant under $\beta-$reduction.
-	Finally, the typing of $\vartheta$ is $\typerule{\vartheta}{\tau^1}{\bth}{\brh}$, so by the \hyperlink{subst-lemma}{substitution lemma} (3) holds. 
+	Finally, the typing of $\vartheta$ is $\typerule{\vartheta}{\tau^1}{\bth}{\brh}$ so, by the \hyperlink{subst-lemma}{substitution lemma}, (3) holds as well. 
  \end{proof}
  
  \begin{definition}[(Normal Forms $\icarrt$)]
@@ -1843,50 +1842,38 @@ For any well-typed term $s$ such that\\ $\typerule{s}{\tau}{\theta}{\rho}$ and $
 $ \icNF  = U.$
 \label{ic-nforms-l}
 \end{lemma}
-\begin{proof} Same as for \cref{inllet-nforms-l}.
+\begin{proof} Same as the proof of \cref{inllet-nforms-l}.
 \end{proof}
+The proof of termination of $\icarrt$ relies on the same \hyperlink{measure-idea}{idea}  idea that in the case of  $\icarrt$.
 
-\paragraph{Termination of $\icarrt$}
+%: find a measure $\varphi$ such that for each step $\ic{s_{i}}{s_{i+1}}$ of the reduction chain $ s_0 \icarr ... \icarr s_i \icarr s_{i+1} \icarr ...$, we get $\varphi(s_{i}) >  \varphi(s_{i+1}) $.  
 
-The proof of normalisation theorem for $\icarrt$ relies on the idea, similar to the proof of normalisation of $\icarrt$: there is some measure $\varphi$ such that for each step $\ic{s_{i}}{s_{i+1}}$ of the reduction chain $ s_0 \icarrt ... \icarrt s_i \icarrt s_{i+1} \icarrt ...$, we get $\varphi(s_{i}) >  \varphi(s_{i+1}) $. \\ 
-
-	In the case of $\inlletarr$, we took for $\varphi (t_{i})$ the number of second-order let constructions. 
-	To find out how to define $\varphi (t_{i})$ for $\icarrt$, let us take a look on the rewriting rules from the \cref{fig:inl-app-h-d}.
-	As we can observe, during any evaluation of $s_{i+1}$ of the rules \textsc{I$_2$-If$_0$} and \textsc{I$_2$-Match$_0$}, \textbf{one and only one branch} of \texttt{"if"} or \texttt{"match with"} expression will be executed.	
-	
-	From the rules 
-%		\begin{footnotesize}
-%	\begin{adjustwidth}{-10em}{0em}
-%	\begin{multicols}{2}
-%	\icrulehead
-%		{Let$_0$}
-%		{(\boldsymbol{(}\tmlet{l}{u_1}{u_2}\boldsymbol{)} \boldsymbol{\vartheta})}
-%		{\tmlet{l}{u_1}{\boldsymbol{(u_2~\vartheta)}}} 
-%		{u_1, u_2, \vartheta \in U}	
+	In the case of $\inlletarr$, we take for $\varphi (t_{i})$ the number of second-order let constructions. 
+	Here, $\varphi$ is a bit more sophisticated:
+%	Obviously, the raw number of second-order applications cannot be a decreasing measure
+%	for $\icarr$: indeed, the application of \hyperlink{Rule-def-I$_2$-If$_0$}{\textsc{I$_2$-If$_0$}} and \hyperlink{Rule-def-I$_2$-Match$_0$}{\textsc{I$_2$-Match$_0$}} increases this number from one to two. 
 %
-%	\icrulehead
-%		{Match$_0$}
-%		{(\boldsymbol{(}match~v~with~Nil~->~ u_1~|~Cons~x~y -> u_2{)} \boldsymbol{\vartheta}) \\}
-%		{match~v~with~Nil~->~ \boldsymbol{(u_1~\vartheta)}~|~Cons~x~y -> \boldsymbol{(u_2~\vartheta)}}
-%		{u_1, u_2, \vartheta \in U, ~~~ (u_1, u_2:\tau^2)}				
-%	\end{multicols}
-%		\end{adjustwidth}	
-%		\end{footnotesize}	
-	 That is, in three of four base cases of $\icarr$ (\textsc{I$_2$-If$_0$},\textsc{I$_2$-Match$_0$},\textsc{I$_2$-Let$_0$}) the number second-order applications of $s_{i+1}$ that are \textit{\textbf{eventually}} evaluated remains the same as for $s_{i}$, and in the case of \textsc{I$_2$-App$_0$}, this number goes straight from one to zero. This observation gives us the idea of defining $\varphi$ as follows:
+%	On the other hand, during any evaluation of term $s_{i+1}$ in these rules,  \textbf{one and only one branch} branch of \texttt{"if"} or \texttt{"match with"} expression will be executed.	
+%	
+%	That is, in three of four base cases of $\icarr$ (\textsc{I$_2$-If$_0$}, \textsc{I$_2$-Match$_0$}, \textsc{I$_2$-Let$_0$}) the number of \textbf{\textit{eventually}} evaluated second-order applications of $s_{i+1}$ remains the same as for $s_{i}$. 
+%	In the case of \textsc{I$_2$-App$_0$}, this number goes straight from one to zero. 
 	
-\begin{definition}
+%	It remains to define $\varphi$ according to this observation:
+	
+\begin{definition}[(Decreasing measure for $\icarr$)]
 	Let $s$ be a term $\in S$. 
 	
-	Then either $s \in U$. In that case $\varphi(s) = 0$.
+	Then either $s \in U$. In that case we pose that $\varphi(s) = 0$.
 	
-	Otherwise,  $s \not\in U$, so there is some second-order application $(s' w')$ inside $s$. Then by induction on the structure of $s$, we define $\varphi(s)$, with the following case analysis of all possible contexts in which $(s' w')$ may appear in $s$.
+	Otherwise,  $s \not\in U$, so there is some second-order application $(s' w')$ inside $s$. 
+	By case analysis of all possible contexts in which $(s' w')$ may appear in $s$, we define $\varphi(s)$ by induction on the structure of $s$ as follows:
 \begin{displaymath}
 	\begin{array}{lll@{\hspace*{3cm}}l}
 	\varphi(\lambda f. u~\vartheta) &=& 1 \\ 
 	 
 	\varphi(\boldsymbol{(}match~v~with~Nil~->~u_1~|~Cons~x~y -> u_2{)} \vartheta) \quad \text{with}~u_1, u_2:\tau^2 &=& 3 \\
 	 
-	\varphi(\boldsymbol{(}let~x~=~u_1~in~u_2{)} \vartheta) \quad \text{with}~u_1, u_2:\tau^2 &=& 3 \\
+	\varphi(\boldsymbol{(}let~x~=~u_1~in~u_2{)} \vartheta) \quad \text{with}~u_1, u_2:\tau^2 &=& 2 \\
 	 
 	\varphi(\boldsymbol{(}if~v~then~u_1~else~u_2) \vartheta \boldsymbol{)}) \quad \text{with}~u_1, u_2:\tau^2 &=& 3 \\
 	 
@@ -1907,35 +1894,65 @@ The proof of normalisation theorem for $\icarrt$ relies on the idea, similar to 
 \end{displaymath}	
 	\end{definition}	
 
-	
+It remains to check it defines a decreasing measure for $\icarr$ indeed:
+	\begin{lemma}[(Decreasing Measure for $\icarr$)] 
+If $\il{s}{s'}$, then $\varphi(s) > \varphi(s')$.
+\hypertarget{desc-meas-1}{}
+\end{lemma}
+\begin{proof}
+By induction on the derivation of $\il{s}{s'}$. \\
+
+\noindent\textit{Case} (\textsc{I}$_{2}$-\textsc{App}$_0$):
+$\hspace*{2cm} \varphi(\lambda f. u~\vartheta) = 1 > 0 = \varphi(u [f \mapsfrom \vartheta])$\\
+
+\noindent\textit{Case} (\textsc{I}$_{2}$-\textsc{Match}$_0$): 
+\hspace*{2em} 
+$\varphi(\boldsymbol{(}match~v~with~Nil~->~u_1~|~Cons~x~y -> u_2{)} \vartheta) = 3 >$\\
+\hspace*{10em} 
+$	\varphi(match~v~with~Nil~->~(u_1~\vartheta)~|~Cons~x~y -> (u_2~\vartheta){)} = 2$\\
+
+\noindent\textit{Case} (\textsc{I}$_{2}$-\textsc{Let}$_0$): 
+\hspace*{2em} 
+$\varphi(\boldsymbol{(}let~x~=~u_1~in~u_2{)} \vartheta) = 3 > $\\
+\hspace*{8em} 
+$\varphi(let~x~=~u_1~in~(u_2~\vartheta)) = 1$\\
+
+\noindent\textit{Case} (\textsc{I}$_{2}$-\textsc{If}$_0$): 
+\hspace*{2em} 
+$\varphi(\boldsymbol{(}if~v~then~u_1~else~u_2{)} \vartheta) = 3 > $\\
+\hspace*{7em} 
+$\varphi(if~v~then~(u_1~\vartheta)~else~(u_2~\vartheta)) = 2$\\
+
+For the remaining rules, the result follows from a immediate use of the induction hypothesis on the sub-derivation of each rule.
+\end{proof}
 \begin{theorem}[(Termination of $\icarrt$)] 
 		$\forall s_0 \in S ~
 	 			\exists n \in \mathbb{N}:  
 	 				  (\ict{s_0}{s_n}) \bwedge (s_n \in \icNF).$
+	 				  
+	 				  
+	 				  
 \label{ic-term-l}
 \end{theorem}
 \begin{proof}
-	With the definition above, we can easily prove by induction on the derivation of $\ic{s_{i}}{s_{i+1}}$ that $\varphi(s_{i}) > \varphi(s_{i+1})$ for each step $\ic{s_{i}}{s_{i+1}}$ of the reduction chain $ s_0 \icarrt ... \icarrt s_i \icarrt s_{i+1} \icarrt ...$. 
-	It follows then that the sequence $k = \varphi(s_0) > \varphi(s_1) >  ... > \varphi(s_i) > ... $ is strictly decreasing, so that there exist some $n$, for which $\varphi(t_n) = 0$, and $ s_{i} \inlletarr ... \inlletarr s_n \in \icNF$. 
-	By \cref{ic-determ-l}, the rewriting strategy $\icarrt$ is deterministic, so the chain above is uniquely defined.
-	Theferore, $n$ is uniquely defined too, which is exactly what we wanted to prove. 
+%	With the definition above, we can easily prove by induction on the derivation of $\ic{s_{i}}{s_{i+1}}$ that $\varphi(s_{i}) > \varphi(s_{i+1})$ for each step $\ic{s_{i}}{s_{i+1}}$ of the reduction chain $ s_0 \icarrt ... \icarrt s_i \icarrt s_{i+1} \icarrt ...$. 
+%	It follows then that the sequence $k = \varphi(s_0) > \varphi(s_1) >  ... > \varphi(s_i) > ... $ is strictly decreasing, so that there exist some $n$, for which $\varphi(t_n) = 0$, and $ s_{i} \inlletarr ... \inlletarr s_n \in \icNF$. 
+%	By \cref{ic-determ-l}, the rewriting strategy $\icarrt$ is deterministic, so the chain above is uniquely defined.
+%	Theferore, $n$ is uniquely defined too, which is exactly what we wanted to prove. 
+Same as the proof of \cref{inllet-term-l}.
 \end{proof}
-
-From the theorems of this and previous subsection, it follows that 
 
 \begin{corr}[(Second-Order Application Inlining)] 
 ~\\
  $\forall s \in S.~ s \not\in U \brarr 
 	 				  \exists !u \in U: \ict{s}{u}.$
 \end{corr} 
- 
- Finally, from the corollary above and \cref{inllet-corr} we get:
+ Finally, from the corollary above and \cref{inllet-corr} we conclude that 
  \begin{corr}[(Second-Order Inlining)] 
-~\\
- $\forall t \in \inlsrc.~ t \not\in S \brarr \exists !s: !u \in U: \ict{s}{u}.$
+ $\forall P \in \inlsrc.~ \exists !u \in U: u = I_2(I_1(P)) .$
 \end{corr} 
-	That is, our initial goal to prove inlining terminating and always resulting in a first-order program is achieved. 
-%	
+%for each program $P \in $ inlining  terminating and always resulting in a first-order program is achieved. :
+%%	
 %Because second-order applications are the only second-order expressions that can appear in $I_1\textit{P})$, we eventually get an entirely first-order program. \\	
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
