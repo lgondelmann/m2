@@ -169,7 +169,7 @@ keepspaces=true,
 	{\tau_{#1}\hspace*{-0.1cm}\stackrel{(#3,#4)}
 	{\Longrightarrow}\hspace*{-0.1cm}\tau_{#2}}
 \newcommandx{\tyord}[2][2=]{\ty[#2]^{#1}}
-
+\newcommand{\rouge}[1]{\textcolor{red}{#1}}
 %
 %\newcommand{\tarrS}[4]
 %	{\tau^{\mf{B}_{#3}}_{#1}
@@ -182,8 +182,8 @@ keepspaces=true,
 \label{ML-Typing marcos}
 \newcommandx{\typerule}[5]{~\vdash  #1 : (#2, #3, #4) #5}
 
-
 \newcommand{\typing}[4]{\vdash~#1~:~#2,~#3,~#4}
+\newcommand{\ghosttyping}[6]{\vdash_{gh}~#1~:~#2,~(#3,~#4,~\rouge{#5})~\textcolor{blue}{\boldsymbol{#6}}}
 \newcommand{\bth}{\bot_\theta}
 \newcommand{\brh}{\bot_\rho}  
 \newcommand{\tth}{\top_\theta}
@@ -353,6 +353,17 @@ keepspaces=true,
 
 \newcommand{\lgforall}[3]{\forall \glvar{#1}{#2}. #3}
 \newcommand{\lgforallc}{\lgforall{x}{\tau_2}{f_1}}
+
+\newcommand{\gb}{\beta}
+\newcommand{\gba}[1]{\beta_{#1}}
+\newcommand{\gbb}{\bot_\beta}
+\newcommand{\gbt}{\top_\beta}
+
+\newcommand{\gbr}{\textcolor{red}{\gb}}
+\newcommand{\gbra}[1]{\textcolor{red}{\gba{#1}}}
+\newcommand{\gbbr}{\textcolor{red}{\gbb}}
+\newcommand{\gbtr}{\textcolor{red}{\gbt}}
+\newcommand{\gbran}[1]{\textcolor{red}{\neg\gba{#1}}}
 
 
 \newcommand{\meganerd}	
@@ -603,8 +614,8 @@ type, remains syntactically unchanged.
 \end{adjustwidth}
 
 It remains to annotate (1.2) so that inlining would transform it into an annotated code that should suffice to prove the inlined program above. 
-This can be achieved by extending the definition of \texttt{array\_iter} with an additional parameter \textcolor{blue}{\texttt{\textbf{inv:int-> prop}}} which stands for the loop invariant $P$. 
-\begin{small}
+This can be achieved by extending the definition of \texttt{array\_iter} with an additional parameter \textcolor{blue}{\texttt{\textbf{inv:int-> int array -> prop}}} which stands for the loop invariant $P$. 
+\begin{small}\hypertarget{sum-iter}{example}
 \begin{whycode}  
    let array_iter ($\textcolor{red}{\text{f:int -> unit}}$) (b: int array) ($\textcolor{red}{\text{inv:int -> int array -> prop}}$)    
      $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} 0~b \}}}$
@@ -1244,7 +1255,7 @@ Formally, we have:
   result{\footnotesize$^{\cite{Tait67}}$}. 
 \end{proof}
 
-\subsection{From Mini-ML to Second-Order Functional Language \texorpdfstring{$ML^{^{2}}$}{}}
+\subsection{From Mini-ML to \texorpdfstring{$ML^2$}{$ML^2$}}
 
 %\paragraph{\texorpdfstring{$ML^{^{n}}$}{} Programming Language}
 
@@ -1402,28 +1413,358 @@ So, we have to restrain term $t_2$ to be free from any possible side-effects:
 				(\theta \bvee \theta'), 
 				(\rho \bvee \rho')}
 	\end{footnotesize}
-
 \paragraph{Restricting Codomain Type}
- 
 	Finally, if $t$ is a $\inlsrc$ program of some second-order type $\tau^2$, we cannot  transform $t$ into some first-order program. 
 	So it is naturally to assume whenever we talk about inlining a higher-order program $t$, $t$ itself is a program of some first-order type.
 
 \paragraph{Notations}
-
-%	Sometimes, we will write programs of $\inlsrc$ in the syntax of WhyML, like we did in the introduction. 
-%	However, the correspondence between $\inlsrc$ and a fragment of WhyML we use will be always straightforward and intuitive.
 
 	Finally, to make the rest of presentation more readable, we introduce the following notations:\\
  \hspace*{0.5cm} - $x,y,...$ denote variables of some zero-degree type: \texttt{int, bool, ...};\\
  \hspace*{0.5cm} - $f,g,...$ denote variables of some first-order type: \texttt{int -> int, int -> bool -> int, ...};\\ 
  \hspace*{0.5cm} - $F,G,...$ denote variables of some second-order type: \texttt{(int -> bool) -> int}, ....
 
+\noindent	Also, we will write programs of $\inlsrc$ in the syntax of WhyML, like we did in the introduction. 
+	However, the correspondence between $\inlsrc$ and a fragment of WhyML we use will be always straightforward and intuitive.
+	
+\newpage
+\section{Higher Order Logic Language}
+
+\subsection{\texorpdfstring{$WhyML^2$}{WhyML2}: Specification Language for \texorpdfstring{$ML^{^{2}}$}{ML2}}
+
+In the introductory example of \texttt{sum\_iter}, we extend the definition of \texttt{array\_iter} with an additional parameter  \textcolor{blue}{\texttt{{inv:int -> int array -> prop}}} represents for loop invariant:
+ 
+\begin{small}
+\begin{whycode}  
+   let array_iter ($\textcolor{black}{\text{f:int -> unit}}$) (b: int array) ($\textcolor{red}{\text{inv:int -> int array -> prop}}$)    
+     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} 0~b \}}}$
+     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} b.length~b }\}}$  
+   = let rec loop (i: int)
+       $\textcolor{OliveGreen}{ \text{requires \{~\textcolor{red}{inv} i b} \bwedge \text{0 <= i <= b.length}~\}}$
+       $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} b.length~b}\}}$ =    
+       = if i < b.length then ($\textcolor{black}{\text{f}}$ b[i]; loop (i+1)) 
+     in loop 0 
+  \end{whycode}
+\end{small}
+
+
+
+Let us illustrate this, by rewriting the example of \texttt{sum\_iter} with lists.
+The source code of iterator itself is:
+\begin{small}	
+\begin{whycode}  
+let list_iter ($\textcolor{black}{\text{f:int -> unit}}$) (l: int list)
+ = let rec loop (ai: int list)   
+    = match ai with 
+       | Nil       -> ()
+       | Cons x xs -> ($\textcolor{black}{\text{f}}$ x; loop ai); 
+   in loop l  
+ 	\end{whycode}
+ \end{small}	 
+How do we represent the invariant of \texttt{list\_iter} ? As we see, the iteration on list \texttt{l0} relies on the structure of lists itself, using recursion and pattern-matching: at each step, we call \texttt{list\_array} recursively on the sub-list \texttt{xs} of \texttt{ai}.
+
+Consequently, to prove the preservation of loop invariant at some step $i$, we need to show that the invariant property holds for all elements of \texttt{a\_i} iterated \textbf{before} the step $i$.
+
+That means that we need to extend the definition of \texttt{list\_iter} by an addition parameter \texttt{bi: int list} to keep track of the list \texttt{ai} elements accessed before each recursive call: 
+
+\begin{small}
+	\begin{minipage}[t]{0.4\linewidth}	
+	\begin{whycode}  
+let list_iter  ($\textcolor{black}{\text{f:int -> unit}}$) (l: int list)
+ = let rec loop (ai: int list) $(\textcolor{red}{\text{bi: int list}})$ = 
+      match ai with 
+       | Nil       -> ()
+       | Cons x xs -> ($\textcolor{black}{\text{f}}$ x; loop xs $(\textcolor{red}{\text{Cons x bi}})$); 
+   in loop 0 l Nil
+ 	\end{whycode}
+ 	\end{minipage}
+ \end{small}	 
+ 
+ First, let us check that when all elements of \texttt{l} have been accessed, the elements of \texttt{bi} and  \texttt{l} are exactly the same. It is true because:
+ 
+	- when the auxiliary function \texttt{loop} is called first time, none of elements of \texttt{ai} is accessed yet, so \texttt{bi} is equal \texttt{Nil}; 
+	
+	- before each recursive call of \texttt{loop}, the element \texttt{x}  must be added to \texttt{bi} as already seen, so we apply \texttt{Cons} to \texttt{x} and \texttt{bi}; 
+	
+	- after the last recursive call, the elements of \texttt{bi} are  exactly those of the initial list \texttt{l}. \\
+
+However, \texttt{l} and \texttt{bi} are not \textit{structurally} the same: the order of elements is \textbf{reversed}. We must take that into account, when we apply the invariant \texttt{inv: int list -> int list -> prop} on $bi$ and $l$. Consequently, the specification of \texttt{list\_iter} is: 
+
+\begin{small}
+	\begin{minipage}[t]{0.4\linewidth}	
+	\begin{whycode}  
+let list_iter ($\textcolor{red}{\text{inv:int list -> int list -> unit}}$) ($\textcolor{red}{\text{f:int -> unit}}$) (l: int list)
+     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} Nil~l \}}}$
+     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} (reverse l)~Nil
+     	 }\}}$    
+ = let rec loop (a: int list) $(\textcolor{red}{\text{b: int list}})$ = 
+ ($\textcolor{red}{\text{f:int -> unit}}$) (l: int list)
+     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} Nil~l \}}}$
+     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} (rev\_append l b)~Nil
+     	 }\}}$  
+      match a with 
+       | Nil       -> ()
+       | Cons x xs -> ($\textcolor{red}{\text{f}}$ x; loop xs $(\textcolor{red}{\text{Cons x b}})$); 
+   in loop 0 l Nil
+ 	\end{whycode}
+ 	\end{minipage}
+ \end{small}	 
+
+As we can see, the original order of elements is restored in specification of \texttt{list\_iter}  by reversing the entire list \texttt{l}; in specification of \texttt{loop} by concatenating the accessed elements \texttt{bi} in the reversed order to list \texttt{li} of the remaining elements of \texttt{l}.
+
+%
+%\begin{small}
+%	\begin{minipage}[t]{0.4\linewidth}	
+%	\begin{whycode}  
+%let list_iter ($\textcolor{red}{\text{inv:int list -> int list -> unit}}$) ($\textcolor{red}{\text{f:int -> unit}}$) (l: int list)
+%     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} Nil~l \}}}$
+%     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} (reverse l)~Nil
+%     	 }\}}$  
+%   
+% = let rec loop (a: int list) $(\textcolor{red}{\text{b: int list}})$ = 
+% ($\textcolor{red}{\text{f:int -> unit}}$) (l: int list)
+%     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} Nil~l \}}}$
+%     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} (rev\_append l b)~Nil
+%     	 }\}}$  
+%      match a with 
+%       | Nil       -> ()
+%       | Cons x xs -> ($\textcolor{red}{\text{f}}$ x; loop xs $(\textcolor{red}{\text{Cons x b}})$); 
+%   in loop 0 l Nil
+%   
+%   let sum_list_iter (a: array int) =		 
+%     let s = ref 0 in
+%     list_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}$ a     
+% 	\end{whycode}
+% 	\end{minipage}
+% \end{small}	 
+
+%
+% let sum_iter (a: array int) =		 
+%   let s = ref 0 in 
+%   array_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}~$ a $\textcolor{red}{(\lambda i_{int}.\lambda c_{\texttt{int array}}. \sum_{~0\leq j < i} a[j])}$                    
+% 	
+	
+	
+%%	Let \texttt{P} be a program of $\inlsrc$ and \texttt{L} the logical expressions of $WhyML^2$ used to specify and annotate \texttt{P}. 
+%	Imagine that instead of writing a second-order program \texttt{M} in $\inlsrc$, we write  directly it in $WhyML^2$ as a specified and annotated program \texttt{W}. Suppose that we inlined \texttt{W} into a program $I_2(I_1((W))$,  and proved all generated verification conditions in Why3. Now,
+		
+	
+		
+	
+
+
+
+\subsection{Ghost Code}
+\subsubsection*{\texorpdfstring{$Ghost-MiniML$}{$Ghost-MiniML$} Syntax and Semantics}
+
+\subsubsection*{\texorpdfstring{$Ghost-MiniML$}{$Ghost-MiniML$} Language  Typing Relation}
+
+
+\begin{figure}[H]
+%\hrule
+\begin{adjustwidth}{-5em}{5em}
+\begin{small}
+\begin{minipage}[t]{0.45\linewidth}
+\begin{displaymath}
+\begin{array}{l}
+
+\dfrac
+	{}
+	{\ghosttyping{x^{\gbr}_{\tau}}{\tau}{\bot_{\theta}}{\bot_{\rho}}{\gbr}{}}
+	{\textsc{  (T-var)}} \\[1.3cm]	
+
+\dfrac
+	{\textsc{Typeof}(c) = \tau}
+	{\ghosttyping{c}{\tau}{\bot_{\theta}}{\bot_{\rho}}{\gbbr}{}}
+	{\textsc{  (T-const)}} \\[1.3cm]	
+
+
+\dfrac
+	{\ghosttyping
+		{t}
+		{\tau}
+		{\theta}
+		{\rho}
+		{\gbr}
+		{}}
+	{\ghosttyping
+		{ghost~t}
+		{\tau}
+		{\bth}
+		{\brh}
+		{\gbtr}
+		{}} 
+{\textsc{  (T-ghost)}}	\\[1.3cm]		
+	
+\dfrac
+	{\ghosttyping
+		{t}
+		{\tau_1}
+		{\theta_1}
+		{\rho_1}
+		{\gbra{1}}
+		{}}
+	{\ghosttyping
+		{\lambda x^{\gbra{2}}_{\tau_2} . t_1}
+		{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}
+		{\bth}
+		{\brh}
+		{\gbra{1}}
+		{}}
+	{\textsc{  (T-lam)}}\\[1.3cm]			
+	
+\dfrac
+	{\ghosttyping
+		{t_1}
+		{\tau_1}
+		{\theta_1}
+		{\rho_1}
+		{\gbra{1}}
+		{\quad \gba{1} \Rightarrow \beta_1'}}
+	{\ghosttyping
+		{\mu f^{\gbra{1}^{\rouge{'}}}:~(\tau_1, \theta_1).~\lambda x^{\gbra{2}}_{\tau_2}. t} 
+		{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \gbran{1}^{\rouge{'}}}{\Longrightarrow} \tau_1}
+		{\bth}
+		{\brh}
+		{\gbra{1}^{\rouge{'}}}
+		{}}
+	{\textsc{  (T-rec)}}\\[1.3cm]			
+	
+	\dfrac
+	{
+		\ghosttyping{v}{bool}{\bth}{\brh}{\gbra{0}}{} ~~
+		\ghosttyping{t_1}{\tau_1}{\theta_1}{\rho_1}{\gbra{1}}{} \qquad
+		\ghosttyping{t_2}{\tau_1}{\theta_2}{\rho_2}{\gbra{2}}{}
+	}
+	{	\ghosttyping{if~v~then~t_1~else~t_2}
+		{\tau_1}{\theta_1 \bvee \theta_2}{\rho_1 \bvee \rho_2}
+		{\gbra{0} \bvee \gbra{1} \bvee \gbra{2}}{}}
+	{\textsc{  (T-if)}}	\\[1.3cm]	
+		
+\dfrac
+	{\ghosttyping{v}{int~list}{\bth}{\brh}{\gbra{0}}{} ~~
+	 \ghosttyping{t_1}{\tau}{\theta_1}{\rho_2}{\gbra{1}}{}  ~~
+	 \ghosttyping{t_2}{\tau}{\theta_2}{\rho_2}{\gbra{2}}{}  }
+	{\ghosttyping{match~v~with ~|~Nil~->~t_1~|~Cons~x_{int}~x_{int~list}~->t_2}{\tau}{\theta_1 \bvee \theta_2}
+		{\rho_1 \bvee \rho_2}
+		{\gbra{0} \bvee \gbra{1} \bvee \gbra{2}}{}} 
+{\textsc{  (T-match)}}
+	
+\end{array}
+\end{displaymath}
+\end{minipage} 
+ \hfill 
+\begin{minipage}[t]{0.55\linewidth}
+\begin{displaymath}
+\begin{array}{rrr}
+\hspace*{-3cm}
+\dfrac
+	{
+		\ghosttyping
+			{t}
+			{{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}}
+			{\theta_2}
+			{\rho_2}
+			{\gbra{1}}
+			{} \qquad
+		\ghosttyping
+		{v}
+		{\tau_2}
+		{\bth}
+		{\brh}
+		{\gbra{2}^{\rouge{'}}}
+		{\quad \gba{2} \Rightarrow \gba{2}^{'}}}
+	{
+		\ghosttyping
+			{t~v}
+			{\tau_1}
+			{\theta_1 \bvee \theta_2}
+			{\rho_1 \bvee \rho_2}
+			{\gbra{1} \bvee (\gbran{2} \bwedge \gbra{2}^{\rouge{'}})}
+			{}}
+	{
+		\textsc{  (T-app)}} \\[1.3cm]		
+		
+\dfrac
+	{
+		\ghosttyping
+			{t_1}
+			{\tau_1}
+			{\theta_1}
+			{\rho_1}
+			{\gbra{1}}
+			{} \qquad
+		\ghosttyping
+			{t_2}
+			{\tau_2}
+			{\theta_2}
+			{\rho_2}
+			{\gbra{2}^{\rouge{'}}}
+			{\quad \gba{2} \Rightarrow \gba{2}^{'}}
+	}
+	{\ghosttyping
+		{let~x^{\gbra{2}}_{\tau_1} = t_1~in~t_2}
+		{\tau_2}
+		{\theta_1 \bvee \theta_2}
+		{\rho_1 \bvee \rho_2}
+		{\gbra{1} \bvee (\gbran{2} \bwedge \gbra{2}^{\rouge{'}})}
+		{}}
+	{\textsc{  (T-let)}}	\\[1.3cm]			
+					
+
+
+
+\dfrac
+	{\ghosttyping
+		{v}
+		{\tau}
+		{\bth}
+		{\brh}
+		{\gbra{1}}
+		{\quad \gba{1} \Rightarrow \gba{1}^{{'}}}}
+	{\ghosttyping
+		{r^{\gbra{1}^{\rouge{'}}}_{\tau}~:=~v}
+		{unit}
+		{\gbran{1}^{\rouge{'}}}	
+		{\brh}
+		{\gbra{1}^{\rouge{'}} }
+		{}} 			
+ 	{\textsc{  (T-assign)}}	\\[1.5cm]		
+   			
+\dfrac
+	{}
+	{\ghosttyping{!r^{\gbra{1}}_{\tau}}{\tau}{\bth}{\brh}{\gbra{1}}{}} 
+{\textsc{  (T-deref)}}
+
+
+\end{array}
+\end{displaymath}
+\end{minipage} 	 		 
+\end{small}
+\end{adjustwidth}
+%\hrule
+\caption{\textbf{Mini-ML Typing System With Effects}}
+\label{ghost-mini-ml-def-typ}	
+\end{figure} 
+\subsubsection*{Erasure of Ghost-Code}
+\subsubsection*{Properties of Erasure}
+%In this example, the invariant parameter \texttt{inv} appears only inside specification, so we can be sure that it does not modify the meaning of code itself. 
+%
+%However, in the case of iterators on algebraic data types such as lists and trees, additional parameters that we need use to express the invariant of iterator do appear inside the source code
+%, and it becomes less clear that the semantics of the source code is preserced.
+%	
+
+
+\subsection{Inlining of \texorpdfstring{$WhyML^{^{2}}$}{$WhyML^2$} programs}
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Inlining}
 
- In the previous section we defined $\inlsrc$, the domain language of inlining procedure. 
+ Previously we defined $\inlsrc$ as the domain language of inlining procedure. 
  In this section we give a formal definition for the inlining procedure itself.
  We present inlining as a \textit{small-step} rewriting strategy described by a set of inference rules.
  
@@ -2206,38 +2547,46 @@ We need to check the following 	lemmas:
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Specification Language}
-%
-\subsection{Ghost Code}
-\subsection{Logic}
-\subsection{Inlining of Annotations}
-%
-%\begin{definition}[blah blah] blah
-%\end{definition}
-%
-%\begin{theorem}[blah] 
-%blah
-%\end{theorem}
-%
-%\begin{lemma}[blah blah blah]
-%blah
-%\end{lemma}
-%
-%type system, erasure, proof of correctness of erasure
-%
-%\subsection{Annotations}
-%
-%requires, ensures, assert
-%
-%\section{Putting Pieces Together}
-%
-%\subsection{Orthogonality}
-%
-%inlining adapted to specification language
-
 \section{Experimental Evaluation}
 
+ The first argument of \texttt{inv} is of type int, because it is a type of array indexes, so that we can express the invariance of the \texttt{inv}, applying \texttt{inv} in different contexts to different indexes.
+  
+	For instance, let us rewrite $\sum\_iter$ in $\inlsrc$.
+	In $\inlsrc$, we do not have arrays. However, we have integer lists. 
+ List structure is quite different from arrays. 
+ In particular, lists are recursively constructed data, so instead of access them with indexes, we access them using pattern-matching and recursion:	
+	of \texttt{sum\_iter} using lists: \hypertarget{sum-list-iter}{}
+	
+\begin{small}
+	\begin{minipage}[t]{0.4\linewidth}	
+	\begin{whycode}  
+let list_iter ($\textcolor{red}{\text{f:int -> unit}}$) (b: int list)   
+ = let rec loop (l: int list) = 
+      match l with 
+       | Nil       -> ()
+       | Cons x xs -> ($\textcolor{red}{\text{f}}$ x; loop xs); 
+   in loop 0 
+   
+   let sum_list_iter (a: array int) =		 
+     let s = ref 0 in
+     list_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}$ a     
+ 	\end{whycode}
+ 	\end{minipage}
+ \end{small}	
+%	\end{minipage}\hfill 
+%	\begin{minipage}[t]{0.45\linewidth}
+%	\begin{whycode}
+%   let sum_list_iter (a: array int) =		 
+%     let s = ref 0 in
+%     list_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}$ a  
+%	\end{whycode}      
+%	\end{minipage}
+%\end{small}		
 
+One can easily check that this program can be wrttin with the syntax of $\inlsrc$.
+
+
+ 	
 
 
 
@@ -2245,6 +2594,7 @@ We need to check the following 	lemmas:
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
 \section{Detailed proofs} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

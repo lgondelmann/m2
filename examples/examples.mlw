@@ -2,16 +2,16 @@ module ForArray
   use import int.Int
   use import array.Array
   use import array.ArraySum
-  use import ref.Ref 
+  use import ref.Ref
 
-  let stmt_for () (a : array int) = 
+  let stmt_for () (a : array int) =
     ensures {sum a 0 (length a) = sum (old a) 0 (length (old a)) }
     'L:
     for i = 0 to (length a) - 1 do
      invariant { forall j: int. 0 <= j < i -> sum a 0 (j+1) = sum (at a 'L) 0 (j+1) + j}
      invariant { forall j: int. 0 <= j < i -> a[j] = (at a 'L)[j] + 1}
      invariant { forall j: int. i <= j < (length a) ->  a[j] = (at a 'L)[j]}
-     a[i] <- a[i] + 1 
+     a[i] <- a[i] + 1
     done
 
 end
@@ -53,7 +53,7 @@ module Sum_m
        | Nil -> 0
        | Cons l ql -> sum l + sum_m ql
      end
-  
+
   lemma sum_append:
     forall l1 l2 : list (list int). sum_m (l2 ++ l1) = (sum_m l1) + (sum_m l2)
 
@@ -65,16 +65,16 @@ module Sum_m
       | Nil -> Nil
       | Cons l ql -> l ++ flatten ql
     end
- 
+
   lemma sum_flatten:
-   forall l1 : list (list int). sum_m l1 = sum (flatten l1) 
+   forall l1 : list (list int). sum_m l1 = sum (flatten l1)
 
 end
 
 
 (******************************************************************************)
 
-module Iter_ll 
+module Iter_ll
  use import int.Int
   use import int.MinMax
   use import list.List
@@ -91,7 +91,7 @@ module Iter_ll
 
 (*
 
-let iter_l = 
+let iter_l =
     fun (f: int -> unit) (inv: int list -> int list -> prop).
     	rec iter_l0 (l : list int) (ghost b: list int)  =
     requires { inv b l}
@@ -101,11 +101,11 @@ let iter_l =
         | Cons x xs -> f x; iter_l0 xs (Cons x b)
       end
 
-let iter_m = 
-    fun  
-     (f_l   : int -> unit) 
+let iter_m =
+    fun
+     (f_l   : int -> unit)
      (inv_m : list (list int) -> list (list int) -> prop)
-     (inv_l : int list -> int list -> prop) 
+     (inv_l : int list -> int list -> prop)
       rec iter_m0 (ll : list int) (ghost bl: list int)  =
       requires { inv_m bl ll}
       ensures  { inv_m ((reverse ll) ++ bl) }
@@ -114,10 +114,10 @@ let iter_m =
           | Cons l ql -> iter_l f_l inv_l l (flatten bl); iter_m0 ql (Cons l bl)
          end
 
-let test () = 
+let test () =
     s := 0;
     iter_m  (fun x -> s := !s + x) (\b.\a. !s = sum_m b) (\b.\a. !s = sum b) ll0 Nil
-     
+
 
 *)
 
@@ -133,12 +133,12 @@ let test () =
 
   let rec iter_m (ll : list (list int)) (ghost bl : list (list int)) =
     requires {!s = sum_m bl}
-    ensures  {!s = sum_m ((reverse ll) ++ bl)} 
+    ensures  {!s = sum_m ((reverse ll) ++ bl)}
   match ll with
     | Nil -> ()
     | Cons l ql -> iter_l l (flatten bl); iter_m ql (Cons l bl)
   end
- 
+
   let test () =
     s := 0;
     iter_m ll0 Nil;
@@ -212,7 +212,7 @@ module Iter
 
 
 
-  let sum_s (x : int) : unit = 
+  let sum_s (x : int) : unit =
       requires { true }
       ensures  { !s = old !s + x }
   s := !s + x
@@ -297,10 +297,10 @@ module Fold
 
 (**********************************  fold_left  *******************************)
 (*
-  let rec fold_left 
-    (f: a' -> 'b -> 'a) 
-    (a: 'a) 
-    (l: list 'b) 
+  let rec fold_left
+    (f: a' -> 'b -> 'a)
+    (a: 'a)
+    (l: list 'b)
     (ghost b: list 'b)
     (ghost inv : list 'b -> list 'b -> 'a -> prop) : 'a
        	requires  { inv b                l   a      }
@@ -310,39 +310,39 @@ module Fold
        | Cons x xs -> fold_left f (f a x) xs b inv
       end
 
-  let fold_left 
-    (f: a' -> 'b -> 'a) 
-    (a: 'a) 
-    (l: list 'b) 
+  let fold_left
+    (f: a' -> 'b -> 'a)
+    (a: 'a)
+    (l: list 'b)
     (ghost inv : list 'b -> list 'b -> 'a -> prop) : 'a
       requires {inv Nil l a}
       ensures  {inv (reverse l) Nil result} =
-    fold_left f a l Nil inv 
+    fold_left f a l Nil inv
 
 *)
 
 (********************* exemple : insertion sort ******************************)
 
-  let rec insertion  (l : list int) (x: int)  = 
+  let rec insertion  (l : list int) (x: int)  =
     requires { sorted l }
     ensures { sorted result /\ permut (Cons x l) result }
     match l with
      | Nil      ->  Cons x Nil
      | Cons y r ->  if x < y then Cons x l else Cons y (insertion r x)
-    end  
+    end
 
 
 (* let test_fold_left_insertion_sort (l : list int) =
-     fold_left 
+     fold_left
        insertion				(*f*)
        Nil 	 				(*a*)
        l 	 				(*l*)
        (\b. \a. \r. sorted r /\ permut b r) 	(*inv*) *)
 
- 
 
 
-  let rec fold_left_insertion_sort 
+
+  let rec fold_left_insertion_sort
     (a: list int) (l : list int) (ghost b : list int)
     requires { sorted a      /\ permut  b               a      }
     ensures  { sorted result /\ permut (rev_append l b) result }
@@ -350,16 +350,16 @@ module Fold
        | Nil -> a
        | Cons x xs -> fold_left_insertion_sort (insertion a x) xs (Cons x b)
       end
- 
-  let fold_left_insertion_sort_init 
+
+  let fold_left_insertion_sort_init
      (a: list int) (l : list int) =
      requires {sorted a      /\ permut Nil a}
      ensures { sorted result /\ permut (rev_append l Nil) result }
-     fold_left_insertion_sort a l Nil 
+     fold_left_insertion_sort a l Nil
 
   let test_fold_left_insertion_sort (l : list int) =
      let l1 = fold_left_insertion_sort_init Nil l in
-     assert { sorted l1 /\ permut (rev_append l Nil) l1} 
+     assert { sorted l1 /\ permut (rev_append l Nil) l1}
 
 
 (************************* exemple : sum ****************************************)
