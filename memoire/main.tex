@@ -1187,15 +1187,17 @@ $\vdash t' : \tau, \theta', \rho'$ holds for some $\theta'$, $\rho'$.
  \hypertarget{subst-lemma}{}
 \label{subst-lemma}
 \begin{itemize}
-
-\item 
-If $\typing{t_1}{\tau_1}{\theta_1}{\rho_1}$ and $\typing{v}{\tyarr[2][3][\textcolor{red}{\bth}][\textcolor{black}{\rho_2}]}{\bth}{\brh}$, ~~then $\typing{t_1[x_{\tau_2 \Rightarrow \tau_3} \mapsfrom v]}{\tau_1}{\theta_1}{\rho_3}$~~for some $\rho_2$ and $\rho_3$. 
+%
+%\item 
+%If $\typing{t_1}{\tau_1}{\theta_1}{\rho_1}$ and $\typing{v}{\tyarr[2][3][\textcolor{red}{\bth}][\textcolor{black}{\rho_2}]}{\bth}{\brh}$, ~~then $\typing{t_1[x_{\tau_2 \Rightarrow \tau_3} \mapsfrom v]}{\tau_1}{\theta_1}{\rho_3}$~~for some $\rho_2$ and $\rho_3$. 
 
 \item 
 If $\typing{t_1}{\tau_1}{\theta_1}{\rho_1}$ and $\typing{v}{\tau_2}{\bth}{\brh}$, ~~then $\typing{t_1[x_{\tau_2} \mapsfrom v]}{\tau_1}{\theta_1}{\rho_2}$~~for some $\rho_1$ and $\rho_2$. 
 \end{itemize}
 \end{lemma}
-
+\begin{proof}
+  By straightforward induction on the typing derivation of $t_1$.
+\end{proof}
  
 \begin{theorem}[(Preservation of Mini-ML, Strengthened)] 
 if $\vdash t : \tau, \textcolor{red}{\bth}, \rho$ holds and $\evalstep{t}{1}{t'}{2},$ then $\mu_1 = \mu_2$ and $\vdash t' : \tau, \textcolor{red}{\bth}, \rho'$ for some $\rho'$.
@@ -1458,10 +1460,10 @@ So, we have to restrain term $t_2$ to be free from any possible side-effects:
 	Intuitively, this is possible, because by definition \texttt{P} is a well-typed closed term of some first-order type.
 	Si, variables $F,G,...$ cannot be neither bound by some function, neither free in \texttt{P}. 
 	Consequently, the only higher-order variables that can possibly occur in \texttt{P} are introduced by local binding expression $\tmlet{F}{t_1}{t_2}$.
-	That is, our goal is to define inlining of second order variables as a procedure  $\inlletstar : \inlsrc \longrightarrow S$, where $S$ is a subset of $\inlsrc$ such that 
-	 for each $s \in S$ no second-order variables occur any more inside $s$. \\
+	That is, our goal is to define inlining of second order variables as a function  $\inlletstar : \inlsrc \longrightarrow S$, where $S$ is a subset of $\inlsrc$ such that 
+	 for $s \in S$ no second-order variables occur any more inside $s$. \\
 	 
-	A possible way to acheive this goal, is to define $\inlletstar$ as a reflexive, transitive closure of the \textit{small-step rewriting strategy} $\inlletarr$ below: 
+	We define $\inlletstar$ as a reflexive, transitive closure of the \textit{small-step rewriting strategy} $\inlletarr$ below: 
 \begin{definition}[(One Step local bindings Inlining, $\hookdownarrow$)]
 	Let $t$ be a term of $\inlsrc$ such that $t \not\in \inlS$. 
   Then, $t$ contains at least one occurence of some variable $F$ introduced by $\tmlet{F}{t_0}{t_1}$ construct.
@@ -1656,13 +1658,12 @@ The main result of this subsection follows immediately from the theorems above:
 
 \subsection{Inlining Second-Order Applications}
 
-	In the previous subsection, we successfully transformed an arbitrary program \textit{P} $ \in \inlsrc$ into $\overset{\inlletstar}{I(\textit{P})}$ $\in S$, a subset of $\inlsrc$ where all second-order variables are eliminated.
- 
-	Our goal now is to inline all possible \textbf{second-order applications} that may appear in  
-$\overset{\inlletstar}{I(\textit{P})}$. 
-	Because second-order applications are the only second-order expressions that can we written in $S$, at the end we eventually get an entirely first-order program. \\
-	
-	As previously, we define inlining of second order a as a procedure  $\icarrt : S \longrightarrow U$, where $U$ is a subset of first-order programs of $\inlsrc$, and $\icarrt$ is a reflexive, transitive closure of the \textit{small-step rewriting strategy}  $\icarr$ defined below: 
+	In the previous subsection, we transformed an arbitrary program \textit{P} $ \in \inlsrc$ into program of $S$, a subset of $\inlsrc$ where all second-order variables are eliminated. 
+	We note resulting program by  ${I_1(\textit{P})}$.
+	Our goal now is to inline all possible \textbf{second-order applications} that may appear in $I_1\textit{P})$. 
+
+	We define inlining of second order as function $\icarrt : S \longrightarrow U$, where $U$ is a subset of first-order programs of $\inlsrc$.
+	This function is the transitive, reflexive closure of the \textit{small-step rewriting strategy} $\icarr$ defined below: 
 \label{icrule-macro}
 \newcommandx{\icrule}[6]
 {\infrule[$I_2$-#1]
@@ -1685,12 +1686,10 @@ $\overset{\inlletstar}{I(\textit{P})}$.
 	To fix the notation, we write $s_i,w_j$ for the terms and values of $S$, and $u_i, 		
 	\vartheta_j$  for the terms and values of $U$. \\
 	
-	Let $s$ be a term of $S$ such that $t \not\in U$. 
-  Then, $s$ contains at least one application $(s~u)$, with $s : \tau^2$.
+	Let $s$ be a term of $S$ such that $s \not\in U$. 
+  Then, $s$ contains at least one application $(s_1~u_2)$, with $s_1 : \tau^2$.
 	
-  if $s$ is a second-order application itself, such that 
-  $s$ is of the form $(u \vartheta)$ where $s, \vartheta \in U$, 
-  we can inline $s$ using one of the the inference rules below:	
+  \indent There are four possible cases to inline $s$ containing exactly one second-order application such that it is $s$ itself:	
 	\begin{figure}[H]
 		\begin{footnotesize}
 	\begin{adjustwidth}{-10em}{0em}
@@ -1727,8 +1726,10 @@ $\overset{\inlletstar}{I(\textit{P})}$.
  		\end{footnotesize}
 	\end{figure}
 
-Otherwise, $s$ contains at least one sub-term of the from $(s w)$ with $s : \tau^2$.
-In that case, $\ic{s}{s'}$ is defined by the inferences rules below:
+Otherwise, $s$ contains at least two second-order applications. 
+So, there is at least one proper sub-term of $s$ of the from $(s_1 w_1)$ with $s_1 : \tau^2$. 
+In that case, a step of inlining of $s$ is defined inductively as inlining of the leftmost immediate subterm of $s$ in which $(s_1 w_1)$ appears. 
+That is, a step $\ic{s}{s'}$ is defined by the inferences rules below:
 	\begin{figure}[H]
 	\begin{footnotesize}
 	\begin{adjustwidth}{-8em}{-3em}
@@ -1798,7 +1799,7 @@ In that case, $\ic{s}{s'}$ is defined by the inferences rules below:
 %	One can check that \cref{fig:inl-app-h-d} describes indeed the only possible cases to inline terms such as $s$, for which all sub-terms are to be already first-order expressions.  
 %	  \\
 
-It remains to check that inlining of applications verifies the same properties we proved for the inlining of variables. 
+It remains to check that inlining of applications verifies the properties below.
 
 \begin{lemma}[(Determinacy of $\icarr$)] 
 	$\forall s, s_1, s_2.
@@ -1819,17 +1820,18 @@ For any well-typed term $s$ such that\\ $\typerule{s}{\tau}{\theta}{\rho}$ and $
  \label{ic-prop-l}
 \end{lemma}	
 \begin{proof}
-	By induction on the derivation of $\ic{t}{t'}$. 
-	The only interesting case is the head reduction \textsc{I$_2$-App$_0$}:
+	By induction on the derivation of $\ic{t}{t'}$.  \\
+	
+	\textsc{Case (I$_2$-App$_0$)}:
 	\icrulehead
 		{App$_0$}
 		{(\lambda f. u~\vartheta)}
 		{\tmsbst{u}{f}{\vartheta}}
 		{u,\vartheta \in U} 
-	\vspace*{0.5cm}
+	\vspace*{0.3cm}
 	Here, one can check that (1) holds by simply computing  FV(t) and FV(t').
-	(2) holds, because we substitute a variable by a value, so the substitution preservers A-Normal form.
-	Finally, $\typerule{\vartheta}{\tau^1}{\bth}{\brh}$, so (3) holds by the statement \textbf{S} from \cref{proof:preserv-prop-p}. 
+	(2) holds, because A-Normal form is invariant under $\beta-$reduction.
+	Finally, the typing of $\vartheta$ is $\typerule{\vartheta}{\tau^1}{\bth}{\brh}$, so by the \hyperlink{subst-lemma}{substitution lemma} (3) holds. 
  \end{proof}
  
  \begin{definition}[(Normal Forms $\icarrt$)]
@@ -1933,6 +1935,8 @@ From the theorems of this and previous subsection, it follows that
  $\forall t \in \inlsrc.~ t \not\in S \brarr \exists !s: !u \in U: \ict{s}{u}.$
 \end{corr} 
 	That is, our initial goal to prove inlining terminating and always resulting in a first-order program is achieved. 
+%	
+%Because second-order applications are the only second-order expressions that can appear in $I_1\textit{P})$, we eventually get an entirely first-order program. \\	
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
