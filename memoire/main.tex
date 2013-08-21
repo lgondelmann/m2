@@ -2,6 +2,7 @@
 \documentclass[a4paper,11pt,oneside]{article}
 \pagestyle{headings}
 \label{packages}
+\usepackage{rotating}
 \usepackage[sc]{mathpazo}
 \usepackage[scaled]{helvet} % ss
 \usepackage[utf8]{inputenc}
@@ -1240,6 +1241,7 @@ or a program that simulates the recursion by reference assignment, using a trick
 In the program above, at the moment of the evaluation of (!r$_{int}$ 42); !r$_{int}$ is already equal to $\lambda y_{int}.$ (!r y), so the evaluation of (!r$_{int}$ 42) never stops. 
 
 Formally, we have:
+\hypertarget{term-il}{}
 \begin{theorem}
  If $\vdash t : \tau, \textcolor{red}{\bth}, \textcolor{red}{\brh}$ then  $\evalstar{t{_1}}{1}{v{_2}}{1}$ for some value $v_2$.
 \end{theorem}
@@ -2035,7 +2037,7 @@ We need the following lemmas:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	
 	\begin{lemma} 
-	$\forall \mu_0, \mu_1, t.\evalstar{{t_0}}{0}{{t_1}}{1} \bwedge \evalstar{{t_0'}}{0}{{t_1'}}{1} \bwedge \eqv{t_0} \Rightarrow \eqv{t_1}$.
+	$\forall \mu_0, \mu_1, t.\evalstar{{t_0}}{0}{{t_1}}{1} \bwedge \evalstar{{t_0'}}{0}{{t_1'}}{1} \bwedge \eqv{t_1} \Rightarrow \eqv{t_0}$.
 		\label{equiv-red2-l}
 	\end{lemma}
 	
@@ -2058,6 +2060,7 @@ We need the following lemmas:
 	\end{proof}		
 
 	\begin{corr} 
+		\label{equiv-red-corr}
 		For any state $\mu_0$, if $\evalstar{{t}}{0}{{v}}{0}$, then		
 		$t \thicksim v$.
 	\end{corr}
@@ -2111,7 +2114,6 @@ We need the following lemmas:
 	     	 
 	\end{array}
 	\end{displaymath}
-	\label{}
 	\end{definition}
 
 	\begin{definition}[(equivalent parallel substitutions)]
@@ -2124,16 +2126,19 @@ We need the following lemmas:
 	\item[(2)]
 	  $ \mathfrak{Dom}_\sigma = \mathfrak{Dom}_\sigma' = FV(t)$
 	\item[(3)]
-		$ \forall x \in \mathfrak{Dom}_\sigma.~ \sigma(x) \thicksim_t \sigma'(x)$
+		$ \forall x \in \mathfrak{Dom}_\sigma.~ \sigma(x) \thicksim \sigma'(x)$
+	\item[(4)]
+		$ \forall x \in \mathfrak{Dom}_\sigma.~ 
+		\typing{\sigma(x)}{\tau}{\bot_{\theta}}{\bot_{\rho}} ~~~\bwedge~~~
+		\typing{\sigma(x')}{\tau}{\bot_{\theta}}{\bot_{\rho}} $
 	\end{itemize}	 
 	\label{equiv-subst-d}
 	\end{definition}
 
-	Note that from (1) it follows  that both $(t\sigma)$ and 
-	$(t\sigma')$ are terms that are well-typed, and from (2) and (3) it follows 
-	that $(t\sigma)$ and	 $(t\sigma')$ are \textit{\textbf{closed}} terms.
+	Note that from this definition it follows that both $(t\sigma)$ and 
+	$(t\sigma')$ are \textit{well-typed }\textit{closed} and \textit{strongly normalising} terms.
 
-	Also we have to prove the following lemma:	
+	To prove \textit{total correctness} of inlining, we need the following lemma:	
 	
 	\begin{lemma} 
 		$\forall t. \forall (\sigma, \sigma'). ~\eqvsbst{\sigma}{t}
@@ -2158,22 +2163,20 @@ We need the following lemmas:
    $$ \forall t,t' \in \inlsrc. \il{t}{t'} \Rightarrow (\forall \sigma, \sigma'. \sigma \thicksim_t \sigma' \Rightarrow t\sigma \thicksim t'\sigma').$$
   \end{lemma}
 	\begin{proof}
-	 By induction on derivation $\il{t}{t'}$.
+	 By induction on derivation $\il{t}{t'}$. For a detailed proof, see \ref{equiv-total-corr-p}.
 	\end{proof}	  
   
 	\begin{lemma}[(Total Correctness for $\icarr$, Strengthened)]
      $$ \forall s,s' \in \inlsrc. \ic{s}{s'} \Rightarrow (\forall \sigma, \sigma'. \sigma \thicksim_s \sigma' \Rightarrow s\sigma \thicksim s'\sigma').$$
   \end{lemma}
 	\begin{proof}
-	 By induction on derivation $\ic{s}{s'}$.
+	 Similar to the proof of the previous lemma.
 	\end{proof}	  
 	
-  \begin{theorem}[(Total Correctness)]
+  \begin{corr}[(Total Correctness)]
    $ \forall t \in \inlsrc. t \thicksim I_2(I_1(t)).$
-  \end{theorem}	
-	\begin{proof}
-	 Todo.
-	\end{proof}	 
+  \end{corr}	
+
 	
 %TODO: Nice figure %
 
@@ -3188,6 +3191,68 @@ Back to \ref{inllet-nforms-l}.
 		$\eqv{t_1}.$ Back to \ref{equiv-red2-l}.	
 		\end{itemize}	
 	\end{proof}		
+	
+\begin{lemma}[(Total Correctness for $\ilarr$, Strengthened)]
+	\label{equiv-total-corr-p}.
+   $$ \forall t,t' \in \inlsrc. \il{t}{t'} \Rightarrow (\forall \sigma, \sigma'. \sigma \thicksim_t \sigma' \Rightarrow t\sigma \thicksim t'\sigma').$$
+  \end{lemma}
+	\begin{proof}
+	 By induction on derivation $\il{t}{t'}$. 
+	 Let $\sigma, \sigma'$ be a pair of parallel substitutions such that $\sigma \thicksim_t \sigma'$.
+	 First, we observe that from the \cref{equiv-subst-d}, it follows that it does not matter whether we state the result for $\sigma \thicksim_t \sigma'$ or for $\sigma \thicksim_t' \sigma'$.
+	 We proceed by case analysis on the derivation $\il{t}{t'}$.\\
+	 
+	\noindent\textit{Case} (\textsc{I}$_{0}$-\textsc{Let}$_0$):
+	\vspace*{-1cm}\infrule[]
+		{ s_1, s_2  \in S}
+			{t = \tmlet{F}{s_1}{s_2} \hookdownarrow 				
+			t' = \tmsbst{s_2}{F}{s_1}}
+	 We must show that $(\tmlet{F}{s_1}{s_2})\sigma \thicksim \tmsbst{s_2}{F}{s_1}\sigma'$. 
+By definition \cref{equiv-subst-d}, all terms in codomain of $\sigma$ and $\sigma'$ are \textbf{closed}. Also $\inlsrc$ terms are defined modulo $\alpha$-renaming. Therefore, $F$ does not appear in $\sigma$ nor $\sigma'$, so we can rewrite $t\sigma$ and $t'\sigma'$ as: 
+	 $$ t\sigma = let~F~=~(s_1\sigma_1)~in~(s_2\sigma_2) \qquad
+	 t'\sigma' = (s_2\sigma_2')[F \mapsfrom (s_1 \sigma_1')]$$ 	 
+where $\sigma_1$ and $\sigma_2$ (resp. $\sigma_1'$ and $\sigma_2'$) are parallel substitutions induced by $\sigma$ (resp. $\sigma'$), by restricting the domain of $\sigma$ (resp. $\sigma'$) to the free variables of $s_1$ and $s_2$.
+
+% That is, 
+%$\sigma_1 = \sigma \backslash FV(s_2)$, $\sigma_1' = \sigma' \backslash FV(s_2)$  and $\sigma_2 = \sigma \backslash (FV(s_1) \cup \{ F \})$, $\sigma_2' = \sigma' \backslash (FV(s_1) \cup \{ F \mapsfrom \star \})$.
+	Clearly, we have that:
+$$ \sigma_1 \thicksim_{s_1} \sigma_1' \qquad \sigma_2 \thicksim_{s_2} \sigma_2'.$$
+	As $s_1$ is a second-order term of $\inlsrc$, the typing of $t$ is:
+		\begin{footnotesize}
+		\infrule[] 
+			{\vdash s_1 : \tau^2, \bth, \brh
+			\qquad \vdash s_2 : \tau^i, \theta, \rho \quad (i \in \{0,1\})} 
+			{\vdash \text{ let } F = s_1 \text{ in } s_2 
+				: \tau^{i}, 
+				\theta, 
+				\rho}
+	\end{footnotesize} 
+	 
+	From \cref{equiv-subst-d} it follows that the typing of $\sigma(x)$ is equal to typing of $x$.
+	Thus, by \hyperlink{subst-lemma}{Substitution lemma}, for each $x \in \mathfrak{Dom}_\sigma$ the typing of $t\sigma(x)$ is the same that the typing $t$. 
+
+	From that we deduce that the typing of $t\sigma$ is the same that the typing of $t$.
+	In particular, we have that the typing of $s_1 \sigma_1$ is $\vdash s_1 \sigma_1 : \tau^2, \bth, \brh$.
+	By \hyperlink{term-il}{Normalisation} theorem, there exist some state $\mu_0$ and some value $v_1$ such that $(s_1 \sigma_1)_{\mu_0} \rightarrow^\star {v_1}_{\mu_0}$. This reduction induces:	
+$$ t\sigma_{\mu_0} \rightarrow^\star let~F=v_1~in~(s_2\sigma_2)_{\mu_0} \stackrel{\epsilon}{\rightarrow} (s_2\sigma_2)[F \mapsfrom v_1]_{\mu_0}$$ 	 
+	 
+	Now, if $F \not\in FV(s_2)$, then 
+	$$t\sigma_{\mu_0}\rightarrow^\star (s_2\sigma_2)_{\mu_0} \thicksim {s_2\sigma_2'}_{\mu_0}~~ \stackrel{0}{\leftarrow} t'\sigma'_{\mu_0}$$	
+	In that case, by \cref{equiv-red2-l} we conclude that $t\sigma \thicksim t'\sigma'$. 
+Otherwise, 	$F \in FV(s_2)$. By \cref{equiv-red-corr}, we have that $ s_1\sigma_1 \thicksim v_1$. Thus, 
+$(\sigma_2 \cup \{ F \mapsfrom v_1\}) \thicksim_{s_2} (\sigma_2' \cup \{ F \mapsfrom s_1\sigma_1'\})$, from which we deduce that $ (s_2\sigma_2)[F \mapsfrom v_1] \thicksim (s_2\sigma_2')[F \mapsfrom s_1\sigma_1']$. Therefore:
+	$$t\sigma_{\mu_0}\rightarrow^\star (s_2\sigma_2)[F \mapsfrom v_1]_{\mu_0}  \thicksim (s_2\sigma_2')[F \mapsfrom s_1\sigma']_{\mu_0}~~ \stackrel{0}{\leftarrow} t'\sigma'_{\mu_0}$$
+and again we conclude by \cref{equiv-red2-l} that $t\sigma \thicksim t'\sigma'$. \\
+
+The other cases are left to the reader.
+
+
+%	 s_2\sigma_2'[\mapsfrom s_1\sigma_1']
+	\end{proof}	  
+  	
+	
+	
+	
 %	\begin{lemma}
 %	\label{equiv-subst-p}
 %	\end{lemma}
