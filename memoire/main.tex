@@ -872,14 +872,14 @@ p & ::=										 					& \textsc{programs} \\
 \label{mini-ml-def-syn}
 \hrule
 \end{figure} 
-	In the figure above all compound terms are put in variant of \textbf{A-normal} form$^{\cite{Flanagan}}$. 
+	In the figure above all compound terms are put in a variant of \textbf{A-normal} form$^{\cite{Flanagan}}$. 
 	By that we mean that some part of compound terms is already a value. 
 	For instance, we do not authorize applications $(t~t')$ of a some compound term $t$ to another compound terms $t'$.
-	Instead, only applications $(t~v)$ of terms to values are allowed.
-	 
-	 This does not reduces thought the expressiveness of the language. 
+	Instead, only applications $(t~v)$ of terms to values are allowed. 
+	 This does not reduce the expressiveness of the language. 
 	 Indeed, putting terms into A-normal form is just a compilation trick to make our presentation shorter and easier to read: 
-	 we could pass from any term in A-normal form to general form and back via \textit{let} expression like in $$(t_1~t_2) \simeq~let~x~=~t_2~in~(t_1~x)$$.
+	 we could pass from any term in A-normal form to general form and back via \textit{let} expression 
+	 $$(t_1~t_2) \simeq~let~x~=~t_2~in~(t_1~x)$$.
 	
 	
 \subsubsection*{The Semantics of Mini-ML }
@@ -936,18 +936,18 @@ p & ::=										 					& \textsc{programs} \\
 
 	\infax[E-Match-Nil]
 	{\ghead
-		{match~\textbf{Nil}~with 
+		{match~Nil~with 
   	 ~|~Nil~->~t_1~|~{Cons~x_1}_{\tau}~x_{\tau}~->{t_2}{\mem}~~}
 		{~~ {t_1} \mem}
 	}
 	
 	\infax[E-Match-Cons]
 	{\ghead
-		{match~\mathbf{Cons~n~l} ~with 
+		{match~Cons~n~l ~with 
   	 ~|~Nil~->~t_1~|~{Cons~x_1}_{\tau}~{x_2}_{\tau'}~->{t_2}{\mem}\\}
 		{{t_2}[{x_1}_{\tau} \mapsfrom n, {x_2}_{\tau'} \mapsfrom l] \mem} 
-		\text{   where n} \in \mathbb{N} \text{ and l is some list value} 
-	}	
+		\text{   where n} \in \mathbb{N} \text{ and l is some value of type \textit{int list} defined by } \delta(l)}
+		
 	
 	\infax[E-Deref]	 	
 	{\ghead
@@ -963,8 +963,8 @@ p & ::=										 					& \textsc{programs} \\
 \end{small}
 \end{figure}
 \vspace*{-0.4cm}
-	Here, total application of built-in operators and list constructors is defined by the set of \textit{delta} rules. 
-	These rules are quite intuitive, so we only give few examples.
+  Here, total application of built-in operators and list constructors is defined by the set of $\delta$ rules. 
+	These rules are quite intuitive, so we only give some examples.
 	For instance, the rule for equality is 
    $$\delta(t \mathtt{=} u))~\triangleq~t =_{\tau} u $$	
 	where $=_\tau$ is equality modulo $\alpha$-equivalence defined for each type $\tau$ by structural induction on $t$.
@@ -977,7 +977,9 @@ p & ::=										 					& \textsc{programs} \\
 	\end{array}
 	\end{displaymath}
 
-	Reduction step can also occur not on the top of $t$, but on the top of some subterm of $t$. 
+Finally, observe that up to the moment when some application $t~v$ is simplified into $(\lambda x. t_1 ~ v)$, the only observable side-effects are only those of $t$. However, after the reduction step \textsc{E-AppFun}, $(\lambda x. t_1 ~ v)$ is $\beta$-reduced into $t_1[x \mapsfrom v]$, so the side-effects of $t_1$ that were not visible before, become visible now. Such side-effects produced by function's body are called \textit{latent effects}. We represent by $\theta_1$ and $\rho_1$ above the function's arrow: $\tyarr[~][~][\theta][\rho]$. \\
+
+	Reduction step can also occur inside some sub-term $t_1$ of $t$. 
 	Because our language in A-normal form, there are only two possible cases for such reduction step: 
 	\begin{figure}[H]
 	\begin{small}
@@ -1004,14 +1006,11 @@ p & ::=										 					& \textsc{programs} \\
 
 \subsubsection*{The Typing System of Mini-ML } 
 	
-	The typing system is more interesting, because it is actually a typing system \textit{with effects}. 
-	
+	The typing system is more interesting, because it is actually a typing system \textit{with effects}. 	
 	Typing systems with effects guarantee not only that "well-typed programs do not go wrong", but also play a role of an "intelligence agency" that gathers information about potential side-effects of each term. 
-	
 	In our case, the typing system keeps track of whether a reference assignment or a recursive call appears inside each well-typed term.		
 	
-	Each typing rule is of the form $\vdash t : \tau, \theta, \rho$,  where $\tau$ stands for term's type, $\theta$ and $\rho$ indicates each respectively the presence/absence of reference assignments, and recursive calls inside $t$.
-	 
+	Each typing rule is of the form $\vdash t : \tau, \theta, \rho$,  where $\tau$ stands for the term's type, $\theta$ and $\rho$ indicate respectively the presence/absence of reference assignments and recursive calls inside $t$.	 
 	The set of typing rules of ML-typing is given in the figure below:	
 \begin{figure}[H]
 %\hrule
@@ -1048,7 +1047,7 @@ p & ::=										 					& \textsc{programs} \\
 	
 	\dfrac
 	{
-		\typing{v}{bool}{\bth}{\brh}
+		\typing{v}{bool}{\bth}{\brh} \quad
 		\typing{t_1}{\tau_1}{\theta_1}{\rho_1} \qquad
 		\typing{t_2}{\tau_1}{\theta_2}{\rho_2}
 	}
@@ -1122,13 +1121,11 @@ p & ::=										 					& \textsc{programs} \\
 %	As we can see, the typing of Mini-ML is a monomorphic variant of ML-typing system$^{\cite{damas82popl}}$ enriched with a \textit{effect system} that keeps track of reference assignment and recursive function use inside each term.		
 
  
-  Some of the cases above demands particular attention.
-  Indeed, up to the moment when some application $t~v$ is simplified up to $(\lambda x. t_1 ~ v)$, the only observable side-effects are only those of $t$. However, after the next reduction step, $(\lambda x. t_1 ~ v)$ transforms into $t_1[x \mapsfrom v]$, so the side-effects of $t_1$ that were not visible before, become visible now.  
+  Some of the cases above demand particular attention.
+%  Indeed, up to the moment when some application $t~v$ is simplified into $(\lambda x. t_1 ~ v)$, the only observable side-effects are only those of $t$. However, after the next reduction step, $(\lambda x. t_1 ~ v)$ transforms into $t_1[x \mapsfrom v]$, so the side-effects of $t_1$ that were not visible before, become visible now.  
   
-    Such side-effects produced by function's body are called \textit{latent effects}. 
-    We represent by $\theta_1$ and $\rho_1$ above the function's arrow.
    	
-   	At the moment we type a function itself, we mark these effects by $\theta_1$ and $\rho_1$ above the function's arrow:
+As we already said, the \textit{latent} effects of a function are marked by $\theta_1$ and $\rho_1$ above the function's arrow when function is defined:
   $$
   \dfrac
 	{\typing{t_1}{\tau_1}{\theta_1}{\rho_1}}
@@ -1136,7 +1133,7 @@ p & ::=										 					& \textsc{programs} \\
 		{\tyarr[2][1][\theta_1][\rho_1]}{\bth}{\brh}}
 	{\textsc{  (T-lam)}} $$	 
  
-  It is when function definition is activated by some call, that we have to take latent effects into account: 
+  It is when a function is \textit{activated} by some call, that we have to take latent effects into account: 
   $$\dfrac
 	{
 		\typing{t}{\tyarr[2][1][\textcolor{red}{\theta_1}][\textcolor{red}{\rho_1}]}{\theta_2}{\rho_2} \qquad
@@ -1146,24 +1143,25 @@ p & ::=										 					& \textsc{programs} \\
 	{
 		\textsc{  (T-app)}} $$
 
-However, the typing system of Mini-ML does not collect a detailed information about how many side-effects appear in terms, where they appear exactly, etc. It simply gives a rough side-effects' \textit{over-approximation} just to indicate the absence/presence of side effects. 
-	For instance, in the rule \textsc{T-match}, 
-$$\dfrac
-	{\typing{v}{int~list}{\bth}{\brh} \quad
-	 \typing{t_1}{\tau}{\theta_1}{\rho_2}  \quad
-	 \typing{t_2}{\tau}{\theta_2}{\rho_2}  }
-	{\typing{match~v~with ~|~Nil~->~t_1~|~Cons~x_{int}~x_{int~list}~->t_2}{\tau}{\theta_1 \bvee \theta_2}
-		{\rho_1 \bvee \rho_2}} 
-{\textsc{  (T-match)}}$$
-	
-	if suffices that only one of the terms $t_1$ and $t_2$ produces some side-effects, so that the if-expression itself is tracked as impure, even thought, the eventual evaluation of if-expression can go through the pure branch.
-	However, despite the apparent simplicity of our system, it still suffices to establish the soundness of inlining, as we show in the work later. \\
 
-	Another interesting detail of typing rules above is the absence of the environment $\Gamma$ that usually appears on left of $\vdash$ in the presentation of typing judgements. 
-	We do not use $\Gamma$ because we assume that all scope issues are resolved before typing, so that typing relation is defined only for well-formed terms. 
+Secondly, the typing system of Mini-ML does not collect a detailed information about how many side-effects appear in terms, where they appear exactly, etc. It simply gives a rough side-effects' \textit{over-approximation} just to indicate the absence/presence of side-effects. 
+	For instance, in the rule for \texttt{if-then-else} and \texttt{match~with} constructions, it suffices that only one of the terms $t_1$ and $t_2$ produces some side-effects, so that the term itself is tracked as impure, even thought, the eventual evaluation can go through the pure branch. However, despite the apparent simplicity of our system, it still suffices to establish the soundness of inlining, as we show in the work later. \\
+
+%	$$\dfrac
+%	{\typing{v}{int~list}{\bth}{\brh} \quad
+%	 \typing{t_1}{\tau}{\theta_1}{\rho_2}  \quad
+%	 \typing{t_2}{\tau}{\theta_2}{\rho_2}  }
+%	{\typing{match~v~with ~|~Nil~->~t_1~|~Cons~x_{int}~x_{int~list}~->t_2}{\tau}{\theta_1 \bvee \theta_2}
+%		{\rho_1 \bvee \rho_2}} 
+%{\textsc{  (T-match)}}$$
+	
+
+	
+	Another interesting detail of the typing rules above is the absence of the environment $\Gamma$ that usually appears on left of $\vdash$ in the presentation of typing judgements. 
+	We do not use $\Gamma$ because we assume that all scoping issues are resolved before typing, so that typing relation is defined only for well-formed terms. 
 	 Consequently, we can always check the validity of typing judgement, without using $\Gamma$, because all variables are explicitly typed.
 	 
-	 Finally, note that we can slightly simplify the explicit type of $\mu~f$ in the typing of recursive definitions:
+	 In the case of recursive functions, we do not need to explicit entirely the type of $\mu~f$, because, the argument's type $\tau_2$ and $\top_{\rho}$ can be deduced by typing system itself:
 $$\dfrac 
 	{\typing{\lambda x_{\tau_2}. t}{\tyarr[2][1][\theta_1][\rho_1]}{\bth}{\brh}}
 	{\typing{\mu f:~(\tau_1, \theta_1) .~
@@ -1171,7 +1169,7 @@ $$\dfrac
 		{\tyarr[2][1][\theta_1][\textcolor{red}{\trh}]}
 			{\bth}{\brh}}
 	{\textsc{  (T-rec)}}$$
-because, the argument's type $\tau_2$ and $\top_{\rho}$ can be deduced by typing system itself. \\
+
 
 		
 \subsection{Properties of Mini-ML Typing System with Effects}	
@@ -1181,8 +1179,8 @@ because, the argument's type $\tau_2$ and $\top_{\rho}$ can be deduced by typing
 
 \begin{theorem}[(Progress of Mini-ML)] 
 if $\vdash t : \tau, \theta, \rho$ holds, then either $t$ is a value, or
-there is some term $t'$ and store $\mu_2$ such that 
-$\evalstep{t}{1}{t'}{2}$
+there is some term $t'$ and some store $\mu_2$ such that 
+$\evalstep{t}{1}{t'}{2}$.
 \end{theorem}
 
 \begin{theorem}[(Preservation of Mini-ML)] 
@@ -1194,7 +1192,7 @@ $\vdash t' : \tau, \theta', \rho'$ holds for some $\theta'$, $\rho'$.
  
  However, our typing system also keeps track of side-effects, so we can actually strengthen the \textit{preservation} theorem, by making explicit the relation between the effect indicator $\theta$  and store $\mu$.
  
- But we also need the strengthened version of \textit{substitution} lemma:
+ But first we need the strengthened version of the \textit{substitution} lemma:
  \begin{lemma}[(Substitution Lemma, Strengthened)] ~ 
  \hypertarget{subst-lemma}{}
 \label{subst-lemma}
@@ -1216,12 +1214,11 @@ if $\vdash t : \tau, \textcolor{red}{\bth}, \rho$ holds and $\evalstep{t}{1}{t'}
 \end{theorem}
 \begin{proof}
   By induction on the derivation of $\vdash t : \tau, \textcolor{red}{\bth}, \rho$.
-  For detailed proof, see the proof \hyperlink{proof:preserv-prop-p}{below}. 
+  A \hyperlink{proof:preserv-prop-p}{detailed proof} is given in appendix. 
 \end{proof}
-
 \paragraph{Normalisation}
 
-Actually, we can strengthen the preservation theorem by imposing the same conditions on $\rho$:
+Actually, we can strengthen the preservation theorem with respect to $\rho$:
 \begin{theorem}[(Preservation of Mini-ML, Strengthened 2)] 
 if $\vdash t : \tau, \textcolor{red}{\bth}, \textcolor{red}{\brh}$ holds and $\evalstep{t}{1}{t'}{2}$ then $\mu_1 = \mu_2$ and $\vdash t' : \tau, \textcolor{red}{\bth}, \textcolor{red}{\brh}$.
 \label{preserv-prop2-d}
@@ -1230,9 +1227,8 @@ if $\vdash t : \tau, \textcolor{red}{\bth}, \textcolor{red}{\brh}$ holds and $\e
   Similar to the proof of the theorem above.
 \end{proof}
 
-An interesting consequence of this theorem is that the term $t$ is a \textbf{strongly normalising} expression.
-
-This must be true because intuitively a non-terminating Mini-ML program is either a program with some malicious recursive call like 
+	An interesting consequence of this theorem is that such a term $\vdash t : \tau, \textcolor{red}{\bth}, \textcolor{red}{\brh}$ is a \textbf{strongly normalising} expression. 
+	This must be true because intuitively a non-terminating Mini-ML program is either a program with some malicious recursive call like 
 $$ (\mu f. \lambda x. (f x)~0) \rightarrow (f x) [ f \mapsfrom \mu f. \lambda x. (f x), x \mapsfrom 0] = \mu f. \lambda x. (f x)~0 \rightarrow ... $$ 
 or a program that simulates the recursion by reference assignment, using a trick known as \textit{Landin's Knot}{\footnotesize$^{\cite{Pierce:2002:TPL:509043}}$}:
 \begin{whycode} 
@@ -1251,7 +1247,7 @@ Formally, we have:
   From \cref{preserv-prop2-d} it follows that during every step of evaluation, the effect indicators $\theta_{(t)}$ and $\rho_{(t)}$ are always equal to $\bth$ and $\brh$. 
   That means that no recursive call or reference assignment can ever appear during evaluation.
   In other words, $t$ is a  well-typed \textit{pure} term of simple-typed lambda-calculus. 
-  But the normalisation of the calculus is a well-established 
+ 	The normalisation of this calculus is a well-established 
   result{\footnotesize$^{\cite{Tait67}}$}. 
 \end{proof}
 
@@ -1262,22 +1258,22 @@ Formally, we have:
 	In this subsection, we impose some restrictions  on Mini-ML, so that the only programs we can write are those we can inline correctly.  
 
 
-\paragraph{Ordering Mini-ML types}
+\paragraph{Order Relation for Mini-ML types}
 
 	We have already seen in the introductory example \hyperlink{rec-bad-ex}{above} that recursive function modifying its functional arguments inside recursive calls cannot be inlined. 
 %	However, if in each recursive call functional arguments coincide with the correspondent formal parameters, such recursive definition can be inlined correctly. 
 	In other words, the only recursive functions we can inline directly, use their functional arguments without modifying them through the recursion.  
 	For these functions, we push these arguments simply outside recursive definition.
 	For instance,  we can transform 
-	$$(1)~ \texttt{ rec } \text{apply } f_{int \rightarrow int}~x_{int} .
-  \texttt{ if } x = 0 \texttt{ then } 42 \texttt{ else} \text{ apply }~ f~ (f~x) ,$$ into 
-  $$(2)~ \lambda f_{int \rightarrow int}. \texttt{ rec } \text{apply } x_{int} .
-  \texttt{ if } x = 0 \texttt{ then } 42 \texttt{ else} \text{ apply } (f~x)$$
-  
+	$$\hspace*{-1.5cm}(1)~ \texttt{ rec } \text{apply } f_{int \rightarrow int}~x_{int} .  \texttt{ if } x = 0 \texttt{ then } (f~0) \texttt{ else} \text{ apply }~f~ (f~(x-1)), \text{ into }$$  
+  $$\hspace*{-2cm} (2)~ \lambda f_{int \rightarrow int}. \texttt{ rec } 
+  \text{apply } x_{int} .
+  \texttt{ if } x = 0 \texttt{ then } (f~0) \texttt{ else} \text{ apply } (f~(x-1))$$
+   
  	Thus, a possible solution to eliminate undesirable recursive definitions, is to limit their use to first-order parameters only. \\
  
- 	More generally, if we order the formal parameters of each higher-order definition, according to the degree of their type, we can make inlining of a program using these  easier to describe. 
-  To do so, we order ML types as follows:
+ 	More generally, if we order the formal parameters of each higher-order definition, according to the degree of their type, it becomes easier to define inlining procedure, because in that case all higher-order arguments are applied before first-order arguments. 
+  Thefore, we impose the following order relation on ML types:
 \begin{definition}[($ML^{^{n}}$)]
 \begin{displaymath}
 	\begin{array}{lll@{\hspace*{2cm}}l}
@@ -1301,7 +1297,7 @@ Formally, we have:
 \end{displaymath}
 \label{MLn-ty-d}
 
-The ordering above is defined inductively, and for every $n \in \mathbb{N}$, we write $ML^{^{n}}$ to designate the set of well-typed programs, where each type belongs to $\bigcup_{~0 \leq n} \tau^i$.
+The ordering above is defined inductively. Furthermore, for every $n \in \mathbb{N}$, we write $ML^{^{n}}$ to designate the set of well-typed programs, where each type belongs to the union of ordered types $\bigcup_{~0 0 \leq i \leq n} \tau^i$.
 % (by strong induction on type's degree
 %$i$): if $i=0$, then the base case consist of all base types such as $int$,
 %$bool$, etc; otherwise, for $i > 0$, the set of possible types of degree $i+1$
@@ -1309,7 +1305,8 @@ The ordering above is defined inductively, and for every $n \in \mathbb{N}$, we 
 %\}$ of all possible codomain inferior degrees including $(i+1)$. 
 \end{definition}
 
-	We also admit that $ML^{^{n}}$ is isomorphic the set of Mini-ML types.
+	Using the definition above, one can check, that a term of type $\tau^{0} \Rightarrow (\tau^{1} \Rightarrow \tau^{0})$ is now not typable.
+	One can also check that the set of $ML^{^{n}}$ types is isomorphic to the set of types of Mini-ML.
 Intuitively, this is true, because in our presentation all types are simple, so that we can always order types of any well-typed program in Mini-ML to obtain a well-typed program in $ML^{^{n}}$. 
 	Consequently, we admit that restraining the source language typing to $ML^{^{n}}$ does not reduce the expressiveness of Mini-ML.
 
@@ -1326,16 +1323,16 @@ Intuitively, this is true, because in our presentation all types are simple, so 
 
 
 So far, we defined $ML^{^{n}}$ types for an arbitrary degree $n$. 
-In practice, however, the use of the most common high-order expressions such as $folders$, $iterators$, $mappings$ limits  to the first-order functions.
+In practice, however, the use of the most common high-order expressions such as $folders$, $iterators$, $mappings$ \textit{limits  to the first-order functions}.
 That is, most of the functional programs are essentially second-order ones. 
 
 For that reason, and for the sake of simplicity, from now on we limit our presentation to $ML^{^{2}}$ where all programs are of second-order degree at most.
 
-Still for the sake of simplicity, (especially for the proof inlining soundness), we assume that all reference assignment are done with to the values of degree zero, i.e. that the global store $\mu$ contains uniquely values of some zero-degree data like integers, lists, etc.
+For the sake of simplicity, (especially for the proof inlining soundness), we also assume that each reference assignment is done assigning it to some value of degree zero, so that the global store $\mu$ contains uniquely values of some base type like integers, lists, etc.
 
 \paragraph{Restrictions on The Typing of \texorpdfstring{$ML^{^{2}}$}{}}
 
-	To eliminate programs that we cannot inline correctly, we impose the restrictions on the typing system of $\inlsrc$.
+	To eliminate programs that we cannot inline correctly, we impose some restrictions on the typing system of $\inlsrc$.
  
 The typing of variables, constants and mutable variable
 manipulation remains the same as for $ML$:
@@ -1362,10 +1359,10 @@ manipulation remains the same as for $ML$:
 	\end{multicols}
 \end{footnotesize}
 
-	Typing of function definitions and applications can remain unchanged too.
+	Typing of function definitions and applications remains unchanged too.
 	Indeed, while inlining expressions such as
 $$ (\lambda f_{int \rightarrow int}.t~ (r_{int}:=42; \lambda x_{int}. x))$$
-would be incorrect, we took care to rule out these expressions by imposing $A-normal form$ constraint on the syntax. 
+would be incorrect, we took care to rule out these expressions by imposing A-normal form constraint on the syntax. 
 So, the typing of abstractions and applications remains: 
 
 	\begin{footnotesize}
@@ -1387,7 +1384,6 @@ So, the typing of abstractions and applications remains:
 
 The interesting part is the typing of recursive functions and local
 variables.  
-
 The domain of the former's is limited to zero-order arguments only:
 	\begin{footnotesize}
 		\infrule[T$_{ML^{^2}}$-Rec] 
@@ -1399,9 +1395,9 @@ The domain of the former's is limited to zero-order arguments only:
 	\end{footnotesize}
 	
 	
-As to let expressions, obviously, if second-order term $t_2$ produces some side-effects inside "$\texttt{let } F_{\boldsymbol{i^{2}}} = t_2 \texttt{ in } t_1 $", we have no guarantee that these effects will be preserved correctly by inlining. 
-So, we have to restrain term $t_2$ to be free from any possible side-effects:
-\hypertarget{restr-let-f}{above}
+As to let expressions, obviously, if some second-order term $t_2$ produces some side-effects inside "$\texttt{let } x_{\boldsymbol{\tau^{2}}} = t_2 \texttt{ in } t_1 $", we have no guarantee that these effects will be preserved by inlining. 
+So, we restrain $t_2$ to be free from any possible side-effects:
+\hypertarget{restr-let-f}{}
 	\begin{footnotesize}
 		\infrule[T$_{ML^{^2}}$-Let] 
 			{\vdash t : \tau^i, \theta, \rho 
@@ -1415,7 +1411,7 @@ So, we have to restrain term $t_2$ to be free from any possible side-effects:
 	\end{footnotesize}
 \paragraph{Restricting Codomain Type}
 	Finally, if $t$ is a $\inlsrc$ program of some second-order type $\tau^2$, we cannot  transform $t$ into some first-order program. 
-	So it is naturally to assume whenever we talk about inlining a higher-order program $t$, $t$ itself is a program of some first-order type.
+	So it is convenient to assume whenever we talk about inlining a higher-order program $t$, $t$ itself is a program of some first-order type.
 
 \paragraph{Notations}
 
@@ -1431,14 +1427,12 @@ So, we have to restrain term $t_2$ to be free from any possible side-effects:
 \newpage
 \section{Inlining}
 
- Previously we defined $\inlsrc$ as the domain language of inlining procedure. 
+ Previously we defined $\inlsrc$ as the domain language of our inlining procedure. 
  In this section we give a formal definition for the inlining procedure itself.
  We present inlining as a \textit{small-step} rewriting strategy described by a set of inference rules.
  
  We split our presentation in two consecutive steps: first, we define the inlining of second-order variables; then we define the inlining of second-order applications.
- For each of these steps we state and prove that it corresponds to a \textit{deterministic} procedure, always \textit{terminates} and results in an entirely first-order program of $\inlsrc$.
- 
-	Then, we conclude the formal presentation of inlining procedure by showing its \textit{total correctness}.\\
+ We state and prove that described inlining procedure is \textit{deterministic} and \textit{terminating}, and that for each input program, it outputs is an entirely first-order program of $\inlsrc$. We also show that this procedure is \textit{sound}, by establishing the \textit{total correctness} theorem.\\
 
 	
 %
@@ -1468,8 +1462,7 @@ So, we have to restrain term $t_2$ to be free from any possible side-effects:
 	Intuitively, this is possible, because by definition \texttt{P} is a well-typed closed term of some first-order type.
 	Si, variables $F,G,...$ cannot be neither bound by some function, neither free in \texttt{P}. 
 	Consequently, the only higher-order variables that can possibly occur in \texttt{P} are introduced by local binding expression $\tmlet{F}{t_1}{t_2}$.
-	That is, our goal is to define inlining of second order variables as a function  $\inlletstar : \inlsrc \longrightarrow S$, where $S$ is a subset of $\inlsrc$ such that 
-	 for $s \in S$ no second-order variables occur any more inside $s$. \\
+	That is, our goal is to define inlining of second order variables as a function  $\inlletstar : \inlsrc \longrightarrow \inlS$, where $\inlS$ is the subset of $\inlsrc$ such that for $s \in \inlS$ no second-order variables occur anymore inside $s$. \\
 	 
 	We define $\inlletstar$ as a reflexive, transitive closure of the \textit{small-step rewriting strategy} $\inlletarr$ below: 
 \begin{definition}[(One Step local bindings Inlining, $\hookdownarrow$)]
@@ -1533,20 +1526,20 @@ So, we have to restrain term $t_2$ to be free from any possible side-effects:
  			{\tmrec{f}{x}{(\tau,\theta)}{\boldsymbol{t'_1}}}
  			
 		\infrule[$I_1$-App$_2$]
-		{ \boldsymbol{v_2 \hookdownarrow v_2'} \quad s_1 \in S }
+		{ \boldsymbol{v_2 \hookdownarrow v_2'} \quad s_1 \in \inlS }
 			{(s_1\boldsymbol{v_2}) \hookdownarrow (s_1\boldsymbol{v_2'})}		
 
 		\infrule[$I_1$-Let$_2$]
-		{ \boldsymbol{t_2 \hookdownarrow t_2'} \quad s_1 \in S }
+		{ \boldsymbol{t_2 \hookdownarrow t_2'} \quad s_1 \in\inlS}
 			{\tmlet{F}{s_1}{\boldsymbol{t_2}} \hookdownarrow \tmlet{F}{s_1}{\boldsymbol{t_2'}} }		
 
 		\infrule[$I_1$-If$_2$]
-		{ \boldsymbol{t_2 \hookdownarrow t_2'}  \quad s_1 \in S }
+		{ \boldsymbol{t_2 \hookdownarrow t_2'}  \quad s_1 \in\inlS}
 			{ if~v~then~s_1~else~\boldsymbol{t_2} \hookdownarrow
 				if~v~then~s_1~else~\boldsymbol{t_2'} }	
 				
 		\infrule[$I_1$-Match$_2$]
-		{ \boldsymbol{t_2 \hookdownarrow t_2'}  \quad s_1 \in S }
+		{ \boldsymbol{t_2 \hookdownarrow t_2'}  \quad s_1 \in\inlS}
 			{~~~~~match~v~with~Nil~->~s_1~|~Cons~x~y -> \boldsymbol{t_2} \hookdownarrow \\ 
 				match~v~with~Nil~->~s_1~|~Cons~x~y -> \boldsymbol{t_2'}}					
 
@@ -1560,7 +1553,7 @@ So, we have to restrain term $t_2$ to be free from any possible side-effects:
 	\end{figure}
 \end{definition}
 
-	As we see, a step of $\ilarr$ is either a head reduction of let expression given by
+	As we see, a step of $\ilarr$ is either some head reduction of a let expression given by
 \textsc{I$_1$-Let$_0$}, or one of contextual reductions above.\\
 
 	We need to check that $\ilarr$ verifies the properties below:
@@ -1655,19 +1648,18 @@ Now we can proof the termination of $\inlletplus$ as follows:
 The main result of this subsection follows immediately from the theorems above:
 \begin{corr}[(Second-Order Local Bindings Inlining)] 
 ~\\
- $\forall t \in \inlT.~ t \not\in \inlS \brarr 
-	 				  \exists !s \in \inlT: \inllett{t}{s}.$
+ $\forall t \in \inlT.~ \exists !s \in \inlT: \inllett{t}{s}.$
 \label{inllet-corr}
 \end{corr}
 
 
 \subsection{Inlining Second-Order Applications}
 
-	In the previous subsection, we transform an arbitrary program \textit{P} $ \in \inlsrc$ into program of $S$, the subset of $\inlsrc$ where all second-order variables are eliminated. 
-	Call this program ${I_1(\textit{P})}$.
+	In the previous subsection, we transformed an arbitrary program \textit{P} $ \in \inlsrc$ into a program of $S$, the subset of $\inlsrc$ where all second-order variables are eliminated. 
+	Let us call this program ${I_1(\textit{P})}$.
 	Our goal now is to inline all possible \textbf{second-order applications} that may appear in $I_1(\textit{P})$. Call the resulting program ${I_2(I_1(\textit{P}))}$. 
 
-	We define inlining of second order applications as function $\icarrt : S \longrightarrow U$, where $U$ is a subset of first-order programs of $\inlsrc$.
+	We define inlining of second-order applications as function $\icarrt :\inlS\longrightarrow U$, where $U$ is the subset of first-order programs of $\inlsrc$.
 	This function is the transitive, reflexive closure of the \textit{small-step rewriting strategy} $\icarr$ defined below: 
 \label{icrule-macro}
 \newcommandx{\icrule}[6]
@@ -1692,9 +1684,8 @@ The main result of this subsection follows immediately from the theorems above:
 	\vartheta_j$  for the terms and values of $U$. \\
 	
 	Let $s$ be a term of $S$ such that $s \not\in U$. 
-  Then, $s$ contains at least one application $(s_1~u_2)$, with $s_1 : \tau^2$.
-	
-  \indent There are four possible cases to inline $s$ containing exactly one second-order application such that it is $s$ itself:	
+  Then $s$ contains at least one application $(s_1~u_2)$, with $s_1 : \tau^2$.
+ There are four possible cases to inline $s$ containing exactly one second-order application such that it is $s$ itself:	
 	\begin{figure}[H]
 		\begin{footnotesize}
 	\begin{adjustwidth}{-10em}{0em}
@@ -1719,7 +1710,7 @@ The main result of this subsection follows immediately from the theorems above:
 		{Let$_0$\hypertarget{Rule-def-I$_2$-Let$_0$}{}}
 		{(\boldsymbol{(}\tmlet{l}{u_1}{u_2}\boldsymbol{)} \boldsymbol{\vartheta})}
 		{\tmlet{l}{u_1}{\boldsymbol{(u_2~\vartheta)}}} 
-		{u_1, u_2, \vartheta \in U ~~~ (u_1, u_2:\tau^2)}	
+		{u_1, u_2, \vartheta \in\inlU~~~ (u_1, u_2:\tau^2)}	
 		\vspace*{0.5cm}
 	\icrulehead
 		{Match$_0$\hypertarget{Rule-def-I$_2$-Match$_0$}{}}
@@ -1786,9 +1777,9 @@ That is, a step $\ic{s}{s'}$ is defined by the inferences rules below:
 		{\quad u_1 \in U}\vspace*{0.5cm}
 		
 	\infrule[$I_2$-If$_2$]
-		{ \boldsymbol{s_2 \icarr s_2'}  \quad u_1 \in U }
+		{ \boldsymbol{s_2 \icarr s_2'}  \quad u_1 \in\inlU}
 			{ if~v~then~u_1~else~\boldsymbol{s_2} \icarr
-				if~v~then~u_1'~else~\boldsymbol{s_2'} }\vspace*{0.5cm}					
+				if~v~then~u_1~else~\boldsymbol{s_2'} }\vspace*{0.5cm}					
 			
 	\infrule[$I_2$-Match$_2$]
 		{ \boldsymbol{s_2 \icarr s_2'} \quad u_1 \in U}
@@ -1820,7 +1811,7 @@ For any well-typed term $s$ such that\\ $\typerule{s}{\tau}{\theta}{\rho}$ and $
 \begin{displaymath}
 \begin{array}{l@{\hspace*{1cm}}l@{\hspace*{1cm}}l}
 	(1)& FV(s') \subseteq FV(s) & \textsc{(free variables inclusion)} \\
-	(2)& s' \in S & \textsc{(A-normal form preservation)}\\ 
+	(2)& s' \in\inlS& \textsc{(A-normal form preservation)}\\ 
 	(3)& \typerule{s'}{\tau}{\theta}{\rho} &\textsc{(typing and effects preservation)}
 	\end{array}
 \end{displaymath}
@@ -1842,8 +1833,8 @@ For any well-typed term $s$ such that\\ $\typerule{s}{\tau}{\theta}{\rho}$ and $
  \end{proof}
  
  \begin{definition}[(Normal Forms $\icarrt$)]
- $ \icNF \triangleq \{ s | s \in S \bwedge 
- \forall s' \in S. s~\cancel{\icarrt}~s' \} $
+ $ \icNF \triangleq \{ s | s \in\inlS\bwedge 
+ \forall s' \in S. s~\cancel{\icarr}~s' \} $
 \end{definition}
 
 \begin{lemma}[(Normal Forms For $\icarrt$)] 
@@ -1852,7 +1843,7 @@ $ \icNF  = U.$
 \end{lemma}
 \begin{proof} Same as the proof of \cref{inllet-nforms-l}.
 \end{proof}
-The proof of termination of $\icarrt$ relies on the same \hyperlink{measure-idea}{idea}  idea that in the case of  $\icarrt$.
+The proof of termination of $\icarrt$ relies on the same \hyperlink{measure-idea}{idea} that in the case of  $\icarrt$.
 
 %: find a measure $\varphi$ such that for each step $\ic{s_{i}}{s_{i+1}}$ of the reduction chain $ s_0 \icarr ... \icarr s_i \icarr s_{i+1} \icarr ...$, we get $\varphi(s_{i}) >  \varphi(s_{i+1}) $.  
 
@@ -1879,11 +1870,11 @@ The proof of termination of $\icarrt$ relies on the same \hyperlink{measure-idea
 	\begin{array}{lll@{\hspace*{3cm}}l}
 	\varphi(\lambda f. u~\vartheta) &=& 1 \\ 
 	 
-	\varphi(\boldsymbol{(}match~v~with~Nil~->~u_1~|~Cons~x~y -> u_2{)} \vartheta) \quad \text{with}~u_1, u_2:\tau^2 &=& 3 \\
+	\varphi((match~v~with~Nil~->~u_1~|~Cons~x~y -> u_2) \vartheta) \quad \text{with}~u_1, u_2:\tau^2 &=& 3 \\
 	 
-	\varphi(\boldsymbol{(}let~x~=~u_1~in~u_2{)} \vartheta) \quad \text{with}~u_1, u_2:\tau^2 &=& 2 \\
+	\varphi((let~x~=~u_1~in~u_2) \vartheta) \quad \text{with}~u_1, u_2:\tau^2 &=& 2 \\
 	 
-	\varphi(\boldsymbol{(}if~v~then~u_1~else~u_2) \vartheta \boldsymbol{)}) \quad \text{with}~u_1, u_2:\tau^2 &=& 3 \\
+	\varphi((if~v~then~u_1~else~u_2) \vartheta) \quad \text{with}~u_1, u_2:\tau^2 &=& 3 \\
 	 
 	\varphi(s_1 w_2) \quad \text{with}~s_1:\tau^2  &=& 1 + \varphi(s_1) + \varphi(w_2) \ \\
 	
@@ -1893,7 +1884,7 @@ The proof of termination of $\icarrt$ relies on the same \hyperlink{measure-idea
 	
 	\varphi(\tmrec{f}{x}{(\tau^1, \theta)}{s_1}) &=& \varphi(s_1) \\ 	 
 	 
-	\varphi(let~x~=~s_1~in~s_2) &=& \varphi(s_1) + \varphi(w_2) \\
+	\varphi(let~x~=~s_1~in~s_2) &=& \varphi(s_1) + \varphi(s_2) \\
 	 
 	\varphi(if~v~then~s_1~else~s_2) &=& \varphi(s_1) + \varphi(s_2) \\
 
@@ -1902,7 +1893,7 @@ The proof of termination of $\icarrt$ relies on the same \hyperlink{measure-idea
 \end{displaymath}	
 	\end{definition}	
 
-It remains to check it defines a decreasing measure for $\icarr$ indeed:
+It remains to check that it defines a decreasing measure for $\icarr$:
 	\begin{lemma}[(Decreasing Measure for $\icarr$)] 
 If $\il{s}{s'}$, then $\varphi(s) > \varphi(s')$.
 \hypertarget{desc-meas-1}{}
@@ -1934,7 +1925,7 @@ $\varphi(if~v~then~(u_1~\vartheta)~else~(u_2~\vartheta)) = 2$\\
 For the remaining rules, the result follows from a immediate use of the induction hypothesis on the sub-derivation of each rule.
 \end{proof}
 \begin{theorem}[(Termination of $\icarrt$)] 
-		$\forall s_0 \in S ~
+		$\forall s_0 \in \inlS~
 	 			\exists n \in \mathbb{N}:  
 	 				  (\ict{s_0}{s_n}) \bwedge (s_n \in \icNF).$
 \label{ic-term-l}
@@ -1947,8 +1938,7 @@ For the remaining rules, the result follows from a immediate use of the inductio
 Same as the proof of \cref{inllet-term-l}.
 \end{proof}
 \begin{corr}[(Second-Order Application Inlining)] 
- $\forall s \in S.~ s \not\in U \brarr 
-	 				  \exists !u \in U: \ict{s}{u}.$\end{corr} 
+ $\forall s \in S.~ \exists !u \in U: \ict{s}{u}.$\end{corr} 
  Finally, from the corollary above and \cref{inllet-corr} we conclude that 
  \begin{corr}[(Second-Order Inlining)] 
  $\forall P \in \inlsrc.~ \exists !u \in U: u = I_2(I_1(P)) .$
@@ -1962,16 +1952,14 @@ Same as the proof of \cref{inllet-term-l}.
 
 \subsection{Total Correctness of Inlining}
 
-	Our final goal is to prove the correction of inlining, i.e. to prove the \textit{meaning} of source term is preserved. 
+	Our final goal is to prove the correction of inlining, i.e. to prove that the \textit{meaning} of source term is preserved. 
+	This can be understood as proving \textit{partial correctness} or \textit{total correctness}.
 	
-	This can be understood as proving the inlining procedure \textit{partial correctness} or as \textit{total correctness}.
+	\textit{Partial correctness} of inlining guarantees that if the source \texttt{P} program evaluates to some value \texttt{V}, then the inlining output $I_2(I_1(\text{\texttt{P}}))$ evaluation terminates too and gives the same value \texttt{V}. 
 	
-	\textit{Partial correctness} of inlining guarantees that if the source \texttt{P} program evaluates giving some value \texttt{V}, then the inlining output \texttt{O} evaluation terminates too and gives the same value \texttt{V}. 
+	 \textit{Total correctness} of inlining extends this statement for diverging programs: if the source \texttt{P} program does not terminate, then $I_2(I_1(\text{\texttt{P}}))$ does not terminate neither.
 	
-	 \textit{Total correctness} of inlining extends this statement for diverging programs: if the source \texttt{P} program does not terminate, then \texttt{O} does not terminates neither.
-	
-	As we defined each of two inlining phases, $\ilarrt$ and $\icarrt$ in a \textit{small-step} manner, we will prove the \textit{total correctness} of inlining.
-	
+	As we defined each of two inlining phases, $\ilarrt$ and $\icarrt$ in a \textit{small-step} manner, we will prove the \textit{total correctness} of inlining.	
 	To do so, we start by formalizing $\thicksim$, the notion of semantic equivalence between two programs.
 %	
 %	Then, for each of two inlining steps $I_1$ (i.e. $\ilarrt$),$I_2$ (i.e. $\icarrt$), we prove that for each pair of the initial program P $\in \inlsrc$ and corresponding output $I_2(I_1(P))$,  $P \thicksim I_2(I1(P))$.
@@ -1994,7 +1982,7 @@ Same as the proof of \cref{inllet-term-l}.
 		\typerule{t}{\tau}{\theta}{\rho}{} \quad \typerule{t'}{\tau}{\theta}{\rho}{} 
 	$$
 
-	Then we define $\eqv{t}$, the \textit{semantic equivalence} between $t$ and $t'$, 
+	We define $\eqv{t}$, the \textit{semantic equivalence} between $t$ and $t'$, 
 	by induction on the structure of type $\ty$ :
 	
 	\begin{itemize}
@@ -2004,7 +1992,7 @@ Same as the proof of \cref{inllet-term-l}.
 			$$	\forall \mu_0.(\evalinfty{t}{\mu_0} \bwedge \evalinfty{t'}{\mu_0})~
 					\bvee ~ \exists \mu_1 \exists v: 
 					\evalstar{t}{0}{v}{1} \bwedge \evalstar{t'}{0}{v}{1}, $$
-			where $\forall \mu_0.\evalinfty{t}{\mu_0}$ means that for any initial state $\mu_0$, the evaluation $t$ diverges.
+			where $\evalinfty{t}{\mu_0}$ means that the evaluation of $t$ diverges on the initial state $\mu_0$.
 		\item[$(\beta)$]
 			if $\ty = \tyarr$ for some types $\ty[1], \ty[2]$,
 			then\\[0.2cm]
@@ -2021,11 +2009,11 @@ Same as the proof of \cref{inllet-term-l}.
 	\end{itemize}
 	\end{definition}
 \vspace*{0.5cm}
-We need to check the following 	lemmas:
+We need the following lemmas:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	\begin{lemma} 
 		The semantic relation, $\thicksim$, is reflexive, 	
-		symmetric and transitive relation.
+		symmetric and transitive.
 	\end{lemma}
 	
 	\begin{proof}
@@ -2041,7 +2029,7 @@ We need to check the following 	lemmas:
 	\end{lemma}
 	
 	\begin{proof} By induction on the structure of type $\ty[t]$.
-	For detailed proof, see \ref{equiv-def-p}.
+	For a detailed proof, see \ref{equiv-def-p}.
 	\end{proof}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2053,10 +2041,10 @@ We need to check the following 	lemmas:
 	
 	\begin{proof}
 		By induction on the structure of type of $t_0$. 
-		For detailed proof, see \ref{equiv-red2-p}.
+		For a detailed proof, see \ref{equiv-red2-p}.
 	\end{proof}		
 	\begin{corr} 
-		$\forall \mu_0, \mu_1.\evalstar{{t}}{0}{{v}}{1} \bwedge \evalstar{{t'}}{0}{{v'}}{1} \bwedge \eqv{t} \Rightarrow \eqv{v_1}$.
+		$\forall \mu_0, \mu_1.\evalstar{{t}}{0}{{v}}{1} \bwedge \evalstar{{t'}}{0}{{v'}}{1} \bwedge \eqv{t} \Rightarrow \eqv{v}$.
 		\label{equivalence parallel preservation corr}
 	\end{corr}
 	
@@ -2066,7 +2054,7 @@ We need to check the following 	lemmas:
 		$t_0 \thicksim t_1$.
 	\end{lemma}	
 	\begin{proof}
-		By straightforward observation that $\rightarrow$ is deterministic.
+		By induction on the structure of type of $t_0$.
 	\end{proof}		
 
 	\begin{corr} 
@@ -2079,16 +2067,16 @@ We need to check the following 	lemmas:
   With the definition above, the total correctness of inlining is formulated as follows:
   
   \begin{theorem}[(Total Correctness)]
-   $ \forall t \in \inlsrc. t \thicksim I_2(I_1(t)) $
+   $ \forall t \in \inlsrc. t \thicksim I_2(I_1(t))$.
   \end{theorem}
 
 	To prove it, we need to show two lemmas below:
 	\begin{lemma}[(Total Correctness for $\ilarr$)]
-   $ \forall t,t' \in \inlsrc. \il{t}{t'} \Rightarrow t \thicksim t'$
+   $ \forall t,t' \in \inlsrc. \il{t}{t'} \Rightarrow t \thicksim t'$.
   \end{lemma}
 
 	\begin{lemma}[(Total Correctness for $\icarr$)]
-   $ \forall s,s' \in S. \ic{s}{s'} \Rightarrow s \thicksim s'$
+   $ \forall s,s' \in S. \ic{s}{s'} \Rightarrow s \thicksim s'$.
   \end{lemma}
   
  	To prove these lemmas, on their turn, we need to reason by induction on the derivation rules of inlining. 
@@ -2141,9 +2129,9 @@ We need to check the following 	lemmas:
 	\label{equiv-subst-d}
 	\end{definition}
 
-	Note that from (1) it follows, that both $(t\sigma)$ and 
-	$(t\sigma')$ are terms that well-typed, and from (2) and (3) it follows 
-	that both $(t\sigma)$ and	 $(t\sigma')$ are \textit{\textbf{closed}} terms.
+	Note that from (1) it follows  that both $(t\sigma)$ and 
+	$(t\sigma')$ are terms that are well-typed, and from (2) and (3) it follows 
+	that $(t\sigma)$ and	 $(t\sigma')$ are \textit{\textbf{closed}} terms.
 
 	Also we have to prove the following lemma:	
 	
@@ -2167,21 +2155,21 @@ We need to check the following 	lemmas:
 
 	With the definitions above, we can formulate the total correctness lemmas as follows:
  \begin{lemma}[(Total Correctness for $\ilarr$, Strengthened)]
-   $$ \forall t,t' \in \inlsrc. \il{t}{t'} \Rightarrow (\forall \sigma, \sigma'. \sigma \thicksim_t \sigma' \Rightarrow t\sigma \thicksim t'\sigma')$$
+   $$ \forall t,t' \in \inlsrc. \il{t}{t'} \Rightarrow (\forall \sigma, \sigma'. \sigma \thicksim_t \sigma' \Rightarrow t\sigma \thicksim t'\sigma').$$
   \end{lemma}
 	\begin{proof}
 	 By induction on derivation $\il{t}{t'}$.
 	\end{proof}	  
   
 	\begin{lemma}[(Total Correctness for $\icarr$, Strengthened)]
-     $$ \forall s,s' \in \inlsrc. \ic{s}{s'} \Rightarrow (\forall \sigma, \sigma'. \sigma \thicksim_s \sigma' \Rightarrow s\sigma \thicksim s'\sigma')$$
+     $$ \forall s,s' \in \inlsrc. \ic{s}{s'} \Rightarrow (\forall \sigma, \sigma'. \sigma \thicksim_s \sigma' \Rightarrow s\sigma \thicksim s'\sigma').$$
   \end{lemma}
 	\begin{proof}
 	 By induction on derivation $\ic{s}{s'}$.
 	\end{proof}	  
 	
   \begin{theorem}[(Total Correctness)]
-   $ \forall t \in \inlsrc. t \thicksim I_2(I_1(t)) $
+   $ \forall t \in \inlsrc. t \thicksim I_2(I_1(t)).$
   \end{theorem}	
 	\begin{proof}
 	 Todo.
@@ -2829,6 +2817,19 @@ $\bot$ & $\top$ & $\bot$ & $\top$ &  source code passing inside ghost code
 
 \subsection{Ghost Code Erasure}
 
+\begin{definition}[Type-Erasure] 
+\label{type-erasure}
+We define type-erasure  (parametrized by \{$\bot, top$\})  
+by induction on the structure of types : \vspace{0.2cm} 
+
+\noindent$ \e_{\top}(\tau) = \texttt{unit} $ \\
+\noindent$ 
+\e_{\bot}(\tau_{2}^{\mf{B_{2}}} \rightarrow \tau_{1})  
+= \e_{\mf{B_{2}}}(\tau_{2}) \rightarrow \e_{\bot}(\tau_{1}) $. \\
+\noindent$ \e_{\bot}(\tau_{1}) = \tau_{1}$ \qquad\qquad otherwise.\\
+
+%Also $\e_{\mf{B}}(\text{ref } \tau) = \text{ref } \e_{\mf{B}}(\tau) $.\\
+\end{definition}
 
 \subsection{Properties of Erasure}
 
@@ -2933,10 +2934,10 @@ if $\vdash t : \tau, \textcolor{red}{\bth}, \rho$ holds and $\evalstep{t}{1}{t'}
   
   \noindent\textit{Cases} \textsc{(T-Var), (T-Const), (T-Lam), (T-Rec)}  are trivially true, because there is no reduction step from $t$. \\
   
-  \noindent\textit{Case} \textsc{(T-Assign)} are straightforward, because the hypothesis 
+  \noindent\textit{Case} \textsc{(T-Assign)} is straightforward, because the hypothesis 
   $\vdash t : \tau, \textcolor{red}{\bth}, \rho $ does not hold.\\
   
-   \noindent\textit{Case} \textsc{(T-Deref)}: The only reduction rule is textsc{(E-Deref)}:  \infax[E-Deref]{\ghead{{!r_\tau}_{\mem}} {\mu_{}(r_\tau)}}
+   \noindent\textit{Case} \textsc{(T-Deref)}: The only reduction rule is \textsc{(E-Deref)}:  \infax[E-Deref]{\ghead{{!r_\tau}_{\mem}} {\mu_{}(r_\tau)}}
     for which we have that $\mu_1 = \mu_2$.  
     Because references can be assigned only with values, it follows that $\vdash \mu(r_\tau) : \tau, \textcolor{red}{\bth}, \rho' $ holds. \\ 
 
@@ -2950,7 +2951,7 @@ if $\vdash t : \tau, \textcolor{red}{\bth}, \rho$ holds and $\evalstep{t}{1}{t'}
 		{\tau_1}{\theta_1 \bvee \theta_2}{\rho_1 \bvee \rho_2}}
 	{\textsc{  (T-if)}}$ \\
   
-	From the hypothesis $\theta_{(if~v~then~t_1~else~t_2)} = \bth$ it follows that $\theta_1 = \theta_2 = \bth$. Thus, the result holds both for reduction step described by \textsc{(E-If-True)} or by \textsc{(E-If-False)}. \\
+	From the hypothesis $\theta_{(if~v~then~t_1~else~t_2)} = \bth$ it follows that $\theta_1 = \theta_2 = \bth$. Thus, the result holds both for reduction step described by \textsc{(E-If-True)} or by \textsc{(E-If-False)}, by induction hypothesis. \\
    
   \noindent\textit{Case} \textsc{(T-Match)}: \qquad Similar to \textsc{(T-If)}. \\
    
@@ -2964,8 +2965,6 @@ if $\vdash t : \tau, \textcolor{red}{\bth}, \rho$ holds and $\evalstep{t}{1}{t'}
 		\textsc{  (T-app)}} $ \\
 		
 Again, from the theorem's hypothesis, it follows that $\theta_1 = \theta_2 = \bth$.
-
-
 Therefore, we have the following sub-cases: 
 
 - \textit{Sub-Case} \textsc{(E-App-T)} :
@@ -2975,12 +2974,12 @@ Therefore, we have the following sub-cases:
 	
 then, by induction hypothesis we have that $\typing{t'_1}{\tyarr[2][1][\bth][\rho_1']}{\bth}{\rho_2'}$ and $\mu = \mu'$, and that $\typing{t_1~v}{\tau_1}{\bth}{\rho_1' \bvee \rho_2'}$ by the rule \textsc{(T-App)}. \\
 
-- \textit{Sub-Cases}	\textsc{(E-Op-$\delta$) and (E-Op-$\lambda$)} because in both cases, the reference store is not modified, and because the resulting term is value, so necessarily, its $theta$ is equal to $\bth$. \\
+- \textit{Sub-Cases}	\textsc{(E-Op-$\delta$) and (E-Op-$\lambda$)} hold because in both cases, the reference store is not modified, and because the resulting term is a value, so necessarily, its $\theta$ is equal to $\bth$. \\
 		
-- \textit{Sub-Cases} (E-App-Fun) and  (E-App-Rec) follow from \hyperlink{subst-lemma}{substitution lemma}.
+- \textit{Sub-Cases} (E-App-Fun) and  (E-App-Rec) follow from the \hyperlink{subst-lemma}{substitution lemma}.
 
 Finally, the proof of \textsc{(T-Let)} follows exactly the same scheme that in the case of \textsc{(T-App)}, where the reduction step takes place either inside the let expression, or on the top of it.
- In latter case, again the result follows from \hyperlink{subst-lemma}{substitution lemma}. Back to \ref{preserv-prop-d}.
+ In latter case, the result follows again from \hyperlink{subst-lemma}{substitution lemma}. Back to \ref{preserv-prop-d}.
 \end{proof}  	
 
 	\subsection{Inlining Second-Order Local Bindings}
