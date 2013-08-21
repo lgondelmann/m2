@@ -454,7 +454,7 @@ or array bounds check, occur ubiquitously in any realistic software
 	prove some results, like termination and soundness of the procedure. 
 
 
-	Section 4 is somehow orthogonal to the rest of work. It presents briefly the logic in which we can write annotations for our examples. It also introduces the notion ghost-code, which will be useful to annotate programs more easily. 
+	Section 4 is somehow orthogonal to the rest of work. It presents briefly the logic in which we can write annotations for our examples. It also introduces the notion ghost code, which will be useful to annotate programs more easily. 
 	
 	 Finally, Section 5 illustrates how the inlining procedure works on the examples involving the most common higher-order definitions such as \textit{List.map}, \textit{List.fold}, etc. 
 	
@@ -1427,630 +1427,6 @@ So, we have to restrain term $t_2$ to be free from any possible side-effects:
 \noindent	Also, we will write programs of $\inlsrc$ in the syntax of WhyML, like we did in the introduction. 
 	However, the correspondence between $\inlsrc$ and a fragment of WhyML we use will be always straightforward and intuitive.
 	
-\newpage
-\section{Higher Order Logic}
-
-\subsection{\texorpdfstring{$WhyML^2$}{WhyML2}: Specification Language for \texorpdfstring{$ML^{^{2}}$}{ML2}}
-%\subsubsection*{Why3ML axiomatic first-order logic}
-%\subsubsection*{Higher-order logic}
-
-\subsubsection*{Detailed Example}
-
-In the introductory example of \texttt{sum\_iter}, we extend the definition of \texttt{array\_iter} with an additional parameter  \textcolor{blue}{\texttt{{inv:int -> int array -> prop}}} represents for loop invariant:
- 
-\begin{small}
-\begin{whycode}  
-   let array_iter ($\textcolor{black}{\text{f:int -> unit}}$) (b: int array) ($\textcolor{red}{\text{inv:int -> int array -> prop}}$)    
-     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} 0~b \}}}$
-     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} b.length~b }\}}$  
-   = let rec loop (i: int)
-       $\textcolor{OliveGreen}{ \text{requires \{~\textcolor{red}{inv} i b} \bwedge \text{0 <= i <= b.length}~\}}$
-       $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} b.length~b}\}}$ =    
-       = if i < b.length then ($\textcolor{black}{\text{f}}$ b[i]; loop (i+1)) 
-     in loop 0 
-  \end{whycode}
-\end{small}
-
-
-
-Let us illustrate this, by rewriting the example of \texttt{sum\_iter} with lists.
-The source code of iterator itself is:
-\begin{small}	
-\begin{whycode}  
-let list_iter ($\textcolor{black}{\text{f:int -> unit}}$) (l: int list)
- = let rec loop (ai: int list)   
-    = match ai with 
-       | Nil       -> ()
-       | Cons x xs -> ($\textcolor{black}{\text{f}}$ x; loop ai); 
-   in loop l  
- 	\end{whycode}
- \end{small}	 
-How do we represent the invariant of \texttt{list\_iter} ? As we see, the iteration on list \texttt{l0} relies on the structure of lists itself, using recursion and pattern-matching: at each step, we call \texttt{list\_array} recursively on the sub-list \texttt{xs} of \texttt{ai}.
-
-Consequently, to prove the preservation of loop invariant at some step $i$, we need to show that the invariant property holds for all elements of \texttt{a\_i} iterated \textbf{before} the step $i$.
-
-That means that we need to extend the definition of \texttt{list\_iter} by an addition parameter \texttt{bi: int list} to keep track of the list \texttt{ai} elements accessed before each recursive call: 
-
-\begin{small}
-	\begin{minipage}[t]{0.4\linewidth}	
-	\begin{whycode}  
-let list_iter  ($\textcolor{black}{\text{f:int -> unit}}$) (l: int list)
- = let rec loop (ai: int list) $(\textcolor{red}{\text{bi: int list}})$ = 
-      match ai with 
-       | Nil       -> ()
-       | Cons x xs -> ($\textcolor{black}{\text{f}}$ x; loop xs $(\textcolor{red}{\text{Cons x bi}})$); 
-   in loop 0 l Nil
- 	\end{whycode}
- 	\end{minipage}
- \end{small}	 
- 
- First, let us check that when all elements of \texttt{l} have been accessed, the elements of \texttt{bi} and  \texttt{l} are exactly the same. It is true because:
- 
-	- when the auxiliary function \texttt{loop} is called first time, none of elements of \texttt{ai} is accessed yet, so \texttt{bi} is equal \texttt{Nil}; 
-	
-	- before each recursive call of \texttt{loop}, the element \texttt{x}  must be added to \texttt{bi} as already seen, so we apply \texttt{Cons} to \texttt{x} and \texttt{bi}; 
-	
-	- after the last recursive call, the elements of \texttt{bi} are  exactly those of the initial list \texttt{l}. \\
-
-However, \texttt{l} and \texttt{bi} are not \textit{structurally} the same: the order of elements is \textbf{reversed}. We must take that into account, when we apply the invariant \texttt{inv: int list -> int list -> prop} on $bi$ and $l$. Consequently, the specification of \texttt{list\_iter} is: 
-\hypertarget{list-iter}{example above}
-
-\begin{small}
-	\begin{minipage}[t]{0.4\linewidth}	
-	\begin{whycode}  
-let list_iter ($\textcolor{red}{\text{inv:int list -> int list -> unit}}$) ($\textcolor{red}{\text{f:int -> unit}}$) (l: int list)
-     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} Nil~l \}}}$
-     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} (reverse l)~Nil
-     	 }\}}$    
- = let rec loop (a: int list) $(\textcolor{red}{\text{b: int list}})$ = 
- ($\textcolor{red}{\text{f:int -> unit}}$) (l: int list)
-     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} Nil~l \}}}$
-     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} (rev\_append l b)~Nil
-     	 }\}}$  
-      match a with 
-       | Nil       -> ()
-       | Cons x xs -> ($\textcolor{red}{\text{f}}$ x; loop xs $(\textcolor{red}{\text{Cons x b}})$); 
-   in loop 0 l Nil
- 	\end{whycode}
- 	\end{minipage}
- \end{small}	 
-
-As we can see, the original order of elements is restored in specification of \texttt{list\_iter}  by reversing the entire list \texttt{l}; in specification of \texttt{loop} by concatenating the accessed elements \texttt{bi} in the reversed order to list \texttt{li} of the remaining elements of \texttt{l}.
-
-%
-%\begin{small}
-%	\begin{minipage}[t]{0.4\linewidth}	
-%	\begin{whycode}  
-%let list_iter ($\textcolor{red}{\text{inv:int list -> int list -> unit}}$) ($\textcolor{red}{\text{f:int -> unit}}$) (l: int list)
-%     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} Nil~l \}}}$
-%     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} (reverse l)~Nil
-%     	 }\}}$  
-%   
-% = let rec loop (a: int list) $(\textcolor{red}{\text{b: int list}})$ = 
-% ($\textcolor{red}{\text{f:int -> unit}}$) (l: int list)
-%     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} Nil~l \}}}$
-%     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} (rev\_append l b)~Nil
-%     	 }\}}$  
-%      match a with 
-%       | Nil       -> ()
-%       | Cons x xs -> ($\textcolor{red}{\text{f}}$ x; loop xs $(\textcolor{red}{\text{Cons x b}})$); 
-%   in loop 0 l Nil
-%   
-%   let sum_list_iter (a: array int) =		 
-%     let s = ref 0 in
-%     list_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}$ a     
-% 	\end{whycode}
-% 	\end{minipage}
-% \end{small}	 
-
-%
-% let sum_iter (a: array int) =		 
-%   let s = ref 0 in 
-%   array_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}~$ a $\textcolor{red}{(\lambda i_{int}.\lambda c_{\texttt{int array}}. \sum_{~0\leq j < i} a[j])}$                    
-% 	
-	
-	
-%%	Let \texttt{P} be a program of $\inlsrc$ and \texttt{L} the logical expressions of $WhyML^2$ used to specify and annotate \texttt{P}. 
-%	Imagine that instead of writing a second-order program \texttt{M} in $\inlsrc$, we write  directly it in $WhyML^2$ as a specified and annotated program \texttt{W}. Suppose that we inlined \texttt{W} into a program $I_2(I_1((W))$,  and proved all generated verification conditions in Why3. Now,
-		
-	
-		
-	
-
-
-
-\subsection{Ghost Code}
-
-In the example above, we extended the definition of \texttt{list\_iter} with \texttt{bi}, the list of elements of \texttt{l} visited before each recursive call.
-
-Fundamentally, the list \texttt{bi} is a part of specification.
-However, contrary to the invariant \texttt{inv}, we used \texttt{bi} inside the \textit{source code} of \texttt{list\_iter} itself, mixing in some way specification  the source code.  
-
-What if we want to restore the initial program back from the specifications: 
-how do we recognize which term is specification, and which one is the executable code?
-Clearly, in the example above, nothing indicates automatically that list \texttt{bi} is a part of specification, and \texttt{li} is a part of the source code.
-
-On the other hand, the verifications conditions generated from the specification above, take into account list parameter \texttt{bi}:
-How can we be sure that when we modify the body of \texttt{list\_iter} by adding  \texttt{bi}, we do not modify the semantics of the function itself ? 
-Again, at the moment, nothing, a part of the simplicity of the example, guarantees that \texttt{list\_iter} with \texttt{bi} is equivalent to the initial definition of \texttt{list\_iter}. \\ 
-
-In some modern verification systems, notably in Why3, a way to solve these problems is to use \textit{ghost-code}.
- Intuitively, \textit{ghost code} is a part of a program that is never \textit{executed}, never \textit{interferes} with the executable code, but helps to bring the source code closer to the intended specification.
-
-%Also, the manual annotation of \textit{ghost code} should be traceable by type system: tools in which \textit{ghost code} is used, can verify the \textit{non-interference} of \textit{ghost code} with the rest of the program. \\
-
-%Finally, there should be an way to extract the source executable code, erasing every ghost-expression inside it. For instance, such erasure may be defined by simply replacing every ghost term by unit value (). \\
-
-In this subsection we show how to use ghost-code in MiniML. Concretely, we describe Ghost-ML, a version of MiniML in which one can write ghost code inside programs of Mini-ML, using explicit ghost-code annotation.
-
-We explain in details how to extend Mini-ML typing system to guarantees ghost-code \textit{non-interference} and how to extract executable-code soundly from a program containing ghost-code.
-
-
-\subsubsection*{Syntax of Ghost-ML}
-To annotate term as ghost,  we need to modify of Mini-ML syntax by\\
-
-(1) marking explicitly with the ghost indicator $\beta$ every variable, reference,  formal parameter, and domain type: 
-$$x_\tau^{\rouge{\beta}},~ \quad !r^{\rouge{\beta}}_{\tau},~ \quad \lambda x_\tau^{\rouge{\beta}}. t,~ \quad {\tau^{\rouge{\beta}} \Rightarrow \tau}...;~$$
-
-(2) adding a key-word \texttt{\rouge{ghost}} to annotate the ghost-code itself: 
-$$\rouge{ghost}~x^{\rouge{\beta}},~~~\rouge{ghost}~(if~v~ then~ t_1~ else~ t_2),~ ...;~$$
-
-The indicator $\gbr$ above is either true (variable or term is ghost) or false (variable or term belongs to the source code).
-
-\subsubsection*{Semantics of Ghost-ML}
-
-The semantics of Ghost-ML remains essentially the same as for Mini-ML, except the new reduction rule for ghost expression:
-$$\dfrac{}{\rouge{ghost}~ t_\mu~ \rightarrow~ t_\mu}{\textsc{T-Ghost}}$$
-That is, the semantics of ghost-ML simply \textit{ignores} all ghost annotations (as it ignores type annotations for Mini-ML).
-
-\subsubsection*{Ghost-ML Type System}
-
-The type system for Ghost-ML guarantees not-only that "well-typed terms do not go wrong", but also give us control on ghost code structural and applicative \textbf{\textit{propagation}} inside the program, and allows us to check  \textbf{\textit{non-interference}} of ghost code with the rest of the program.   
-
-	Each typing rule is now of the form $\vdash_gh t : \tau, \theta, \rho, \rouge{\beta}$, where $\rouge{\beta}$ is ghost-indicator, $\tau$ stands for term's type, but where $\theta$ and $\rho$ indicate now the presence/absence of \textbf{non-ghost} reference assignments, and \textbf{non-ghost} recursive calls inside $t$.
-
-That is, we should type a term like $r_{int}^{\gbtr} := 42 $ as 
-$\ghosttyping{r_{int}^{\gbtr} := 42}{()}{\bth}{\brh}{\gbtr}{}$.
-
-\paragraph*{The Invariant of Typing Relation}	
-	
-If a judgement $\vdash_{gh} t : \tau, (\theta, \rho, \gbtr)$, with $\theta = \tth$ or $\rho = \trh $, were valid, it would mean that $t$ is simultaneously a ghost term, and that is may produce some visible side-effects.
-
-To take into account the side-effects of \textit{non-ghost} terms only, we impose the following invariant:
-
-\begin{definition}[(Ghost-ML Typing Invariant)]
- $$\vdash_{gh} t : \tau, (\theta, \rho, \gbr) 
- ~~ \iff ~~
-\models (\gbr = \gbtr) \Rightarrow (\theta = \bth \bwedge \rho = \brh) $$
-\end{definition}   
-
-From now on, we assume that this invariant above is verified for every typing rule conclusion and premises.  
-
-\paragraph*{Typing Rules}	
-
-The whole set typing rules of ML-typing is given in the \ref{ghost-mini-ml-def-typ}.
-Below we explain each rule separately, to show what properties of ghost-code it reflects. \\
-
-The rules for variables, constants, reference access and ghost annotation itself are straightforward:  
-
-\begin{footnotesize}
-\begin{minipage}[t]{0.5\linewidth}
-\begin{displaymath}
-\begin{array}{l}
-\dfrac
-	{}
-	{\ghosttyping{x^{\gbr}_{\tau}}{\tau}{\bot_{\theta}}{\bot_{\rho}}{\gbr}{}}
-	{\textsc{  (T-var)}} \\[1cm]	
-	
-\dfrac
-	{}
-	{\ghosttyping{!r^{\gbra{1}}_{\tau}}{\tau}{\bth}{\brh}{\gbra{1}}{}} 
-{\textsc{  (T-deref)}}	
-\end{array}
-\end{displaymath}
-\end{minipage}
-\begin{minipage}[t]{0.5\linewidth}
-\begin{displaymath}
-\begin{array}{l}
-\dfrac
-	{\ghosttyping
-		{t}
-		{\tau}
-		{\theta}
-		{\rho}
-		{\gbr}
-		{}}
-	{\ghosttyping
-		{ghost~t}
-		{\tau}
-		{\bth}
-		{\brh}
-		{\gbtr}
-		{}} 
-{\textsc{  (T-ghost)}}\\[1cm]		
-
-\dfrac
-	{\textsc{Typeof}(c) = \tau}
-	{\ghosttyping{c}{\tau}{\bot_{\theta}}{\bot_{\rho}}{\gbbr}{}}
-	{\textsc{  (T-const)}} 	
-
-\end{array}	
-\end{displaymath}
-\end{minipage}
-\end{footnotesize}	
-~\\
-%\begin{footnotesize}	
-%\begin{displaymath}
-%\begin{array}{l}
-%\end{array}	
-%\end{displaymath}
-%\end{footnotesize}	
-
-The typing of \texttt{if~then~else} and \texttt{match~with} constructions shows
-that in compound expressions, if only one branch is ghost, then the entire expression becomes ghost itself:
-\begin{footnotesize}
-\begin{displaymath}
-\begin{array}{l}
-	\dfrac
-	{
-		\ghosttyping{v}{bool}{\bth}{\brh}{\gbra{0}}{} ~~
-		\ghosttyping{t_1}{\tau_1}{\theta_1}{\rho_1}{\gbra{1}}{} \qquad
-		\ghosttyping{t_2}{\tau_1}{\theta_2}{\rho_2}{\gbra{2}}{}
-	}
-	{	\ghosttyping{if~v~then~t_1~else~t_2}
-		{\tau_1}{\theta_1 \bvee \theta_2}{\rho_1 \bvee \rho_2}
-		{\gbra{0} \bvee \gbra{1} \bvee \gbra{2}}{}}
-	{\textsc{  (T-if)}}	\\[1.3cm]	
-		
-\dfrac
-	{\ghosttyping{v}{int~list}{\bth}{\brh}{\gbra{0}}{} ~~
-	 \ghosttyping{t_1}{\tau}{\theta_1}{\rho_2}{\gbra{1}}{}  ~~
-	 \ghosttyping{t_2}{\tau}{\theta_2}{\rho_2}{\gbra{2}}{}  }
-	{\ghosttyping{match~v~with ~|~Nil~->~t_1~|~Cons~x_{int}~x_{int~list}~->t_2}{\tau}{\theta_1 \bvee \theta_2}
-		{\rho_1 \bvee \rho_2}
-		{\gbra{0} \bvee \gbra{1} \bvee \gbra{2}}{}} 
-{\textsc{  (T-match)}}
-\end{array}	
-\end{displaymath}
-\end{footnotesize}
-
-~\\
-The typing of \texttt{let} expression in more intricate.
-Suppose we want to type some term of the form $let~x^{\gbra{1}}_{\tau_1} = t_1~in~t_2$, where we know for $t_2$ that $t_2:\gbbr$.
-In that case
-\begin{itemize}
-\item[(1)] we cannot bind $(t_1: \gbbr)$ by a variable $x_{\tau}^{\gbtr}$, because otherwise we must mark $t_1$ inside $t_2$ as ghost expression; 
-\item[(2)] we can bind $(t_1: \gbtr)$ to $x_{\tau}^{\gbbr}$, but in that case, we have  consider the case when $x_{\tau}^{\gbbr}$ occurs in $t_2$. 
-For instance, if $t_2 = x_{\tau}^{\gbbr}$ itself, we have to mark the entire expression as ghost, even thought $x_{\tau}^{\gbbr}$ and $ t_2$ were marked as non-ghost.   
-\end{itemize}
-A simple way to express conditions (1) (2) inside the typing of \texttt{let} is then: 
-\begin{footnotesize}	
-\begin{displaymath}
-\begin{array}{l}
-\dfrac
-	{
-		\ghosttyping
-			{t_1}
-			{\tau_1}
-			{\theta_1}
-			{\rho_1}
-			{\gbra{1}^{\rouge{'}}}
-			{} \qquad
-		\ghosttyping
-			{t_2}
-			{\tau_2}
-			{\theta_2}
-			{\rho_2}
-			{\gbra{2}}
-			{  \quad \models \gba{1} \Rightarrow \gba{1}^{'}}
-	}
-	{\ghosttyping
-		{let~x^{\gbra{1}}_{\tau_1} = t_1~in~t_2}
-		{\tau_2}
-		{\theta_1 \bvee \theta_2}
-		{\rho_1 \bvee \rho_2}
-		{\gbra{2} \bvee (\gbran{1} \bwedge \gbra{1}^{\rouge{'}})}
-		{}}
-	{\textsc{  (T-let)}}
-	\end{array}	
-\end{displaymath}
-\end{footnotesize}	
-~\\
-The typing of lambda-abstractions shows that the ghost status of abstraction depends on the ghost status of its body:
-\begin{footnotesize}	
-\begin{displaymath}
-\begin{array}{l}
-\dfrac
-	{\ghosttyping
-		{t}
-		{\tau_1}
-		{\theta_1}
-		{\rho_1}
-		{\gbra{1}}
-		{}}
-	{\ghosttyping
-		{\lambda x^{\gbra{2}}_{\tau_2} . t_1}
-		{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}
-		{\bth}
-		{\brh}
-		{\gbra{1}}
-		{}}
-	{\textsc{  (T-lam)}}
-\end{array}	
-\end{displaymath}
-\end{footnotesize}	
-This rule gives us all four possibilities to :
-\begin{itemize}
-\item[(5)] write a Mini-ML function as \textbf{nont-ghost} function with \textbf{non-ghost} formal parameter; 
-
-\item[(6,7)] modularize ghost code using \textbf{ghost} functions with \textbf{ghost} or \textbf{non-ghost} formal parameter; 
-
-\item[(8)] extend, as in the \hyperlink{list-iter}{example above}, the definition of \textbf{non-ghost} function with \textbf{ghost} formal parameter.
-\end{itemize}
-~\\
-
-Suppose now that we want to type the application of a term 
-$\ghosttyping
-			{t}
-			{{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}}
-			{\theta_1}
-			{\rho_1}
-			{\gbra{1}}
-			{}$ to a  value 
-$\ghosttyping
-			{v}
-			{\tau_2}
-			{\theta_2}
-			{\rho_2}
-			{\gbra{2}^{\rouge{'}}}
-			{}$
-To understand how to type $(t~v)$, let us first enumerate all possible cases for 
-$(\gbra{1}, \gbra{2}, \gbra{2}^{\rouge{'}})$:
-
-
-\begin{figure}[H]
-\begin{small}
-\begin{center}
-\begin{tabular}{|c|c|c|c|l|}
-\hline
-\multicolumn{5}{|c|} 
- {$\ghosttyping
-			{t}
-			{{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}}
-			{\theta_1}
-			{\rho_1}
-			{\gbra{1}}
-			{}$ \quad
-		$\ghosttyping
-			{v}
-			{\tau_2}
-			{\theta_2}
-			{\rho_2}
-			{\gbra{2}^{\rouge{'}}}
-			{}$ 
-			}
- 			
-			\\
-\hline
-$\gbra{2} \text{(parameter)}$ & $\gbra{1} \text{(body)}$ & $\gbra{2}^{\rouge{'}} \text{(argument)}$
- &  \multicolumn{2}{c|}{resulting ghost status} \\
-\hline\hline
-$\bot$ & $\bot$ & $\bot$ & $\bot$ &  pure source code application \\ \hline
-$\top$ & $\bot$ & $\top$ & $\bot$ &  ghost-code passing inside source code
-\\ \hline
-$\top$ & $\top$ & $\top$ & $\top$ &  pure ghost code application \\ \hline
-$\bot$ & $\top$ & $\bot$ & $\top$ &  source code passing inside ghost code
- \\ \hline
-
- $\bot$ & $\top$ & $\top$ & $\top$ &source code passing inside ghost code \\ \hline
- 
- $\bot$ & $\bot$ & $\top$ & $\top$ &function parameter and body contamination \\ \hline
-  $\top$ & $\bot$ & $\bot$ & $-$ & impossible \\ \hline
- $\top$ & $\top$ & $\bot$ & $-$ & impossible \\ \hline
-\end{tabular}
-\end{center}
-\caption{Ghost-Code Propagation}
-\end{small}
-\end{figure}  
-
-
-
-\begin{figure}[H]
-%\hrule
-\begin{adjustwidth}{-5em}{5em}
-\begin{small}
-\begin{minipage}[t]{0.45\linewidth}
-\begin{displaymath}
-\begin{array}{l}
-
-\dfrac
-	{}
-	{\ghosttyping{x^{\gbr}_{\tau}}{\tau}{\bot_{\theta}}{\bot_{\rho}}{\gbr}{}}
-	{\textsc{  (T-var)}} \\[1.3cm]	
-
-\dfrac
-	{\textsc{Typeof}(c) = \tau}
-	{\ghosttyping{c}{\tau}{\bot_{\theta}}{\bot_{\rho}}{\gbbr}{}}
-	{\textsc{  (T-const)}} \\[1.3cm]	
-
-
-\dfrac
-	{\ghosttyping
-		{t}
-		{\tau}
-		{\theta}
-		{\rho}
-		{\gbr}
-		{}}
-	{\ghosttyping
-		{ghost~t}
-		{\tau}
-		{\bth}
-		{\brh}
-		{\gbtr}
-		{}} 
-{\textsc{  (T-ghost)}}	\\[1.3cm]		
-	
-\dfrac
-	{\ghosttyping
-		{t}
-		{\tau_1}
-		{\theta_1}
-		{\rho_1}
-		{\gbra{1}}
-		{}}
-	{\ghosttyping
-		{\lambda x^{\gbra{2}}_{\tau_2} . t_1}
-		{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}
-		{\bth}
-		{\brh}
-		{\gbra{1}}
-		{}}
-	{\textsc{  (T-lam)}}\\[1.3cm]			
-	
-\dfrac
-	{\ghosttyping
-		{t_1}
-		{\tau_1}
-		{\theta_1}
-		{\rho_1}
-		{\gbra{1}}
-		{\quad \gba{1} \Rightarrow \beta_1'}}
-	{\ghosttyping
-		{\mu f^{\gbra{1}^{\rouge{'}}}:~(\tau_1, \theta_1).~\lambda x^{\gbra{2}}_{\tau_2}. t} 
-		{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \gbran{1}^{\rouge{'}}}{\Longrightarrow} \tau_1}
-		{\bth}
-		{\brh}
-		{\gbra{1}^{\rouge{'}}}
-		{}}
-	{\textsc{  (T-rec)}}\\[1.3cm]			
-	
-	\dfrac
-	{
-		\ghosttyping{v}{bool}{\bth}{\brh}{\gbra{0}}{} ~~
-		\ghosttyping{t_1}{\tau_1}{\theta_1}{\rho_1}{\gbra{1}}{} \qquad
-		\ghosttyping{t_2}{\tau_1}{\theta_2}{\rho_2}{\gbra{2}}{}
-	}
-	{	\ghosttyping{if~v~then~t_1~else~t_2}
-		{\tau_1}{\theta_1 \bvee \theta_2}{\rho_1 \bvee \rho_2}
-		{\gbra{0} \bvee \gbra{1} \bvee \gbra{2}}{}}
-	{\textsc{  (T-if)}}	\\[1.3cm]	
-		
-\dfrac
-	{\ghosttyping{v}{int~list}{\bth}{\brh}{\gbra{0}}{} ~~
-	 \ghosttyping{t_1}{\tau}{\theta_1}{\rho_2}{\gbra{1}}{}  ~~
-	 \ghosttyping{t_2}{\tau}{\theta_2}{\rho_2}{\gbra{2}}{}  }
-	{\ghosttyping{match~v~with ~|~Nil~->~t_1~|~Cons~x_{int}~x_{int~list}~->t_2}{\tau}{\theta_1 \bvee \theta_2}
-		{\rho_1 \bvee \rho_2}
-		{\gbra{0} \bvee \gbra{1} \bvee \gbra{2}}{}} 
-{\textsc{  (T-match)}}
-	
-\end{array}
-\end{displaymath}
-\end{minipage} 
- \hfill 
-\begin{minipage}[t]{0.55\linewidth}
-\begin{displaymath}
-\begin{array}{rrr}
-\hspace*{-3cm}
-\dfrac
-	{
-		\ghosttyping
-			{t}
-			{{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}}
-			{\theta_2}
-			{\rho_2}
-			{\gbra{1}}
-			{} \qquad
-		\ghosttyping
-		{v}
-		{\tau_2}
-		{\bth}
-		{\brh}
-		{\gbra{2}^{\rouge{'}}}
-		{\quad \gba{2} \Rightarrow \gba{2}^{'}}}
-	{
-		\ghosttyping
-			{t~v}
-			{\tau_1}
-			{\theta_1 \bvee \theta_2}
-			{\rho_1 \bvee \rho_2}
-			{\gbra{1} \bvee (\gbran{2} \bwedge \gbra{2}^{\rouge{'}})}
-			{}}
-	{
-		\textsc{  (T-app)}} \\[1.3cm]		
-		
-\dfrac
-	{
-		\ghosttyping
-			{t_1}
-			{\tau_1}
-			{\theta_1}
-			{\rho_1}
-			{\gbra{1}^{\rouge{'}}}
-			{} \qquad
-		\ghosttyping
-			{t_2}
-			{\tau_2}
-			{\theta_2}
-			{\rho_2}
-			{\gbra{2}}
-			{\quad \gba{1} \Rightarrow \gba{1}^{'}}
-	}
-	{\ghosttyping
-		{let~x^{\gbra{1}}_{\tau_1} = t_1~in~t_2}
-		{\tau_2}
-		{\theta_1 \bvee \theta_2}
-		{\rho_1 \bvee \rho_2}
-		{\gbra{2} \bvee (\gbran{1} \bwedge \gbra{1}^{\rouge{'}})}
-		{}}
-	{\textsc{  (T-let)}}\\[1.3cm]
-
-
-
-\dfrac
-	{\ghosttyping
-		{v}
-		{\tau}
-		{\bth}
-		{\brh}
-		{\gbra{1}}
-		{\quad \gba{1} \Rightarrow \gba{1}^{{'}}}}
-	{\ghosttyping
-		{r^{\gbra{1}^{\rouge{'}}}_{\tau}~:=~v}
-		{unit}
-		{\gbran{1}^{\rouge{'}}}	
-		{\brh}
-		{\gbra{1}^{\rouge{'}} }
-		{}} 			
- 	{\textsc{  (T-assign)}}	\\[1.5cm]		
-   			
-\dfrac
-	{}
-	{\ghosttyping{!r^{\gbra{1}}_{\tau}}{\tau}{\bth}{\brh}{\gbra{1}}{}} 
-{\textsc{  (T-deref)}}
-
-
-\end{array}
-\end{displaymath}
-\end{minipage} 	 		 
-\end{small}
-\end{adjustwidth}
-%\hrule
-\caption{\textbf{Mini-ML Typing System With Effects}}
-\label{ghost-mini-ml-def-typ}	
-\end{figure} 
-\subsection*{Ghost-Code Erasure}
-
-
-\subsection*{Properties of Erasure}
-
-
-\subsection{Inlining of \texorpdfstring{$WhyML^{^{2}}$}{$WhyML^2$} programs}
-
-Orthogonality
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Inlining}
@@ -2813,6 +2189,655 @@ We need to check the following 	lemmas:
 	
 %TODO: Nice figure %
 
+\newpage
+\section{Verifying Programs in \texorpdfstring{$ML^{^{2}}$}{}}
+
+In this section, we give an informal explanation of how to specify and
+to verify programs in $\inlsrc$. The idea is to equip $\inlsrc$ with
+annotations written in higher-order logic and to perform inlining on
+annotations as in previous section.
+With suitable restrictions on annotations, similar to the ones imposed
+on programs, the output of inlining is a first-order program annotated
+in first-order logic. Then we can pass it to some existing tool for
+program verification, Why3 in our case.
+
+\subsection*{Detailed Example}
+
+Let us illustrate this, by rewriting the example of \texttt{sum\_iter} with lists.
+The source code of iterator itself is:
+\begin{small}	
+\begin{whycode}  
+let list_iter ($\textcolor{black}{\text{f:int -> unit}}$) (l: int list)
+ = let rec loop (ai: int list)   
+    = match ai with 
+       | Nil       -> ()
+       | Cons x xs -> ($\textcolor{black}{\text{f}}$ x; loop ai); 
+   in loop l  
+ 	\end{whycode}
+ \end{small}	 
+How do we represent the invariant of \texttt{list\_iter} ? As we see, the iteration on list \texttt{l0} relies on the structure of lists itself, using recursion and pattern-matching: at each step, we call \texttt{list\_array} recursively on the sub-list \texttt{xs} of \texttt{ai}.
+
+Consequently, to prove the preservation of loop invariant at some step $i$, we need to show that the invariant property holds for all elements of \texttt{a\_i} iterated \textbf{before} the step $i$.
+
+That means that we need to extend the definition of \texttt{list\_iter} by an addition parameter \texttt{bi: int list} to keep track of the list \texttt{ai} elements accessed before each recursive call: 
+
+\begin{small}
+	\begin{minipage}[t]{0.4\linewidth}	
+	\begin{whycode}  
+let list_iter  ($\textcolor{black}{\text{f:int -> unit}}$) (l: int list)
+ = let rec loop (ai: int list) $(\textcolor{red}{\text{bi: int list}})$ = 
+      match ai with 
+       | Nil       -> ()
+       | Cons x xs -> ($\textcolor{black}{\text{f}}$ x; loop xs $(\textcolor{red}{\text{Cons x bi}})$); 
+   in loop 0 l Nil
+ 	\end{whycode}
+ 	\end{minipage}
+ \end{small}	 
+ 
+ First, let us check that when all elements of \texttt{l} have been accessed, the elements of \texttt{bi} and  \texttt{l} are exactly the same. It is true because:
+ 
+	- when the auxiliary function \texttt{loop} is called first time, none of elements of \texttt{ai} is accessed yet, so \texttt{bi} is equal \texttt{Nil}; 
+	
+	- before each recursive call of \texttt{loop}, the element \texttt{x}  must be added to \texttt{bi} as already seen, so we apply \texttt{Cons} to \texttt{x} and \texttt{bi}; 
+	
+	- after the last recursive call, the elements of \texttt{bi} are  exactly those of the initial list \texttt{l}. \\
+
+However, \texttt{l} and \texttt{bi} are not \textit{structurally} the same: the order of elements is \textbf{reversed}. We must take that into account, when we apply the invariant \texttt{inv: int list -> int list -> prop} on $bi$ and $l$. Consequently, the specification of \texttt{list\_iter} is: 
+\hypertarget{list-iter}{example above}
+
+\begin{small}
+	\begin{minipage}[t]{0.4\linewidth}	
+	\begin{whycode}  
+let list_iter ($\textcolor{red}{\text{inv:int list -> int list -> unit}}$) ($\textcolor{red}{\text{f:int -> unit}}$) (l: int list)
+     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} Nil~l \}}}$
+     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} (reverse l)~Nil
+     	 }\}}$    
+ = let rec loop (a: int list) $(\textcolor{red}{\text{b: int list}})$
+     $\textcolor{OliveGreen}{\text{requires \{
+         \textcolor{red}{\text{inv }} (rev b)~a \}}}$
+     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} (rev\_append a b)~Nil
+     	 }\}}$  
+    = match a with 
+       | Nil       -> ()
+       | Cons x xs -> ($\textcolor{red}{\text{f}}$ x; loop xs $(\textcolor{red}{\text{Cons x b}})$); 
+   in loop l Nil
+ 	\end{whycode}
+ 	\end{minipage}
+ \end{small}	 
+
+As we can see, the original order of elements is restored in specification of \texttt{list\_iter}  by reversing the entire list \texttt{l}; in specification of \texttt{loop} by concatenating the accessed elements \texttt{bi} in the reversed order to list \texttt{li} of the remaining elements of \texttt{l}.
+
+\begin{whycode}
+  let sum_list (l0: list int) : int
+    ensures { result = $\sum$ l0 }
+  = let s = ref 0 in
+    list_iter
+       ($\lambda$ before after. !s = $\sum$ before)
+       (fun x -> s := !s + x) l0
+\end{whycode}
+
+after inlining we get
+
+\begin{whycode}
+let sum_list (l0: list int) : int
+  ensures { result = $\sum$ l0 }
+= let s = ref 0 in
+  let list_iter (l: int list)
+     requires { !s = $\sum$ Nil }
+     ensures { result = $\sum$ l }
+   = let rec loop (a: int list) (b: int list)
+       requires { !s = $\sum$ (rev b) }
+       ensures  { !s = $\sum$ (rev_append a b) }
+     = match a with
+       | Nil       -> ()
+       | Cons x xs -> (s := !s + x; loop xs (Cons x b)) 
+   in
+   loop l Nil
+\end{whycode}
+
+which can be processed by Why3 to get verification conditions
+
+%
+%\begin{small}
+%	\begin{minipage}[t]{0.4\linewidth}	
+%	\begin{whycode}  
+%let list_iter ($\textcolor{red}{\text{inv:int list -> int list -> unit}}$) ($\textcolor{red}{\text{f:int -> unit}}$) (l: int list)
+%     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} Nil~l \}}}$
+%     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} (reverse l)~Nil
+%     	 }\}}$  
+%   
+% = let rec loop (a: int list) $(\textcolor{red}{\text{b: int list}})$ = 
+% ($\textcolor{red}{\text{f:int -> unit}}$) (l: int list)
+%     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} Nil~l \}}}$
+%     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} (rev\_append l b)~Nil
+%     	 }\}}$  
+%      match a with 
+%       | Nil       -> ()
+%       | Cons x xs -> ($\textcolor{red}{\text{f}}$ x; loop xs $(\textcolor{red}{\text{Cons x b}})$); 
+%   in loop 0 l Nil
+%   
+%   let sum_list_iter (a: array int) =		 
+%     let s = ref 0 in
+%     list_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}$ a     
+% 	\end{whycode}
+% 	\end{minipage}
+% \end{small}	 
+
+%
+% let sum_iter (a: array int) =		 
+%   let s = ref 0 in 
+%   array_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}~$ a $\textcolor{red}{(\lambda i_{int}.\lambda c_{\texttt{int array}}. \sum_{~0\leq j < i} a[j])}$                    
+% 	
+	
+	
+%%	Let \texttt{P} be a program of $\inlsrc$ and \texttt{L} the logical expressions of $WhyML^2$ used to specify and annotate \texttt{P}. 
+%	Imagine that instead of writing a second-order program \texttt{M} in $\inlsrc$, we write  directly it in $WhyML^2$ as a specified and annotated program \texttt{W}. Suppose that we inlined \texttt{W} into a program $I_2(I_1((W))$,  and proved all generated verification conditions in Why3. Now,
+		
+	
+		
+	
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Ghost Code}
+
+In the example given in the previous section, we extended the definition of \texttt{list\_iter} with \texttt{bi}, the list of elements of \texttt{l} visited before each recursive call.
+
+Fundamentally, the list \texttt{bi} is a part of specification.
+However, contrary to the invariant \texttt{inv}, we used \texttt{bi} inside the \textit{source code} of \texttt{list\_iter} itself, mixing in some way specification  the source code.  
+
+What if we want to restore the initial program back from the specifications: 
+how do we recognize which term is specification, and which one is the executable code?
+Clearly, in the example above, nothing indicates automatically that list \texttt{bi} is a part of specification, and \texttt{li} is a part of the source code.
+
+On the other hand, the verifications conditions generated from the specification above take into account list parameter \texttt{bi}:
+How can we be sure that when we modify the body of \texttt{list\_iter} by adding  \texttt{bi}, we do not modify the semantics of the function itself ? 
+Again, at the moment, nothing, apart from the simplicity of the example, guarantees that \texttt{list\_iter} with \texttt{bi} is equivalent to the initial definition of \texttt{list\_iter}. \\ 
+
+In some modern verification systems, notably in Why3, a way to solve
+these problems is to use \textit{ghost code}.
+ Intuitively, \textit{ghost code} is a part of a program that is never
+ \textit{executed}, never \textit{interferes} with the executable
+ code, yet can be used in specifications.
+
+%Also, the manual annotation of \textit{ghost code} should be traceable by type system: tools in which \textit{ghost code} is used, can verify the \textit{non-interference} of \textit{ghost code} with the rest of the program. \\
+
+%Finally, there should be an way to extract the source executable code, erasing every ghost-expression inside it. For instance, such erasure may be defined by simply replacing every ghost term by unit value (). \\
+
+In this subsection we show how to use ghost code in MiniML. Concretely, we describe Ghost-ML, a version of MiniML in which one can write ghost code inside programs of Mini-ML, using explicit ghost code annotation.
+
+We explain in details how to extend Mini-ML typing system to guarantee ghost code \textit{non-interference} and how to extract executable-code soundly from a program containing ghost code.
+
+
+\subsection{Syntax of Ghost-ML}
+To annotate term as ghost,  we need to modify of Mini-ML syntax by\\
+
+(1) marking explicitly with the ghost indicator $\beta$ every variable, reference,  formal parameter, and domain type: 
+$$x_\tau^{\rouge{\beta}},~ \quad !r^{\rouge{\beta}}_{\tau},~ \quad \lambda x_\tau^{\rouge{\beta}}. t,~ \quad {\tau^{\rouge{\beta}} \Rightarrow \tau}...;~$$
+
+(2) adding a key-word \texttt{\rouge{ghost}} to annotate the ghost code itself: 
+$$\rouge{ghost}~x^{\rouge{\beta}},~~~\rouge{ghost}~(if~v~ then~ t_1~ else~ t_2),~ ...;~$$
+
+The indicator $\gbr$ above is either true (variable or term is ghost) or false (variable or term belongs to the source code).
+
+\subsection{Semantics of Ghost-ML}
+
+The semantics of Ghost-ML remains essentially the same as for Mini-ML,
+with the addition of a new reduction rule for ghost expressions:
+$$\dfrac{}{\rouge{ghost}~ t_\mu~ \rightarrow~ t_\mu}{\textsc{T-Ghost}}$$
+That is, the semantics of ghost-ML simply \textit{ignores} all ghost annotations (as it ignores type annotations for Mini-ML).
+
+\subsection{Ghost-ML Type System}
+
+The type system for Ghost-ML guarantees not-only that "well-typed terms do not go wrong", but also give us control on ghost code structural and applicative \textbf{\textit{propagation}} inside the program, and allows us to check  \textbf{\textit{non-interference}} of ghost code with the rest of the program.   
+
+	Each typing rule is now of the form $\vdash_gh t : \tau,
+        \theta, \rho, \rouge{\beta}$, where $\rouge{\beta}$ is a ghost indicator, $\tau$ stands for term's type, but where $\theta$ and $\rho$ indicate now the presence/absence of \textbf{non-ghost} reference assignments, and \textbf{non-ghost} recursive calls inside $t$.
+
+That is, we should type a term like $r_{int}^{\gbtr} := 42 $ as 
+$\ghosttyping{r_{int}^{\gbtr} := 42}{()}{\bth}{\brh}{\gbtr}{}$.
+
+\paragraph*{The Invariant of Typing Relation}	
+	
+If a judgement $\vdash_{gh} t : \tau, (\theta, \rho, \gbtr)$, with $\theta = \tth$ or $\rho = \trh $, were valid, it would mean that $t$ is simultaneously a ghost term, and that is may produce some visible side-effects.
+
+To take into account the side-effects of \textit{non-ghost} terms only, we impose the following invariant:
+
+\begin{definition}[(Ghost-ML Typing Invariant)]
+ $$\vdash_{gh} t : \tau, (\theta, \rho, \gbr) 
+ ~~ \iff ~~
+\models (\gbr = \gbtr) \Rightarrow (\theta = \bth \bwedge \rho = \brh) $$
+\end{definition}   
+
+From now on, we assume that this invariant is added as a
+side-condition to every typing rule.
+
+\paragraph*{Typing Rules}	
+
+The whole set typing rules of ML-typing is given in the \ref{ghost-mini-ml-def-typ}.
+Below we explain each rule separately, to show what properties of ghost code it reflects. \\
+
+The rules for variables, constants, reference access and ghost annotation itself are straightforward:  
+
+\begin{footnotesize}
+\begin{minipage}[t]{0.5\linewidth}
+\begin{displaymath}
+\begin{array}{l}
+\dfrac
+	{}
+	{\ghosttyping{x^{\gbr}_{\tau}}{\tau}{\bot_{\theta}}{\bot_{\rho}}{\gbr}{}}
+	{\textsc{  (T-var)}} \\[1cm]	
+	
+\dfrac
+	{}
+	{\ghosttyping{!r^{\gbra{1}}_{\tau}}{\tau}{\bth}{\brh}{\gbra{1}}{}} 
+{\textsc{  (T-deref)}}	
+\end{array}
+\end{displaymath}
+\end{minipage}
+\begin{minipage}[t]{0.5\linewidth}
+\begin{displaymath}
+\begin{array}{l}
+\dfrac
+	{\ghosttyping
+		{t}
+		{\tau}
+		{\theta}
+		{\rho}
+		{\gbr}
+		{}}
+	{\ghosttyping
+		{ghost~t}
+		{\tau}
+		{\bth}
+		{\brh}
+		{\gbtr}
+		{}} 
+{\textsc{  (T-ghost)}}\\[1cm]		
+
+\dfrac
+	{\textsc{Typeof}(c) = \tau}
+	{\ghosttyping{c}{\tau}{\bot_{\theta}}{\bot_{\rho}}{\gbbr}{}}
+	{\textsc{  (T-const)}} 	
+
+\end{array}	
+\end{displaymath}
+\end{minipage}
+\end{footnotesize}	
+~\\
+%\begin{footnotesize}	
+%\begin{displaymath}
+%\begin{array}{l}
+%\end{array}	
+%\end{displaymath}
+%\end{footnotesize}	
+
+The typing of \texttt{if~then~else} and \texttt{match~with} constructions shows
+that in compound expressions, if only one branch is ghost, then the entire expression becomes ghost itself:
+\begin{footnotesize}
+\begin{displaymath}
+\begin{array}{l}
+	\dfrac
+	{
+		\ghosttyping{v}{bool}{\bth}{\brh}{\gbra{0}}{} ~~
+		\ghosttyping{t_1}{\tau_1}{\theta_1}{\rho_1}{\gbra{1}}{} \qquad
+		\ghosttyping{t_2}{\tau_1}{\theta_2}{\rho_2}{\gbra{2}}{}
+	}
+	{	\ghosttyping{if~v~then~t_1~else~t_2}
+		{\tau_1}{\theta_1 \bvee \theta_2}{\rho_1 \bvee \rho_2}
+		{\gbra{0} \bvee \gbra{1} \bvee \gbra{2}}{}}
+	{\textsc{  (T-if)}}	\\[1.3cm]	
+		
+\dfrac
+	{\ghosttyping{v}{int~list}{\bth}{\brh}{\gbra{0}}{} ~~
+	 \ghosttyping{t_1}{\tau}{\theta_1}{\rho_2}{\gbra{1}}{}  ~~
+	 \ghosttyping{t_2}{\tau}{\theta_2}{\rho_2}{\gbra{2}}{}  }
+	{\ghosttyping{match~v~with ~|~Nil~->~t_1~|~Cons~x_{int}~x_{int~list}~->t_2}{\tau}{\theta_1 \bvee \theta_2}
+		{\rho_1 \bvee \rho_2}
+		{\gbra{0} \bvee \gbra{1} \bvee \gbra{2}}{}} 
+{\textsc{  (T-match)}}
+\end{array}	
+\end{displaymath}
+\end{footnotesize}
+
+~\\
+The typing of \texttt{let} expression in more intricate.
+Suppose we want to type some term of the form $let~x^{\gbra{1}}_{\tau_1} = t_1~in~t_2$, where we know for $t_2$ that $t_2:\gbbr$.
+In that case
+\begin{itemize}
+\item[(1)] we cannot bind $(t_1: \gbbr)$ to a variable $x_{\tau}^{\gbtr}$; 
+\item[(2)] we can bind $(t_1: \gbtr)$ to $x_{\tau}^{\gbbr}$, but in that case, we have  consider the case when $x_{\tau}^{\gbbr}$ occurs in $t_2$. 
+For instance, if $t_2 = x_{\tau}^{\gbbr}$ itself, we have to mark the entire expression as ghost, even thought $x_{\tau}^{\gbbr}$ and $ t_2$ were marked as non-ghost.   
+\end{itemize}
+A simple way to express conditions (1) (2) inside the typing of \texttt{let} is then: 
+\begin{footnotesize}	
+\begin{displaymath}
+\begin{array}{l}
+\dfrac
+	{
+		\ghosttyping
+			{t_1}
+			{\tau_1}
+			{\theta_1}
+			{\rho_1}
+			{\gbra{1}^{\rouge{'}}}
+			{} \qquad
+		\ghosttyping
+			{t_2}
+			{\tau_2}
+			{\theta_2}
+			{\rho_2}
+			{\gbra{2}}
+			{  \quad \models \gba{1} \Rightarrow \gba{1}^{'}}
+	}
+	{\ghosttyping
+		{let~x^{\gbra{1}}_{\tau_1} = t_1~in~t_2}
+		{\tau_2}
+		{\theta_1 \bvee \theta_2}
+		{\rho_1 \bvee \rho_2}
+		{\gbra{2} \bvee (\gbran{1} \bwedge \gbra{1}^{\rouge{'}})}
+		{}}
+	{\textsc{  (T-let)}}
+	\end{array}	
+\end{displaymath}
+\end{footnotesize}	
+~\\
+The typing of lambda-abstractions shows that the ghost status of abstraction depends on the ghost status of its body:
+\begin{footnotesize}	
+\begin{displaymath}
+\begin{array}{l}
+\dfrac
+	{\ghosttyping
+		{t}
+		{\tau_1}
+		{\theta_1}
+		{\rho_1}
+		{\gbra{1}}
+		{}}
+	{\ghosttyping
+		{\lambda x^{\gbra{2}}_{\tau_2} . t_1}
+		{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}
+		{\bth}
+		{\brh}
+		{\gbra{1}}
+		{}}
+	{\textsc{  (T-lam)}}
+\end{array}	
+\end{displaymath}
+\end{footnotesize}	
+This rule gives us all four possibilities to :
+\begin{itemize}
+\item[(5)] write a Mini-ML function as \textbf{non-ghost} function with \textbf{non-ghost} formal parameter; 
+
+\item[(6,7)] modularize ghost code using \textbf{ghost} functions with \textbf{ghost} or \textbf{non-ghost} formal parameter; 
+
+\item[(8)] extend, as in the \hyperlink{list-iter}{example above}, the definition of \textbf{non-ghost} function with \textbf{ghost} formal parameter.
+\end{itemize}
+~\\
+
+Suppose now that we want to type the application of a term 
+$\ghosttyping
+			{t}
+			{{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}}
+			{\theta_1}
+			{\rho_1}
+			{\gbra{1}}
+			{}$ to a  value 
+$\ghosttyping
+			{v}
+			{\tau_2}
+			{\theta_2}
+			{\rho_2}
+			{\gbra{2}^{\rouge{'}}}
+			{}$
+To understand how to type $(t~v)$, let us first enumerate all possible cases for 
+$(\gbra{1}, \gbra{2}, \gbra{2}^{\rouge{'}})$:
+
+
+\begin{figure}[H]
+\begin{small}
+\begin{center}
+\begin{tabular}{|c|c|c|c|l|}
+\hline
+\multicolumn{5}{|c|} 
+ {$\ghosttyping
+			{t}
+			{{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}}
+			{\theta_1}
+			{\rho_1}
+			{\gbra{1}}
+			{}$ \quad
+		$\ghosttyping
+			{v}
+			{\tau_2}
+			{\theta_2}
+			{\rho_2}
+			{\gbra{2}^{\rouge{'}}}
+			{}$ 
+			}
+ 			
+			\\
+\hline
+$\gbra{2} \text{(parameter)}$ & $\gbra{1} \text{(body)}$ & $\gbra{2}^{\rouge{'}} \text{(argument)}$
+ &  \multicolumn{2}{c|}{resulting ghost status} \\
+\hline\hline
+$\bot$ & $\bot$ & $\bot$ & $\bot$ &  pure source code application \\ \hline
+$\top$ & $\bot$ & $\top$ & $\bot$ &  ghost code passing inside source code
+\\ \hline
+$\top$ & $\top$ & $\top$ & $\top$ &  pure ghost code application \\ \hline
+$\bot$ & $\top$ & $\bot$ & $\top$ &  source code passing inside ghost code
+ \\ \hline
+
+ $\bot$ & $\top$ & $\top$ & $\top$ &source code passing inside ghost code \\ \hline
+ 
+ $\bot$ & $\bot$ & $\top$ & $\top$ &function parameter and body contamination \\ \hline
+  $\top$ & $\bot$ & $\bot$ & $-$ & impossible \\ \hline
+ $\top$ & $\top$ & $\bot$ & $-$ & impossible \\ \hline
+\end{tabular}
+\end{center}
+\caption{Ghost Code Propagation}
+\end{small}
+\end{figure}  
+
+
+
+\begin{figure}[H]
+%\hrule
+\begin{adjustwidth}{-5em}{5em}
+\begin{small}
+\begin{minipage}[t]{0.45\linewidth}
+\begin{displaymath}
+\begin{array}{l}
+
+\dfrac
+	{}
+	{\ghosttyping{x^{\gbr}_{\tau}}{\tau}{\bot_{\theta}}{\bot_{\rho}}{\gbr}{}}
+	{\textsc{  (T-var)}} \\[1.3cm]	
+
+\dfrac
+	{\textsc{Typeof}(c) = \tau}
+	{\ghosttyping{c}{\tau}{\bot_{\theta}}{\bot_{\rho}}{\gbbr}{}}
+	{\textsc{  (T-const)}} \\[1.3cm]	
+
+
+\dfrac
+	{\ghosttyping
+		{t}
+		{\tau}
+		{\theta}
+		{\rho}
+		{\gbr}
+		{}}
+	{\ghosttyping
+		{ghost~t}
+		{\tau}
+		{\bth}
+		{\brh}
+		{\gbtr}
+		{}} 
+{\textsc{  (T-ghost)}}	\\[1.3cm]		
+	
+\dfrac
+	{\ghosttyping
+		{t}
+		{\tau_1}
+		{\theta_1}
+		{\rho_1}
+		{\gbra{1}}
+		{}}
+	{\ghosttyping
+		{\lambda x^{\gbra{2}}_{\tau_2} . t_1}
+		{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}
+		{\bth}
+		{\brh}
+		{\gbra{1}}
+		{}}
+	{\textsc{  (T-lam)}}\\[1.3cm]			
+	
+\dfrac
+	{\ghosttyping
+		{t_1}
+		{\tau_1}
+		{\theta_1}
+		{\rho_1}
+		{\gbra{1}}
+		{\quad \gba{1} \Rightarrow \beta_1'}}
+	{\ghosttyping
+		{\mu f^{\gbra{1}^{\rouge{'}}}:~(\tau_1, \theta_1).~\lambda x^{\gbra{2}}_{\tau_2}. t} 
+		{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \gbran{1}^{\rouge{'}}}{\Longrightarrow} \tau_1}
+		{\bth}
+		{\brh}
+		{\gbra{1}^{\rouge{'}}}
+		{}}
+	{\textsc{  (T-rec)}}\\[1.3cm]			
+	
+	\dfrac
+	{
+		\ghosttyping{v}{bool}{\bth}{\brh}{\gbra{0}}{} ~~
+		\ghosttyping{t_1}{\tau_1}{\theta_1}{\rho_1}{\gbra{1}}{} \qquad
+		\ghosttyping{t_2}{\tau_1}{\theta_2}{\rho_2}{\gbra{2}}{}
+	}
+	{	\ghosttyping{if~v~then~t_1~else~t_2}
+		{\tau_1}{\theta_1 \bvee \theta_2}{\rho_1 \bvee \rho_2}
+		{\gbra{0} \bvee \gbra{1} \bvee \gbra{2}}{}}
+	{\textsc{  (T-if)}}	\\[1.3cm]	
+		
+\dfrac
+	{\ghosttyping{v}{int~list}{\bth}{\brh}{\gbra{0}}{} ~~
+	 \ghosttyping{t_1}{\tau}{\theta_1}{\rho_2}{\gbra{1}}{}  ~~
+	 \ghosttyping{t_2}{\tau}{\theta_2}{\rho_2}{\gbra{2}}{}  }
+	{\ghosttyping{match~v~with ~|~Nil~->~t_1~|~Cons~x_{int}~x_{int~list}~->t_2}{\tau}{\theta_1 \bvee \theta_2}
+		{\rho_1 \bvee \rho_2}
+		{\gbra{0} \bvee \gbra{1} \bvee \gbra{2}}{}} 
+{\textsc{  (T-match)}}
+	
+\end{array}
+\end{displaymath}
+\end{minipage} 
+ \hfill 
+\begin{minipage}[t]{0.55\linewidth}
+\begin{displaymath}
+\begin{array}{rrr}
+\hspace*{-3cm}
+\dfrac
+	{
+		\ghosttyping
+			{t}
+			{{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}}
+			{\theta_2}
+			{\rho_2}
+			{\gbra{1}}
+			{} \qquad
+		\ghosttyping
+		{v}
+		{\tau_2}
+		{\bth}
+		{\brh}
+		{\gbra{2}^{\rouge{'}}}
+		{\quad \gba{2} \Rightarrow \gba{2}^{'}}}
+	{
+		\ghosttyping
+			{t~v}
+			{\tau_1}
+			{\theta_1 \bvee \theta_2}
+			{\rho_1 \bvee \rho_2}
+			{\gbra{1} \bvee (\gbran{2} \bwedge \gbra{2}^{\rouge{'}})}
+			{}}
+	{
+		\textsc{  (T-app)}} \\[1.3cm]		
+		
+\dfrac
+	{
+		\ghosttyping
+			{t_1}
+			{\tau_1}
+			{\theta_1}
+			{\rho_1}
+			{\gbra{1}^{\rouge{'}}}
+			{} \qquad
+		\ghosttyping
+			{t_2}
+			{\tau_2}
+			{\theta_2}
+			{\rho_2}
+			{\gbra{2}}
+			{\quad \gba{1} \Rightarrow \gba{1}^{'}}
+	}
+	{\ghosttyping
+		{let~x^{\gbra{1}}_{\tau_1} = t_1~in~t_2}
+		{\tau_2}
+		{\theta_1 \bvee \theta_2}
+		{\rho_1 \bvee \rho_2}
+		{\gbra{2} \bvee (\gbran{1} \bwedge \gbra{1}^{\rouge{'}})}
+		{}}
+	{\textsc{  (T-let)}}\\[1.3cm]
+
+
+
+\dfrac
+	{\ghosttyping
+		{v}
+		{\tau}
+		{\bth}
+		{\brh}
+		{\gbra{1}}
+		{\quad \gba{1} \Rightarrow \gba{1}^{{'}}}}
+	{\ghosttyping
+		{r^{\gbra{1}^{\rouge{'}}}_{\tau}~:=~v}
+		{unit}
+		{\gbran{1}^{\rouge{'}}}	
+		{\brh}
+		{\gbra{1}^{\rouge{'}} }
+		{}} 			
+ 	{\textsc{  (T-assign)}}	\\[1.5cm]		
+   			
+\dfrac
+	{}
+	{\ghosttyping{!r^{\gbra{1}}_{\tau}}{\tau}{\bth}{\brh}{\gbra{1}}{}} 
+{\textsc{  (T-deref)}}
+
+
+\end{array}
+\end{displaymath}
+\end{minipage} 	 		 
+\end{small}
+\end{adjustwidth}
+%\hrule
+\caption{\textbf{Mini-ML Typing System With Effects}}
+\label{ghost-mini-ml-def-typ}	
+\end{figure} 
+
+\subsection{Ghost Code Erasure}
+
+
+\subsection{Properties of Erasure}
+
+
+% \subsection{Inlining of \texorpdfstring{$WhyML^{^{2}}$}{$WhyML^2$} programs}
+
+% Orthogonality
+
+
 %\subsection{Inlining Higher-Order Programs}
 
 
@@ -2838,6 +2863,7 @@ We need to check the following 	lemmas:
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\newpage
 \section{Experimental Evaluation}
 
  The first argument of \texttt{inv} is of type int, because it is a type of array indexes, so that we can express the invariance of the \texttt{inv}, applying \texttt{inv} in different contexts to different indexes.
@@ -2874,7 +2900,7 @@ let list_iter ($\textcolor{red}{\text{f:int -> unit}}$) (b: int list)
 %	\end{minipage}
 %\end{small}		
 
-One can easily check that this program can be wrttin with the syntax of $\inlsrc$.
+One can easily check that this program can be written with the syntax of $\inlsrc$.
 
 
  	
@@ -2886,7 +2912,8 @@ One can easily check that this program can be wrttin with the syntax of $\inlsrc
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \appendix
-\section{Detailed proofs} 
+\newpage
+\section{Appendix: Detailed proofs} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -2894,7 +2921,7 @@ One can easily check that this program can be wrttin with the syntax of $\inlsrc
 
 
 
- \subsection{Programming Language}
+\subsection{Programming Language}
 \hypertarget{proof:preserv-prop-p}{} 
 \begin{theorem}[(Preservation of Mini-ML, Strengthened)] 
 if $\vdash t : \tau, \textcolor{red}{\bth}, \rho$ holds and $\evalstep{t}{1}{t'}{2}$ then $\mu_1 = \mu_2$ and $\vdash t' : \tau, \textcolor{red}{\bth}, \rho'$ for some $\rho'$.
