@@ -1431,6 +1431,10 @@ So, we have to restrain term $t_2$ to be free from any possible side-effects:
 \section{Higher Order Logic Language}
 
 \subsection{\texorpdfstring{$WhyML^2$}{WhyML2}: Specification Language for \texorpdfstring{$ML^{^{2}}$}{ML2}}
+%\subsubsection*{Why3ML axiomatic first-order logic}
+%\subsubsection*{Higher-order logic}
+
+\subsubsection*{Detailed Example}
 
 In the introductory example of \texttt{sum\_iter}, we extend the definition of \texttt{array\_iter} with an additional parameter  \textcolor{blue}{\texttt{{inv:int -> int array -> prop}}} represents for loop invariant:
  
@@ -1555,9 +1559,52 @@ As we can see, the original order of elements is restored in specification of \t
 
 
 \subsection{Ghost Code}
-\subsubsection*{\texorpdfstring{$Ghost-MiniML$}{$Ghost-MiniML$} Syntax and Semantics}
 
-\subsubsection*{\texorpdfstring{$Ghost-MiniML$}{$Ghost-MiniML$} Language  Typing Relation}
+In this example above, we extended the the definition of \texttt{list\_iter} with invariant, \texttt{inv} and list of visited elements of \texttt{l}, \texttt{bi}.
+
+If the former appears only inside the \textit{specification} of \texttt{list\_iter},
+the latter appears inside the \textit{source code} of \texttt{list\_iter} itself.
+
+That is, in some way we mixed some specification pieces and the source code. Two important questions arise: 
+
+First, we may want to restore the initial program back from the specification. 
+How do we recognize which term is specification, and which one is the executable code ?
+Clearly, in the example above, nothing indicates automatically that list \texttt{bi} is a part of specification, and \texttt{li} is a part of the source code.
+
+Secondly, the verifications conditions generated from the specification above, take into account list parameter \texttt{bi}. 
+How can we be sure that when we modify the body of \texttt{list\_iter} by adding  \texttt{bi}, we do not modify the semantics of the function itself ? 
+Again, at the moment, nothing, a part of the simplicity of the example, guarantees that \texttt{list\_iter} with \texttt{bi} is equivalent to the initial definition of \texttt{list\_iter}.
+
+A solution used in some modern verification systems, notably in Why3, is to introduce in programs a way to annotate the additional specifications as program \textit{ghost code}.
+
+Intuitively, \textit{ghost code} is a part of a program that is never \textit{executed}, never \textit{interferes} with the executable code, but helps to bring the source code closer to the intended specification.
+
+Additionally, \textit{ghost code} is a traceable annotation: tools in which \textit{ghost code} is used, can verify the \textit{non-interference} of \textit{ghost code} with the rest of the program. \\
+
+In this subsection we formalize the notion of \textit{ghost-code} for the programs of MiniML. Concretely, we define Ghost-ML, a version of MiniML in which one can write ghost code inside programs of Mini-ML.
+
+Using explicit ghost-code annotation and a suitable typing system to control the ghost code \textit{propagation} \textit{non-interference}, we explain how to define ghost-code \textit{erasure} so that the executable-code may be extracted from the specified program.
+
+\subsubsection*{\texorpdfstring{$Ghost-ML$}{$Ghost-ML$}}
+
+\paragraph{Semantics}
+To define Ghost-ML, we change the Mini-ML syntax as follows:\\
+
+- we mark explicitly by the ghost indicator $\beta$ every variable, reference,  formal parameter, and domain type: 
+$$x_\tau^{\rouge{\beta}},~ \quad !r^{\rouge{\beta}}_{\tau},~ \quad \lambda x_\tau^{\rouge{\beta}}. t,~ \quad {\tau^{\rouge{\beta}} \Rightarrow \tau}...;~$$
+
+- we add a key-word \texttt{\rouge{ghost}} to annotate the ghost-code itself: 
+$$\rouge{ghost}~x^{\rouge{\beta}},~~~\rouge{ghost}~(if~v~ then~ t_1~ else~ t_2),~ ...;~$$
+
+The indicator $\gbr$ can be either true (variable or term is ghost) or false (variable or term belongs to the source code).
+
+\paragraph{Semantics}
+
+The semantics of Ghost-ML remains essentially the same as for Mini-ML, except the new reduction rule for ghost expression:
+$$\dfrac{}{\rouge{ghost}~ t_\mu~ \rightarrow~ t_\mu}{\textsc{T-Ghost}}$$
+That is, the semantics of ghost-ML simply \textit{ignores} all ghost annotations (as it ignores type annotations for Mini-ML).
+
+\subsubsection*{\texorpdfstring{$Ghost-MiniML$}{$Ghost-MiniML$} Typing Relation}
 
 
 \begin{figure}[H]
@@ -1746,18 +1793,15 @@ As we can see, the original order of elements is restored in specification of \t
 \caption{\textbf{Mini-ML Typing System With Effects}}
 \label{ghost-mini-ml-def-typ}	
 \end{figure} 
-\subsubsection*{Erasure of Ghost-Code}
+\subsubsection*{Ghost-Code Erasure}
+
+
 \subsubsection*{Properties of Erasure}
-%In this example, the invariant parameter \texttt{inv} appears only inside specification, so we can be sure that it does not modify the meaning of code itself. 
-%
-%However, in the case of iterators on algebraic data types such as lists and trees, additional parameters that we need use to express the invariant of iterator do appear inside the source code
-%, and it becomes less clear that the semantics of the source code is preserced.
-%	
 
 
 \subsection{Inlining of \texorpdfstring{$WhyML^{^{2}}$}{$WhyML^2$} programs}
 
-
+Orthogonality
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
