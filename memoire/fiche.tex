@@ -1,0 +1,83 @@
+\documentclass[11pt]{article}
+
+\usepackage[francais]{babel} %
+% \usepackage[T1]{fontenc} %
+\usepackage[latin1]{inputenc} %
+% \usepackage[applemac]{inputenc} %
+% \usepackage{a4wide} %
+
+% \setlength{\parskip}{0.3\baselineskip}
+
+\begin{document}
+
+\title{Inlining of Higher-Order Programs}
+
+\author{Léon Gondelman, Jean-Christophe Filliâtre,  LRI, Équipe Toccata}
+
+\date{\today}
+
+\maketitle
+
+\pagestyle{empty} %
+\thispagestyle{empty}
+
+%% Attention: pas plus d'un recto-verso!
+% Ne conservez pas les questions
+
+
+\subsection*{The general context}
+
+The goal of this work is to present the inlining of higher-order programs \textit{inlining} in the context of deductive program verification.
+
+	Deductive software verification is the process where the correctness of
+programs is proved, using computational logic and an axiomatic formal
+semantics approach\cite{filliatre11sttt}. 
+
+	Until recently, this approach was mainly applied to the verification of 
+imperative programs written in languages such as C and Java.
+In the last years, however, deductive verification of functional programs became an active research domain. 
+	The work of Regis-Gianas and Pottier[TODO] defines a Hoare logic for a call-by-value programming language equipped with recursive, higher-order functions, algebraic data types, and a polymorphic type system in the style of Hindley and Milner. 
+ The work of Kaning[TODO] is dedicated to the specification and proof of Higher-Order Programs with \textit{side-effects}, generalizing deductive verification approach for functional programs that can be written in languages with imperative features such as OCaml.
+	The cost of this generalization in practice is the difficulty to verify these programs automatically (using some automated theorem provers), so that verification process often requires the use of some interactive proof assistant like Coq[]. 
+
+\subsection*{The research problem}
+
+	Many of higher-order definitions of every-day programming practice are expressions such as \textit{iterators} \textit{mappings}, and \textit{folders}, used essentially to apply some first-order function to all elements of some primitive data such as arrays, lists, binary trees, etc.
+	The expressiveness of programs using these definitions is therefore limited to the second-order. 
+	The question studied in this work is therefore the  
+	
+	The goal of this work is to show that the verification of programs using these expressions can be done in a similar way to the verification of a programs using  simple imperative loop.
+	Con
+In  make rather a practical investigation about the potential of higer-order inlining in deductive verification discipline.  
+
+
+Quelle est la question que vous avez abordée ? 
+Pourquoi est-elle importante, à quoi cela sert-il d'y répondre ?  
+Est-ce un nouveau problème ?
+Si oui, pourquoi êtes-vous le premier chercheur de l'univers à l'avoir posée ?
+Si non, pourquoi pensiez-vous pouvoir apporter une contribution originale ?
+
+\subsection*{La contribution proposée}
+
+Qu'avez vous proposé comme solution à cette question ? 
+Attention, pas de technique, seulement les grandes idées ! 
+Soignez particulièrement la description de la démarche \emph{scientifique}.
+
+\subsection*{Les arguments en faveur de sa validité}
+
+Qu'est-ce qui montre que cette solution est une bonne solution ?
+Des expériences, des corollaires ? 
+Commentez la \emph{robustesse} de votre proposition : 
+comment la validité de la solution dépend-elle des hypothèses de travail ?
+
+\subsection*{Le bilan et les perspectives}
+
+Et après ? En quoi votre approche est-elle générale ? 
+Qu'est-ce que votre contribution a apporté au domaine ? 
+Que faudrait-il faire maintenant ? 
+Quelle est la bonne \emph{prochaine} question ?
+
+\end{document}
+
+
+
