@@ -375,7 +375,7 @@ http://www.meganerd.com/erikd/Blog/CodeHacking/libsndfile/ten_years.html}}
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \title{Deductive Verification of Stateful Second-Order Programs}
-\author{Léon Gondelmans}
+\author{Léon Gondelman}
 \date{M2 internship \\ \today}
 \counterwithin{figure}{subsection}
 %\sloppy 
@@ -418,7 +418,7 @@ or array bounds check, occur ubiquitously in any realistic software
 	 
 	More generaly, deductive software verification was historically and still is a framework focusing mostly on the verification of imperative programs written in languages like C or Java.
 	
-	Consequentially, software verification environments (such as \textit{Why3} platform, or Microsoft research \textit{Spec\#} TODO), that rely on ATPs to discharge verification conditions, do not yet provide a support for higher-order program specification. \\
+	Consequentially, software verification environments (such as \textit{Why3} platform$^{\cite{boogie11why3}}$, or Microsoft research \textit{Spec\#}$^{\cite{DBLP:journals/cacm/BarnettFLMSV11}}$), that rely on ATPs to discharge verification conditions, do not yet provide a support for higher-order program specification. \\
 
 %
 %
@@ -555,7 +555,7 @@ The verification conditions computed automatically by Why3 from these annotation
 \end{footnotesize}
 
 	All these verification conditions are first-order formulas with linear arithmetic. 
-	They are proved by Alt-Ergo SMT solver instantly. \\
+	They are proved by Alt-Ergo$^{\cite{ergo06}}$ SMT solver instantly. \\
 	
 	So, is there anything similar to the \textit{Hoare logic} rule for \texttt{while} loop?
 	Can we find a way to annotate and specify a functional program as easily as for the imperative one? 
@@ -2193,7 +2193,22 @@ on programs, the output of inlining is a first-order program annotated
 in first-order logic. Then we can pass it to some existing tool for
 program verification, Why3 in our case.
 
-\subsubsection*{Detailed Example}
+%
+%\subsection*{Second-Order logic}
+%
+%To specify and prove programs in $\inlsrc$, we need to extend functions with 
+%\textit{pre-condition}, i.e. with some logical statement that should be true before any function's call \textit{post-condition}, i.e. some logical statement that should be true, after each function's call, assuming that the precondition is true.
+%
+%Moreover, to instantiate the invariant during a call of functions like \textit{array\iter}, we need to write functions whose domain is of type \texttt{prop}.
+%
+%We assume that terms of type \texttt{prop} are some second-order logical expressions
+%that we can inline similirly to
+%
+%
+%
+% the definition
+%of functions by \textit{contract} constructions \textit{require}
+%
 
 Let us illustrate this, by rewriting the example of \texttt{sum\_iter} with lists.
 The source code of iterator itself is:
@@ -2203,16 +2218,15 @@ let list_iter ($\textcolor{black}{\text{f:int -> unit}}$) (l: int list)
  = let rec loop (ai: int list)   
     = match ai with 
        | Nil       -> ()
-       | Cons x xs -> ($\textcolor{black}{\text{f}}$ x; loop ai); 
+       | Cons x xs -> ($\textcolor{black}{\text{f}}$ x; loop ai) end
    in loop l  
  	\end{whycode}
  \end{small}	 
-How do we represent the invariant of \texttt{list\_iter} ? As we see, the iteration on list \texttt{l0} relies on the structure of lists itself, using recursion and pattern-matching: at each step, we call \texttt{list\_array} recursively on the sub-list \texttt{xs} of \texttt{ai}.
+How do we represent the invariant of \texttt{list\_iter} ? As we see, the iteration on list \texttt{ai} relies on the structure of lists itself, using recursion and pattern-matching: at each step, we call \texttt{list\_array} recursively on the sub-list \texttt{xs} of \texttt{ai}.
 
-Consequently, to prove the preservation of loop invariant at some step $i$, we need to show that the invariant property holds for all elements of \texttt{a\_i} iterated \textbf{before} the step $i$.
+Consequently, to prove the preservation of loop invariant at some step $i$, we need to show that the invariant property holds for all elements of \texttt{ai} iterated \textbf{before} the step $i$.
 
-That means that we need to extend the definition of \texttt{list\_iter} by an addition parameter \texttt{bi: int list} to keep track of the list \texttt{ai} elements accessed before each recursive call: 
-
+That means that we need to extend the definition of \texttt{list\_iter} by an additional parameter \texttt{bi: int list} to keep track of the list \texttt{ai} elements accessed \textit{before} each recursive call: 
 \begin{small}
 	\begin{minipage}[t]{0.4\linewidth}	
 	\begin{whycode}  
@@ -2220,8 +2234,8 @@ let list_iter  ($\textcolor{black}{\text{f:int -> unit}}$) (l: int list)
  = let rec loop (ai: int list) $(\textcolor{red}{\text{bi: int list}})$ = 
       match ai with 
        | Nil       -> ()
-       | Cons x xs -> ($\textcolor{black}{\text{f}}$ x; loop xs $(\textcolor{red}{\text{Cons x bi}})$); 
-   in loop 0 l Nil
+       | Cons x xs -> ($\textcolor{black}{\text{f}}$ x; loop xs $(\textcolor{red}{\text{Cons x bi}})$) end
+   in loop l Nil
  	\end{whycode}
  	\end{minipage}
  \end{small}	 
@@ -2234,8 +2248,8 @@ let list_iter  ($\textcolor{black}{\text{f:int -> unit}}$) (l: int list)
 	
 	- after the last recursive call, the elements of \texttt{bi} are  exactly those of the initial list \texttt{l}. \\
 
-However, \texttt{l} and \texttt{bi} are not \textit{structurally} the same: the order of elements is \textbf{reversed}. We must take that into account, when we apply the invariant \texttt{inv: int list -> int list -> prop} on $bi$ and $l$. Consequently, the specification of \texttt{list\_iter} is: 
-\hypertarget{list-iter}{example above}
+However, \texttt{l} and \texttt{bi} are not \textit{structurally} the same: the order of elements has been \textbf{reversed}. We must take that into account, when we apply the invariant \texttt{inv: int list -> int list -> prop} on $bi$ and $l$. Consequently, the specification of \texttt{list\_iter} should be: 
+\hypertarget{list-iter}{}
 
 \begin{small}
 	\begin{minipage}[t]{0.4\linewidth}	
@@ -2244,93 +2258,111 @@ let list_iter ($\textcolor{red}{\text{inv:int list -> int list -> unit}}$) ($\te
      $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} Nil~l \}}}$
      $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} (reverse l)~Nil
      	 }\}}$    
- = let rec loop (a: int list) $(\textcolor{red}{\text{b: int list}})$
+ = let rec loop (ai: int list) $(\textcolor{red}{\text{bi: int list}})$
      $\textcolor{OliveGreen}{\text{requires \{
-         \textcolor{red}{\text{inv }} (rev b)~a \}}}$
-     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} (rev\_append a b)~Nil
+         \textcolor{red}{\text{inv }} (rev bi)~ai \}}}$
+     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} (rev\_append ai bi)~Nil
      	 }\}}$  
-    = match a with 
+    = match ai with 
        | Nil       -> ()
-       | Cons x xs -> ($\textcolor{red}{\text{f}}$ x; loop xs $(\textcolor{red}{\text{Cons x b}})$); 
+       | Cons x xs -> ($\textcolor{red}{\text{f}}$ x; loop xs $(\textcolor{red}{\text{Cons x bi}})$) end
    in loop l Nil
  	\end{whycode}
  	\end{minipage}
  \end{small}	 
 
-As we can see, the original order of elements is restored in specification of \texttt{list\_iter}  by reversing the entire list \texttt{l}; in specification of \texttt{loop} by concatenating the accessed elements \texttt{bi} in the reversed order to list \texttt{li} of the remaining elements of \texttt{l}.
+As we can see, the original order of elements is restored in specification of \texttt{list\_iter} by reversing the entire list \texttt{l}; in specification of \texttt{loop} by concatenating the accessed elements \texttt{bi} in the reversed order to list \texttt{ai} of the remaining elements of \texttt{l}.
 
+The annotated program \texttt{sum\_iter} using \texttt{list\_iter} becomes:
 \begin{whycode}
   let sum_list (l0: list int) : int
     ensures { result = $\sum$ l0 }
   = let s = ref 0 in
     list_iter
-       ($\lambda$ before after. !s = $\sum$ before)
-       (fun x -> s := !s + x) l0
+       ($\lambda$ before. $\lambda$ after. !s = $\sum$ before)
+       (fun x -> s := !s + x) l0; !s
 \end{whycode}
-
-after inlining we get
-
+so, after inlining we get:
 \begin{whycode}
 let sum_list (l0: list int) : int
   ensures { result = $\sum$ l0 }
 = let s = ref 0 in
   let list_iter (l: int list)
      requires { !s = $\sum$ Nil }
-     ensures { result = $\sum$ l }
-   = let rec loop (a: int list) (b: int list)
-       requires { !s = $\sum$ (rev b) }
-       ensures  { !s = $\sum$ (rev_append a b) }
-     = match a with
+     ensures  { !s = $\sum$ l }
+   = let rec loop (ai: int list) (bi: int list)
+       requires { !s = $\sum$ (rev bi) }
+       ensures  { !s = $\sum$ (rev_append ai bi) }
+     = match ai with
        | Nil       -> ()
-       | Cons x xs -> (s := !s + x; loop xs (Cons x b)) 
-   in
-   loop l Nil
+       | Cons x xs -> (s := !s + x; loop xs (Cons x bi))  end
+     in loop l Nil
+  in list_iter l0; !s
 \end{whycode}
+which can be processed by Why3 to get verification conditions:
 
-which can be processed by Why3 to get verification conditions
+\begin{footnotesize}
+\begin{displaymath}
+\begin{array}{ll@{\hspace*{2em}}r}
+(vc1)
+	& \sum \texttt{ Nil} = \sum \texttt{(rev Nil)}  
+	& \textsc{(precondition 1)}\\
 
-%
-%\begin{small}
-%	\begin{minipage}[t]{0.4\linewidth}	
-%	\begin{whycode}  
-%let list_iter ($\textcolor{red}{\text{inv:int list -> int list -> unit}}$) ($\textcolor{red}{\text{f:int -> unit}}$) (l: int list)
-%     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} Nil~l \}}}$
-%     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} (reverse l)~Nil
-%     	 }\}}$  
-%   
-% = let rec loop (a: int list) $(\textcolor{red}{\text{b: int list}})$ = 
-% ($\textcolor{red}{\text{f:int -> unit}}$) (l: int list)
-%     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} Nil~l \}}}$
-%     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} (rev\_append l b)~Nil
-%     	 }\}}$  
-%      match a with 
-%       | Nil       -> ()
-%       | Cons x xs -> ($\textcolor{red}{\text{f}}$ x; loop xs $(\textcolor{red}{\text{Cons x b}})$); 
-%   in loop 0 l Nil
-%   
-%   let sum_list_iter (a: array int) =		 
-%     let s = ref 0 in
-%     list_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}$ a     
-% 	\end{whycode}
-% 	\end{minipage}
-% \end{small}	 
+(vc2)
+	& \sum \texttt{ Nil} = 0 
+	& \textsc{(precondition 2)}\\
 
-%
-% let sum_iter (a: array int) =		 
-%   let s = ref 0 in 
-%   array_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}~$ a $\textcolor{red}{(\lambda i_{int}.\lambda c_{\texttt{int array}}. \sum_{~0\leq j < i} a[j])}$                    
-% 	
+(vc3)
+  & \sum \texttt{ l } = \sum \texttt{ (rev\_append l Nil) }
+ 	& \textsc{(postcondition 1)}\\
+
+(vc4)
+  & \sum \texttt{ (rev bi)} = \sum \texttt{ (rev\_append Nil bi)}
+ 	& \textsc{(postcondition 2)}\\
+
+(vc5)
+	& \sum \texttt{ (rev bi)} + \texttt{x} = \sum \texttt{(rev (Cons x bi))}  
+	& \textsc{(precondition 3)}\\
+
+(vc6)
+  & (vc5)
+  	\vdash
+  	\sum \texttt{ (rev\_append (Cons x xs) bi) } =
+  	\sum \texttt{ (rev\_append xs (Cons x bi)) } 
+    
+ 	& \textsc{(postcondition 3)}\\
 	
-	
-%%	Let \texttt{P} be a program of $\inlsrc$ and \texttt{L} the logical expressions of $WhyML^2$ used to specify and annotate \texttt{P}. 
-%	Imagine that instead of writing a second-order program \texttt{M} in $\inlsrc$, we write  directly it in $WhyML^2$ as a specified and annotated program \texttt{W}. Suppose that we inlined \texttt{W} into a program $I_2(I_1((W))$,  and proved all generated verification conditions in Why3. Now,
-		
-	
+(vc7)
+  & s = \sum \texttt{ l0 } \vdash s = \sum \texttt{ l0 }
+ 	& \textsc{(postcondition 4)}\\	
+\end{array}
+\end{displaymath}
+\end{footnotesize}
+
+To prove the verifications conditions above, we need various lemmas about logical functions of Why3 standard library such as \texttt{rev}, \texttt{rev\_append}. We also need write prove the following lemmas about function $\sum$ itself (defined as recursive function by induction on list l):   
+\begin{small}
+\begin{whycode}
+ function sum (l:list int) : int =
+     match l with
+       | Nil -> 0
+       | Cons x xs -> x + sum xs
+     end
+
+ lemma sum_append:
+    forall l1 l2 : list int. sum (l2 ++ l1) = (sum l1) + (sum l2)
+
+ lemma sum_reverse:
+    forall l1 : list int. sum (reverse l1) = sum l1
+\end{whycode}
+\end{small}
+We can easily prove these lemmas by using induction tactic{\footnotesize$^{ \cite{LGm1}}$} of Why3. Furthermore, all verifications conditions (vc1-vc7) are proved by Alt-Ergo almost instantly.
+
 		
 	
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
+
 \section{Ghost Code}
 
 In the example given in the previous section, we extended the definition of \texttt{list\_iter} with \texttt{bi}, the list of elements of \texttt{l} visited before each recursive call.
