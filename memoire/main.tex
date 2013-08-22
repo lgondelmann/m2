@@ -374,9 +374,9 @@ keepspaces=true,
 http://www.meganerd.com/erikd/Blog/CodeHacking/libsndfile/ten_years.html}}	
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\title{TITLE}
-\author{Léon}
-%\date{\today}
+\title{Deductive Verification of Stateful Second-Order Programs}
+\author{Léon Gondelmans}
+\date{M2 internship \\ \today}
 \counterwithin{figure}{subsection}
 %\sloppy 
 \addtolength{\hoffset}{-0.5in}
@@ -2333,15 +2333,15 @@ which can be processed by Why3 to get verification conditions
 \section{Ghost Code}
 
 In the example given in the previous section, we extended the definition of \texttt{list\_iter} with \texttt{bi}, the list of elements of \texttt{l} visited before each recursive call.
-
 Fundamentally, the list \texttt{bi} is a part of specification.
-However, contrary to the invariant \texttt{inv}, we used \texttt{bi} inside the \textit{source code} of \texttt{list\_iter} itself, mixing in some way specification  the source code.  
+Contrary to the invariant \texttt{inv}, we used \texttt{bi} inside the
+\textit{source code} of \texttt{list\_iter} itself, mixing in some way
+specification  the source code. Regarding the computation of
+verifications conditions, a parameter such as \texttt{bi} is treated
+as regular code.
 
-What if we want to restore the initial program back from the specifications: 
-how do we recognize which term is specification, and which one is the executable code?
-Clearly, in the example above, nothing indicates automatically that list \texttt{bi} is a part of specification, and \texttt{li} is a part of the source code.
-
-On the other hand, the verifications conditions generated from the specification above take into account list parameter \texttt{bi}:
+So how do we distinguish between regular code and code used only for the purpose of  specification?
+Clearly, in the example above, nothing indicates that list \texttt{bi} is a part of specification, and \texttt{li} is a part of the source code.
 How can we be sure that when we modify the body of \texttt{list\_iter} by adding  \texttt{bi}, we do not modify the semantics of the function itself ? 
 Again, at the moment, nothing, apart from the simplicity of the example, guarantees that \texttt{list\_iter} with \texttt{bi} is equivalent to the initial definition of \texttt{list\_iter}. \\ 
 
@@ -2355,21 +2355,20 @@ these problems is to use \textit{ghost code}.
 
 %Finally, there should be an way to extract the source executable code, erasing every ghost-expression inside it. For instance, such erasure may be defined by simply replacing every ghost term by unit value (). \\
 
-In this subsection we show how to use ghost code in MiniML. Concretely, we describe Ghost-ML, a version of MiniML in which one can write ghost code inside programs of Mini-ML, using explicit ghost code annotation.
-
+In this subsection we show how to extend MiniML with ghost code. Concretely, we describe Ghost-ML, a version of MiniML in which one can write ghost code inside programs of Mini-ML, using explicit ghost code annotation.
 We explain in details how to extend Mini-ML typing system to guarantee ghost code \textit{non-interference} and how to extract executable-code soundly from a program containing ghost code.
 
 
 \subsection{Syntax of Ghost-ML}
-To annotate term as ghost,  we need to modify of Mini-ML syntax by\\
+The syntax of Mini-ML is extended as follows: \\
 
-(1) marking explicitly with the ghost indicator $\beta$ every variable, reference,  formal parameter, and domain type: 
+(1) a ghost indicator $\beta$ is added to every variable, reference,  formal parameter, and domain type: 
 $$x_\tau^{\rouge{\beta}},~ \quad !r^{\rouge{\beta}}_{\tau},~ \quad \lambda x_\tau^{\rouge{\beta}}. t,~ \quad {\tau^{\rouge{\beta}} \Rightarrow \tau}...;~$$
 
-(2) adding a key-word \texttt{\rouge{ghost}} to annotate the ghost code itself: 
+(2) a new keyword \texttt{\rouge{ghost}} introduces ghost code: 
 $$\rouge{ghost}~x^{\rouge{\beta}},~~~\rouge{ghost}~(if~v~ then~ t_1~ else~ t_2),~ ...;~$$
 
-The indicator $\gbr$ above is either true (variable or term is ghost) or false (variable or term belongs to the source code).
+The indicator $\gbr$ above is either $\gbtr$ (variable or term is ghost) or $\gbbr$ (variable or term belongs to the source code).
 
 \subsection{Semantics of Ghost-ML}
 
@@ -2380,18 +2379,21 @@ That is, the semantics of ghost-ML simply \textit{ignores} all ghost annotations
 
 \subsection{Ghost-ML Type System}
 
-The type system for Ghost-ML guarantees not-only that "well-typed terms do not go wrong", but also give us control on the ghost code structural and applicative \textbf{\textit{propagation}} inside the program, and allows us to check  \textbf{\textit{non-interference}} of ghost code with the rest of the program.   
+The type system for Ghost-ML guarantees not only that "well-typed terms do not go wrong", but also give us control on the ghost code structural and applicative \textbf{\textit{propagation}} inside the program, and allows us to check  \textbf{\textit{non-interference}} of ghost code with the rest of the program.   
 
-	Each typing rule is now of the form $\vdash_gh t : \tau,
-        \theta, \rho, \rouge{\beta}$, where $\rouge{\beta}$ is a ghost indicator, $\tau$ stands for term's type, but where $\theta$ and $\rho$ indicate now the presence/absence of \textbf{non-ghost} reference assignments, and \textbf{non-ghost} recursive calls inside $t$.
+	Each typing rule is now of the form $\vdash_{gh} t : \tau,
+        \theta, \rho, \rouge{\beta}$, where $\rouge{\beta}$ is a ghost indicator, $\tau$ stands for the type, and $\theta$ and $\rho$ indicate  the presence/absence of \textbf{non-ghost} reference assignments and \textbf{non-ghost} recursive calls inside $t$.
 
-That is, we should type a term like $r_{int}^{\gbtr} := 42 $ as 
+For instance, the term $r_{int}^{\gbtr} := 42 $ is typed as
 $\ghosttyping{r_{int}^{\gbtr} := 42}{()}{\bth}{\brh}{\gbtr}{}$.
 
 \paragraph*{The Invariant of Typing Relation}	
 	
-If a judgement $\vdash_{gh} t : \tau, (\theta, \rho, \gbtr)$, with $\theta = \tth$ or $\rho = \trh $, were valid, it would mean that $t$ is simultaneously a ghost term, and that is may produce some visible side-effects. Moreover, that would mean that we can write a ghost code that diverges. 
-
+If a judgement $\vdash_{gh} t : \tau, (\theta, \rho, \gbtr)$, with
+$\theta = \tth$ or $\rho = \trh $, was valid, it would mean that $t$
+is a ghost term that may produce some visible non-ghost side-effects
+or that may diverge.
+%
 To avoid this, we impose the following invariant:
 \hypertarget{gh-typ-inv}{}
 \begin{definition}[(Ghost-ML Typing Invariant)]
@@ -2404,10 +2406,10 @@ From now on, we assume that this invariant is added as a side-condition to every
 
 \paragraph*{Typing Rules}	
 
-The whole set typing rules of ML-typing is given in the \cref{ghost-mini-ml-def-typ}.
+The whole set of typing rules of Ghost-ML is given in the \cref{ghost-mini-ml-def-typ}.
 Below we explain them separately in order to show what properties of ghost code each rule reflects. \\
 
-The rules for variables, constants, reference access and ghost annotation itself are straightforward:  
+The rules for variables, constants, reference access, and ghost annotation itself are straightforward:  
 
 \begin{footnotesize}
 \begin{minipage}[t]{0.5\linewidth}
@@ -2546,7 +2548,8 @@ The typing of recursive functions is a bit more intricate:
 \end{array}	
 \end{displaymath}
 \end{footnotesize}
-We impose the condition $\textcolor{blue}{\gba{1} \Rightarrow \beta_1'}$, so that the body of the recursive non-ghost function ($\gbra{1}^{\rouge{'}} = \gbbr$) cannot be ghost ($\gbra{1} = \gbtr$).   
+We impose the condition $\textcolor{blue}{\gba{1} \Rightarrow
+  \beta_1'}$, so that the body of a recursive non-ghost function ($\gbra{1}^{\rouge{'}} = \gbbr$) cannot be ghost ($\gbra{1} = \gbtr$).   
 We also write the \hyperlink{gh-typ-inv}{Ghost-ML typing invariant} explicitly, to point out that the latent effects of recursive function must verify the invariant condition:
 ${\tau_{2}^{\gbra{2}} \stackrel{(\theta_1 \bwedge \gbran{1}^{\rouge{'}}), \gbran{1}^{\rouge{'}}}{=======>} \tau_1}$.
 
@@ -2589,8 +2592,8 @@ $\ghosttyping
 			{\theta_2}
 			{\rho_2}
 			{\gbra{2}^{\rouge{'}}}
-			{}$
-To explain how do we type $(t~v)$, let us first enumerate in the table below all possible cases for $(\gbra{1}, \gbra{2}, \gbra{2}^{\rouge{'}})$, and what is the ghost status of $(t~v)$ in each case:
+			{}$.
+To explain how we type $(t~v)$, let us first enumerate in the table below all possible cases for $(\gbra{1}, \gbra{2}, \gbra{2}^{\rouge{'}})$, and what is the ghost status of $(t~v)$ in each case:
 \begin{figure}[H]
 \begin{small}
 \begin{center}
@@ -2635,9 +2638,11 @@ To explain how do we type $(t~v)$, let us first enumerate in the table below all
 \caption{Ghost Code Propagation}
 \end{small}
 \end{figure}  
-In the table above, the resulting ghost status of (1-4) is intuitively the only possible.
-In (7-8) we forbid to pass a \textbf{non-ghost} argument to a ghost formal parameter, to define ghost-code erasure as we do in the next subsection. 
-Finally, (5) and (6) are rather a choice of design, than a necessary solution.
+In the table above, the resulting ghost status of (1-4) is intuitively
+the only possible one.
+In (7-8) we forbid to pass a \textbf{non-ghost} argument to a ghost
+formal parameter, to define ghost code erasure as we do in the next subsection. 
+Finally, (5) and (6) are rather a choice of design, than a mandatory choice.
 Indeed,  (5) simply helps to drop the annotations of ghost parameters in ghost functions. On the other hand, (6) authorizes the application of non-ghost function to some ghost argument. This can be really helpful, because it allows to write less ghost annotations in program, leaving the computation of ghost code \textit{applicative} propagation to the typing system. In this case, however, if we apply some non-ghost function to the ghost argument, then the body of the function becomes "contaminated", so the application itself becomes ghost.
 
 That being said, the typing of applications is: 
@@ -2905,11 +2910,12 @@ Finally, we type \texttt{let} expressions alike applications, with the explanati
 
 \subsection{Ghost Code Erasure}
 
-In this subsection, we explain how to erase ghost-code in a term of Ghost-ML, so that
-after the erasure, we would get the correspondent term of Mini-ML. 
-To do so, we define the ghost-code erasure function $\e: (\gbr,\texttt{ Ghost-ML}) \Longrightarrow \texttt{ML}$. 
+In this subsection, we explain how to erase ghost code in a term of Ghost-ML, so that
+after the erasure, we get a term of Mini-ML with an equivalent semantics. 
+To do so, we define the ghost code erasure function $\e: (\gbr,\texttt{ Ghost-ML}) \Longrightarrow \texttt{ML}$. 
 Because we need to erase all ghost annotations from types, terms, and global reference store, we will overload the notation of $\e$ for the erasure of each  category respectively.
 
+The idea is to replace any ghost code by a value of type \texttt{unit}.
 First, we define the erasure of ghost annotations in types:
 \begin{definition}[Type-Erasure] 
 \label{type-erasure}
@@ -2930,12 +2936,12 @@ The erasure $\e_{\gbr}(\tau)$ of type $\tau$ with respect to $\gbr$ is defined b
 \end{small}
 \end{definition}
 
-The definition of the ghost-code erasure for GhostML terms is defined as follows:
+The definition of the ghost code erasure for GhostML terms is defined as follows:
 \begin{definition}[Term-Erasure] 
 \label{term-erasure}
 \hypertarget{term-erasure}{}
 ~\\
-Let $t$ be a well typed term of Ghost-ML, such that 
+Let $t$ be a well-typed term of Ghost-ML, such that 
 $\ghosttyping
 	{t}
 	{\tau}
@@ -2943,8 +2949,9 @@ $\ghosttyping
 	{\rho}
 	{\gbr}
 	{}$ holds.
-The erasure $\e_{\gbr}(t)$ of term $t$ with respect to $\gbr$ is defined by term-erasure function $\e: (\beta, \mathbb{T}_{\text{\tiny Ghost-ML}}) \Longrightarrow \mathbb{T}_{\text{\tiny Mini-ML}}$ by induction on the structure of $t$ as follows.
-If $\gbr = \gbbr$, then
+The erasure $\e_{\gbr}(t)$ of term $t$ with respect to $\gbr$ is
+defined by the term-erasure function $\e: (\beta, \mathbb{T}_{\text{\tiny Ghost-ML}}) \Longrightarrow \mathbb{T}_{\text{\tiny Mini-ML}}$ by induction on the structure of $t$ as follows.
+If $\gbr = \gbtr$, then
 \begin{small}
 \begin{adjustwidth}{0cm}{0cm}
 \begin{displaymath} 
@@ -2954,7 +2961,7 @@ If $\gbr = \gbbr$, then
 \end{displaymath}
 \end{adjustwidth}
 \end{small}
-In particulary, $\etop{ghost~t_1} = ()$. Otherwise $\gbr = \gbtr$ and  
+In particulary, $\etop{ghost~t_1} = ()$. Otherwise $\gbr = \gbbr$ and  
 \begin{small}
 \begin{adjustwidth}{0cm}{0cm}
 \begin{displaymath} 
@@ -3016,7 +3023,7 @@ Finally,
 %\end{displaymath}
 %\end{adjustwidth}
 %\end{small}
-\noindent$\bullet$\quad If $t = (t_1~v)$ then, the the typing of $(t_1~v)$ is:
+\noindent$\bullet$\quad If $t = (t_1~v)$ then the typing of $(t_1~v)$ is:
 \begin{small}
 $$ \dfrac
 	{
@@ -3060,7 +3067,7 @@ so we can define the erasure of $(t_1~v)$ as:
 \end{displaymath}
 \end{adjustwidth}
 \end{small}
-\noindent$\bullet$\quad If $t = let~x^{\gbra{1}}_{\tau_1} = t_1~in~t_2$ then, the the typing of $t$ is:
+\noindent$\bullet$\quad If $t = let~x^{\gbra{1}}_{\tau_1} = t_1~in~t_2$ then the typing of $t$ is:
 \begin{footnotesize}
 \begin{adjustwidth}{0cm}{0cm}
 \begin{displaymath} 
@@ -3106,7 +3113,7 @@ let~x_{\egbra{1}{\tau_1}} = \egbra{1}{t_1}~in~\ebot{t_2}
 
 Finally, we define the erasure of store $\mu$ as follows:
 \begin{definition}[Store-Erasure]
-Let $\mu$ be a store of references to the Ghost-ML values. 
+Let $\mu$ be a store of mapping references to Ghost-ML values. 
 The erasure $\ebot{\mu}$ is defined by restricting the domain of $\mu$ to the non-ghost references $r^{\gbbr}_{\tau}$ in the following manner:
 $$ \ebot{\mu} = \lbrace r_{\ebot{\tau}}, \ebot{\mu(r^{\gbbr}_{\tau})} \rbrace $$
 \label{sem-erasure}
@@ -3117,7 +3124,7 @@ $$ \ebot{\mu} = \lbrace r_{\ebot{\tau}}, \ebot{\mu(r^{\gbbr}_{\tau})} \rbrace $$
 
 \subsection{Properties of Erasure}
 
-Ghost code is a part of program specification.
+Ghost code is part of program specification.
 Suppose we have a source program \textit{p} that we want to specify using
 ghost code inside. That is, the ghost-annotated version of \textit{p}, say a term \textit{t} can be typed in Ghost-ML as $\ghosttyping{t}{\tau}{\theta}{\rho}{\gbbr}{}$
 for some $\tau, \theta, \rho$.
@@ -3160,13 +3167,13 @@ t_{\mu}				             &   & \rTo_{GhostML} &
 %\end{diagram}
 
 
-One can verify the absence of two pathological cases above for GhostML,
+One can verify the absence of the two pathological cases above for Ghost-ML
 using a technique called \textit{bi-simulation}, which consists in proving  
 the following two theorems:
 
 \begin{theorem}[Forward Simulation]
 ~\\
-If t is a closed ghost-ML term, such that $\ghosttyping{t}{\tau}{\theta}{\rho}{\gbbr}{}$ ~holds and $\evalstar{t}{1}{v}{2}$ 
+If t is a closed Ghost-ML term, such that $\ghosttyping{t}{\tau}{\theta}{\rho}{\gbbr}{}$ ~holds and $\evalstar{t}{1}{v}{2}$ 
 for some value \textit{v}, then 
 ${\ebot{t}}_{\ebot{\mu}} \rightarrow^\star {\ebot{v}}_{\ebot{\mu'}}$.
 \end{theorem}
