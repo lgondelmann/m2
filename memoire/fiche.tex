@@ -1,4 +1,4 @@
-\documentclass[11pt]{article}
+\documentclass[a4paper,11pt]{article}
 
 \usepackage[english]{babel} %
 % \usepackage[T1]{fontenc} %
@@ -28,66 +28,78 @@
 
 \subsection*{The general context}
 
-The goal of this work is to present the inlining of higher-order programs \textit{inlining} in the context of deductive program verification.
-
-	Deductive software verification is the process where the correctness of
-programs is proved, using computational logic and an axiomatic formal
-semantics approach$^{\cite{filliatre11sttt}}$. 
-
-	Until recently, this approach was mainly applied to the verification of 
-imperative programs written in languages such as C and Java.
-In the last years, however, deductive verification of functional programs became an active research domain. 
-	The work of Regis-Gianas and Pottier$^{\cite{regis-gianas-pottier-08}}$ defines a Hoare logic for a call-by-value programming language equipped with recursive, higher-order functions, algebraic data types, and a polymorphic type system in the style of Hindley and Milner. 
- 	The work of Kanig$^{~\cite{kanig2010specification}}$  is dedicated to the specification and proof of \textit{stateful} Higher-Order Programs, thus generalizing deductive verification approach for functional programs that can be written in languages with imperative features such as OCaml.
-	
+Deductive software verification is the process where the correctness
+of programs is proved, using computational logic and an axiomatic
+formal semantics approach$^{\cite{filliatre11sttt}}$.  Until recently,
+this approach was mainly applied to the verification of imperative
+programs written in languages such as C and Java.  In the last years,
+however, deductive verification of functional programs became an
+active research domain.  The work of Regis-Gianas and
+Pottier$^{\cite{regis-gianas-pottier-08}}$ defines a Hoare logic for a
+call-by-value programming language equipped with recursive,
+higher-order functions, algebraic data types, and a polymorphic type
+system in the style of Hindley and Milner.  The work of
+Kanig$^{~\cite{kanig2010specification}}$ is dedicated to the
+specification and proof of \textit{stateful} Higher-Order Programs,
+thus generalizing deductive verification approach for functional
+programs that can be written in languages with imperative features
+such as OCaml.
 
 \subsection*{The research problem}
-	The main difficulty of the higher-order program deductive verification is to verify these programs automatically, using tools like automated theorems provers and SMT-solvers: in most cases, the solving power these tools is limited to first-order.
-	However, many of higher-order definitions of every-day programming practice are functions such as \textit{iterators} \textit{mappings}, and \textit{folders}, used in most of the cases, to apply some first-order function to the elements of some primitive data such as arrays, lists, etc. 	
- The main question is thus to know if in practice we can do the verification of programs using these definitions in a similar way to the verification of a programs using simple imperative loop.
-  
- 
- 
+The main difficulty of the higher-order program deductive verification
+is to verify these programs automatically, using tools like automated
+theorems provers and SMT-solvers: in most cases, these tools are
+limited to first-order logic.  However, many of higher-order
+definitions of every-day programming practice are functions such as
+\textit{iterators}, \textit{mappings}, and \textit{folders},
+used to apply first-order functions to the elements
+of data structures such as arrays, lists, etc.  The main question
+is thus to know whether in practice we can perform verification of programs
+using these definitions in a similar way to the verification of a
+first-order programs using loops.
+
 \subsection*{Your contribution}
 
-We have presented a pragmatic approach to the verification of stateful
-second-order programs, 
-%which consists in defining the inlining trasformation of second-order definitions. 
+We present a pragmatic approach to the verification of stateful
+second-order programs.
+%which consists in defining the inlining trasformation of second-order definitions.
 %First we inline higher-order functions and then we use an existing tool for the
 %verification of first-order programs (namely Why3). Obviously, this
 %approach does not apply to all ML programs. Yet we think it is a
 %valuable approach in many cases, as higher-order functions are often
 %simply used to encode loops of various kinds.
-% First, is to restrain higher-order stateful programs to the subset of second-order programs, for which it becomes possible to transform each second-order program into semantically equivalent first-order program, by simply \textit{inlining} all higher-order definitions inside. 
-Concretely, we define the inlining of higher-order functions and then we use an existing tool for the
-verification of first-order programs (namely Why3). Obviously, this
-approach does not apply to all ML programs. Yet we think it is a
-valuable approach in many cases, as higher-order functions are often
-simply used to encode loops of various kinds.
+% First, is to restrain higher-order stateful programs to the subset of second-order programs, for which it becomes possible to transform each second-order program into semantically equivalent first-order program, by simply \textit{inlining} all higher-order definitions inside.
+Concretely, we define the inlining of higher-order functions and then
+we use an existing tool for the verification of first-order programs
+(namely Why3). Obviously, this approach does not apply to all ML
+programs. Yet we think it is a valuable approach in many cases, as
+higher-order functions are often simply used to encode loops of
+various kinds.
 
-We have given the abstract syntax, the semantics, and a type system
-with effects for a language Mini-ML with global references. We have
-formally defined an inlining procedure on some second-order fragment
-of this language. While working out some preliminary examples, 
-we have identified the need for ghost code in
+We give the abstract syntax, the semantics, and a type system
+with effects for a language Mini-ML with global references. We
+formally define an inlining procedure on some second-order fragment
+of this language. While working out some preliminary examples,
+we identify the need for ghost code in
 the writing of specifications for higher-order functions such as map,
-iter, or fold. Thus we have extended Mini-ML with ghost code, with a
+iter, or fold. Thus we extend Mini-ML with ghost code, with a
 type system that checks for non-interference between ghost code and
 regular code, and ghost code erasure operation.
 
 \subsection*{Arguments supporting its validity}
 
-To guarantee the soundness of the inlining procedure, we stated and proved its total correctness, using a well-know technique of \textit{logical relations}.
-
+We prove the soundness of our inlining procedure, using a well-know
+technique of \textit{logical relations}.
 
 \subsection*{Summary and future work}
 
 By lack of time, we haven't implemented a prototype. Hence our
 experimental evaluation is currently limited to a few examples where
-inlining was manually performed, the resulting programs being written in
-Why3 syntax. The results being definitely promising,
-in the future, we intend to implement a prototype and work out other examples.
-Also we would like to investigate the theoretical scope of this work in the case of second-order programs with polymorphic types. 
+inlining was manually performed, the resulting programs being written
+in Why3 syntax. The results being definitely promising, in the future,
+we intend to implement a prototype and work out other examples.
+We also wish to investigate the theoretical scope of this work in the
+case of second-order programs with polymorphic types.
 
 \begin{footnotesize}
 \bibliographystyle{plain}
