@@ -1,8 +1,9 @@
 \documentclass[11pt]{article}
 
-\usepackage[francais]{babel} %
+\usepackage[english]{babel} %
 % \usepackage[T1]{fontenc} %
 \usepackage[latin1]{inputenc} %
+\usepackage[a4paper,colorlinks=true,urlcolor=blue,pdfstartview=FitH]{hyperref}
 % \usepackage[applemac]{inputenc} %
 % \usepackage{a4wide} %
 
@@ -31,53 +32,72 @@ The goal of this work is to present the inlining of higher-order programs \texti
 
 	Deductive software verification is the process where the correctness of
 programs is proved, using computational logic and an axiomatic formal
-semantics approach\cite{filliatre11sttt}. 
+semantics approach$^{\cite{filliatre11sttt}}$. 
 
 	Until recently, this approach was mainly applied to the verification of 
 imperative programs written in languages such as C and Java.
 In the last years, however, deductive verification of functional programs became an active research domain. 
-	The work of Regis-Gianas and Pottier[TODO] defines a Hoare logic for a call-by-value programming language equipped with recursive, higher-order functions, algebraic data types, and a polymorphic type system in the style of Hindley and Milner. 
- The work of Kaning[TODO] is dedicated to the specification and proof of Higher-Order Programs with \textit{side-effects}, generalizing deductive verification approach for functional programs that can be written in languages with imperative features such as OCaml.
-	The cost of this generalization in practice is the difficulty to verify these programs automatically (using some automated theorem provers), so that verification process often requires the use of some interactive proof assistant like Coq[]. 
+	The work of Regis-Gianas and Pottier$^{\cite{regis-gianas-pottier-08}}$ defines a Hoare logic for a call-by-value programming language equipped with recursive, higher-order functions, algebraic data types, and a polymorphic type system in the style of Hindley and Milner. 
+ 	The work of Kanig$^{~\cite{kanig2010specification}}$  is dedicated to the specification and proof of \textit{stateful} Higher-Order Programs, thus generalizing deductive verification approach for functional programs that can be written in languages with imperative features such as OCaml.
+	
 
 \subsection*{The research problem}
+	The main difficulty of the higher-order program deductive verification is to verify these programs automatically, using tools like automated theorems provers and SMT-solvers: in most cases, the solving power these tools is limited to first-order.
+	However, many of higher-order definitions of every-day programming practice are functions such as \textit{iterators} \textit{mappings}, and \textit{folders}, used in most of the cases, to apply some first-order function to the elements of some primitive data such as arrays, lists, etc. 	
+ The main question is thus to know if in practice we can do the verification of programs using these definitions in a similar way to the verification of a programs using simple imperative loop.
+  
+ 
+ 
+\subsection*{Your contribution}
 
-	Many of higher-order definitions of every-day programming practice are expressions such as \textit{iterators} \textit{mappings}, and \textit{folders}, used essentially to apply some first-order function to all elements of some primitive data such as arrays, lists, binary trees, etc.
-	The expressiveness of programs using these definitions is therefore limited to the second-order. 
-	The question studied in this work is therefore the  
-	
-	The goal of this work is to show that the verification of programs using these expressions can be done in a similar way to the verification of a programs using  simple imperative loop.
-	Con
-In  make rather a practical investigation about the potential of higer-order inlining in deductive verification discipline.  
+We have presented a pragmatic approach to the verification of stateful
+second-order programs, 
+%which consists in defining the inlining trasformation of second-order definitions. 
+%First we inline higher-order functions and then we use an existing tool for the
+%verification of first-order programs (namely Why3). Obviously, this
+%approach does not apply to all ML programs. Yet we think it is a
+%valuable approach in many cases, as higher-order functions are often
+%simply used to encode loops of various kinds.
+% First, is to restrain higher-order stateful programs to the subset of second-order programs, for which it becomes possible to transform each second-order program into semantically equivalent first-order program, by simply \textit{inlining} all higher-order definitions inside. 
+Concretely, we define the inlining of higher-order functions and then we use an existing tool for the
+verification of first-order programs (namely Why3). Obviously, this
+approach does not apply to all ML programs. Yet we think it is a
+valuable approach in many cases, as higher-order functions are often
+simply used to encode loops of various kinds.
+
+We have given the abstract syntax, the semantics, and a type system
+with effects for a language Mini-ML with global references. We have
+formally defined an inlining procedure on some second-order fragment
+of this language. While working out some preliminary examples, 
+we have identified the need for ghost code in
+the writing of specifications for higher-order functions such as map,
+iter, or fold. Thus we have extended Mini-ML with ghost code, with a
+type system that checks for non-interference between ghost code and
+regular code, and ghost code erasure operation.
+
+\subsection*{Arguments supporting its validity}
+
+To guarantee the soundness of the inlining procedure, we stated and proved its total correctness, using a well-know technique of \textit{logical relations}.
 
 
-Quelle est la question que vous avez abordée ? 
-Pourquoi est-elle importante, à quoi cela sert-il d'y répondre ?  
-Est-ce un nouveau problème ?
-Si oui, pourquoi êtes-vous le premier chercheur de l'univers à l'avoir posée ?
-Si non, pourquoi pensiez-vous pouvoir apporter une contribution originale ?
+\subsection*{Summary and future work}
 
-\subsection*{La contribution proposée}
+By lack of time, we haven't implemented a prototype. Hence our
+experimental evaluation is currently limited to a few examples where
+inlining was manually performed, the resulting programs being written in
+Why3 syntax. The results being definitely promising,
+in the future, we intend to implement a prototype and work out other examples.
+Also we would like to investigate the theoretical scope of this work in the case of second-order programs with polymorphic types. 
+\begin{footnotesize}
+\bibliographystyle{plain}
 
-Qu'avez vous proposé comme solution à cette question ? 
-Attention, pas de technique, seulement les grandes idées ! 
-Soignez particulièrement la description de la démarche \emph{scientifique}.
-
-\subsection*{Les arguments en faveur de sa validité}
-
-Qu'est-ce qui montre que cette solution est une bonne solution ?
-Des expériences, des corollaires ? 
-Commentez la \emph{robustesse} de votre proposition : 
-comment la validité de la solution dépend-elle des hypothèses de travail ?
-
-\subsection*{Le bilan et les perspectives}
-
-Et après ? En quoi votre approche est-elle générale ? 
-Qu'est-ce que votre contribution a apporté au domaine ? 
-Que faudrait-il faire maintenant ? 
-Quelle est la bonne \emph{prochaine} question ?
-
+\bibliography{abbrevs,demons,demons2,demons3,team,crossrefs,./biblio}
+\end{footnotesize}
 \end{document}
 
-
+(*
+Local Variables:
+compile-command: "rubber -d main"
+End:
+*)
 
