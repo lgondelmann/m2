@@ -33,5 +33,6 @@
 *.out
 *.synctex.gz
 /memoire/main.pdf
+/memoire/fiche.pdf
 *~
 *.rel

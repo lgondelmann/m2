@@ -3451,14 +3451,14 @@ Finally, the proof of \textsc{(T-Let)} follows exactly the same scheme that in t
 		
 		\item[$(\alpha)$] if $\ty[\tmapp{t'}{v'}] = \tyord{0}[2]$, then
 		by definition of $\eqv{t}$, for any initial state $\mu_0$ either 
-		$\tmapp{t'}{v'}$ and $\tmapp{t'}{v'}$ diverge both, 
+		$\tmapp{t'}{v'}$ and $\tmapp{t'}{v'}$ both diverge, 
 		or there is a pair of values $v_1, v'_1$ and a state $\mu_1$ such that 
 		$$\evalstar{\tmapp{t}{v}}{0}{{v_1}}{1} 
 			\bwedge \evalstar{\tmapp{t'}{v'}}{0}{{v'_1}}{1} \bwedge~\eqv{v_1}.$$
 		
 		By the preservation of typing, $v_1$ and $v'_1$ are of some base 
 		type $\tyord{0}[2]$, and from the fact that they are values, we deduce
-		that $v_1 = v'_1$. Therefore,  $\tmapp{t}{v} \thicksim \tmapp{t'}{v'})$.
+		that $v_1 = v'_1$. Therefore,  $\tmapp{t}{v} \thicksim \tmapp{t'}{v'}$.
 			
 		\item[$(\beta)$] Otherwise, 
 		$\ty[\tmapp{t}{v}] = \tyarr[21][22][\theta_1][\rho_1]$.
@@ -3470,11 +3470,13 @@ Finally, the proof of \textsc{(T-Let)} follows exactly the same scheme that in t
 		$$\evalstar{\tmapp{\tmapp{t}{v}}{v_0}}{0}{{v_1}}{1} \bwedge
 		\evalstar{\tmapp{\tmapp{t'}{v'}}{v'_0}}{0}{{v'_1}}{1} \bwedge~\eqv{v_1}.$$
 		
-		If both $t$ and $t'$ both diverge,
+		If both $t$ and $t'$ diverge,
 		then so do 
-		$\tmapp{\tmapp{t'}{v'}}{v'_0}$ and $\tmapp{\tmapp{t'}{v'}}{v'_0}$. 
+		$\tmapp{\tmapp{t}{v}}{v_0}$ and
+                $\tmapp{\tmapp{t'}{v'}}{v'_0}$.
+                Similarly if both $\tmapp{t}{v}$ and $\tmapp{t'}{v'}$ diverge.
 		Otherwise, there are
-		some values $v_2$, $v'_2$ and intermediate state $\mu_2$ such that
+		some values $v_2$, $v'_2$ and some intermediate state $\mu_2$ such that
 		$$\evalstar{\tmapp{\tmapp{t}{v}}{v_0}}{0}{\tmapp{v_2}{v_0}}{2} \bwedge
 		\evalstar{\tmapp{\tmapp{t'}{v'}}{v'_0}}{0}{\tmapp{v'_2}{v'_0}}{2} 
 		\bwedge~\eqv{v_2}$$	
@@ -3482,7 +3484,8 @@ Finally, the proof of \textsc{(T-Let)} follows exactly the same scheme that in t
 		get	$$ \tmapp{v_2}{v_0} \thicksim \tmapp{v'_2}{v'_0}.$$ Therefore, 
 		$\tmapp{v_2}{v_0}$ diverges if and only if $\tmapp{v_2'}{v_0'}$ diverges 
 		too, so again, $\tmapp{\tmapp{t'}{v'}}{v'_0}$ diverges if and only if 
-		$\tmapp{\tmapp{t'}{v'}}{v'_0}$ diverges. Otherwise there exist some values $v_1, v'_1$ and state $\mu_1$ such that:
+		$\tmapp{\tmapp{t'}{v'}}{v'_0}$ diverges. Otherwise
+                there exist some values $v_1, v'_1$ and some state $\mu_1$ such that:
 		$$\evalstar{\tmapp{v_2}{v_0}}{2}{{v_1}}{1} \bwedge
 		\evalstar{\tmapp{v_2}{v'_0}}{2}{{v'_1}}{1} 
 		\bwedge~\eqv{v_1},$$ which allows us to deduce that $\tmapp{t}{v} \thicksim \tmapp{t'}{v'}.$ 
@@ -3527,7 +3530,7 @@ Finally, the proof of \textsc{(T-Let)} follows exactly the same scheme that in t
 		\item[$(\beta)$] Otherwise $\ty$ is an arrow type $\tyarr$ for some types 
 		$\ty[1], \ty[2]$.	
 		
-		let $v_0, v'_0$ be two arbitrary values satisfying:
+		Let $v_0, v'_0$ be two arbitrary values satisfying:
 		$$~\eqv{v_0}~\bwedge \typerule{v_0}{\ty[1]}{\bth}{\brh}{}.$$
 		By hypothesis, we have the reduction steps:
 		$$\evalstar{{t_0}}{0}{{t_1}}{1}\quad\evalstar{{t'_0}}{0}{{t'_1}}{1}$$						which induce respectively: 
@@ -3551,7 +3554,7 @@ Finally, the proof of \textsc{(T-Let)} follows exactly the same scheme that in t
 	\begin{proof}
 	 By induction on derivation $\il{t}{t'}$. 
 	 Let $\sigma, \sigma'$ be a pair of parallel substitutions such that $\sigma \thicksim_t \sigma'$.
-	 First, we observe that from the \cref{equiv-subst-d}, it follows that it does not matter whether we state the result for $\sigma \thicksim_t \sigma'$ or for $\sigma \thicksim_t' \sigma'$.
+	 First, we observe that from \cref{equiv-subst-d}, it follows that it does not matter whether we state the result for $\sigma \thicksim_t \sigma'$ or for $\sigma \thicksim_t' \sigma'$.
 	 We proceed by case analysis on the derivation $\il{t}{t'}$.\\
 	 
 	\noindent\textit{Case} (\textsc{I}$_{0}$-\textsc{Let}$_0$):
@@ -3560,11 +3563,11 @@ Finally, the proof of \textsc{(T-Let)} follows exactly the same scheme that in t
 			{t = \tmlet{F}{s_1}{s_2} \hookdownarrow 				
 			t' = \tmsbst{s_2}{F}{s_1}}
 	 We must show that $(\tmlet{F}{s_1}{s_2})\sigma \thicksim \tmsbst{s_2}{F}{s_1}\sigma'$. 
-By definition \cref{equiv-subst-d}, all terms in codomain of $\sigma$ and $\sigma'$ are \textbf{closed}. Also $\inlsrc$ terms are defined modulo $\alpha$-renaming. Therefore, $F$ does not appear in $\sigma$ nor $\sigma'$, so we can rewrite $t\sigma$ and $t'\sigma'$ as: 
+By \cref{equiv-subst-d}, all terms in codomain of $\sigma$ and $\sigma'$ are \textbf{closed}. Also $\inlsrc$ terms are defined modulo $\alpha$-renaming. Therefore, $F$ does not appear in $\sigma$ nor $\sigma'$, so we can rewrite $t\sigma$ and $t'\sigma'$ as: 
 	 $$ t\sigma = let~F~=~(s_1\sigma_1)~in~(s_2\sigma_2) \qquad
 	 t'\sigma' = (s_2\sigma_2')[F \mapsfrom (s_1 \sigma_1')]$$ 	 
 where $\sigma_1$ and $\sigma_2$ (resp. $\sigma_1'$ and $\sigma_2'$) are parallel substitutions induced by $\sigma$ (resp. $\sigma'$), by restricting the domain of $\sigma$ (resp. $\sigma'$) to the free variables of $s_1$ and $s_2$.
-
+%
 % That is, 
 %$\sigma_1 = \sigma \backslash FV(s_2)$, $\sigma_1' = \sigma' \backslash FV(s_2)$  and $\sigma_2 = \sigma \backslash (FV(s_1) \cup \{ F \})$, $\sigma_2' = \sigma' \backslash (FV(s_1) \cup \{ F \mapsfrom \star \})$.
 	Clearly, we have that:
