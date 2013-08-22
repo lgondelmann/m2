@@ -3218,52 +3218,78 @@ ${t_0'}_{\mu_0'} \rightarrow^{\star} {t_1'}{\mu_1'}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\newpage
-\section{Experimental Evaluation}
+% \newpage
+% \section{Experimental Evaluation}
 
- The first argument of \texttt{inv} is of type int, because it is a type of array indexes, so that we can express the invariance of the \texttt{inv}, applying \texttt{inv} in different contexts to different indexes.
+%  The first argument of \texttt{inv} is of type int, because it is a type of array indexes, so that we can express the invariance of the \texttt{inv}, applying \texttt{inv} in different contexts to different indexes.
   
-	For instance, let us rewrite $\sum\_iter$ in $\inlsrc$.
-	In $\inlsrc$, we do not have arrays. However, we have integer lists. 
- List structure is quite different from arrays. 
- In particular, lists are recursively constructed data, so instead of access them with indexes, we access them using pattern-matching and recursion:	
-	of \texttt{sum\_iter} using lists: \hypertarget{sum-list-iter}{}
+% 	For instance, let us rewrite $\sum\_iter$ in $\inlsrc$.
+% 	In $\inlsrc$, we do not have arrays. However, we have integer lists. 
+%  List structure is quite different from arrays. 
+%  In particular, lists are recursively constructed data, so instead of access them with indexes, we access them using pattern-matching and recursion:	
+% 	of \texttt{sum\_iter} using lists: \hypertarget{sum-list-iter}{}
 	
-\begin{small}
-	\begin{minipage}[t]{0.4\linewidth}	
-	\begin{whycode}  
-let list_iter ($\textcolor{red}{\text{f:int -> unit}}$) (b: int list)   
- = let rec loop (l: int list) = 
-      match l with 
-       | Nil       -> ()
-       | Cons x xs -> ($\textcolor{red}{\text{f}}$ x; loop xs); 
-   in loop 0 
+% \begin{small}
+% 	\begin{minipage}[t]{0.4\linewidth}	
+% 	\begin{whycode}  
+% let list_iter ($\textcolor{red}{\text{f:int -> unit}}$) (b: int list)   
+%  = let rec loop (l: int list) = 
+%       match l with 
+%        | Nil       -> ()
+%        | Cons x xs -> ($\textcolor{red}{\text{f}}$ x; loop xs); 
+%    in loop 0 
    
-   let sum_list_iter (a: array int) =		 
-     let s = ref 0 in
-     list_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}$ a     
- 	\end{whycode}
- 	\end{minipage}
- \end{small}	
-%	\end{minipage}\hfill 
-%	\begin{minipage}[t]{0.45\linewidth}
-%	\begin{whycode}
-%   let sum_list_iter (a: array int) =		 
-%     let s = ref 0 in
-%     list_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}$ a  
-%	\end{whycode}      
-%	\end{minipage}
-%\end{small}		
+%    let sum_list_iter (a: array int) =		 
+%      let s = ref 0 in
+%      list_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}$ a     
+%  	\end{whycode}
+%  	\end{minipage}
+%  \end{small}	
+% %	\end{minipage}\hfill 
+% %	\begin{minipage}[t]{0.45\linewidth}
+% %	\begin{whycode}
+% %   let sum_list_iter (a: array int) =		 
+% %     let s = ref 0 in
+% %     list_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}$ a  
+% %	\end{whycode}      
+% %	\end{minipage}
+% %\end{small}		
 
-One can easily check that this program can be written with the syntax of $\inlsrc$.
+% One can easily check that this program can be written with the syntax of $\inlsrc$.
 
 
  	
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\newpage
+\section{Conclusion and Perspectives}
 
-%section{Conclusion and Perspectives}
+We have presented a pragmatic approach to the verification of stateful
+second-order programs. First we inline
+higher-order functions and then we use an existing tool for the
+verification of first-order programs (namely Why3). Obviously, this
+approach does not apply to all ML programs. Yet we think it is a
+valuable approach in many cases, as higher-order functions are often
+simply used to encode loops of various kinds.
 
+We have given the abstract syntax, the semantics, and a type system
+with effects for a language Mini-ML with global references. We have
+formally defined an inlining procedure on some second-order fragment
+of this language, and proved its soundness. While working out some
+preliminary examples, we have identified the need for ghost code in
+the writing of specifications for higher-order functions such as map,
+iter, or fold. Thus we have extended Mini-ML with ghost code, with a
+type system that checks for non-interference between ghost code and
+regular code, a ghost code erasure operation, and a proof of
+soundness for that operation.
+
+By lack of time, we haven't implemented a prototype. Hence our
+experimental evaluation is currently limited to a few examples where
+inlining was manually performed, the resulting programs being written in
+Why3 syntax. The results are definitely promising.
+We intend to work out other examples before the defense
+and to implement a prototype in the future.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \appendix
@@ -3271,10 +3297,6 @@ One can easily check that this program can be written with the syntax of $\inlsr
 \section{Appendix: Detailed proofs} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-
 
 \subsection{Proofs of Section~\ref{sec:Mini-ML}}
 
