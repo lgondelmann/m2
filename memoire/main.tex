@@ -2906,8 +2906,8 @@ Finally, we type \texttt{let} expressions alike applications, with the explanati
 \subsection{Ghost Code Erasure}
 
 In this subsection, we explain how to erase ghost-code in a term of Ghost-ML, so that
-after the erasure, we would get the term of Mini-ML. 
-To do so, we define the ghost-code erasure function $\e: (\gbr,\texttt{Ghost-ML}) \Longrightarrow \texttt{ML}$. 
+after the erasure, we would get the correspondent term of Mini-ML. 
+To do so, we define the ghost-code erasure function $\e: (\gbr,\texttt{ Ghost-ML}) \Longrightarrow \texttt{ML}$. 
 Because we need to erase all ghost annotations from types, terms, and global reference store, we will overload the notation of $\e$ for the erasure of each  category respectively.
 
 First, we define the erasure of ghost annotations in types:
@@ -3122,13 +3122,13 @@ Suppose we have a source program \textit{p} that we want to specify using
 ghost code inside. That is, the ghost-annotated version of \textit{p}, say a term \textit{t} can be typed in Ghost-ML as $\ghosttyping{t}{\tau}{\theta}{\rho}{\gbbr}{}$
 for some $\tau, \theta, \rho$.
 
-First of all, if \textit{t} has some dynamic  behaviour that \textit{p} does not even have, then the semantics of \textit{p} is not preserved. So a valid verification of \textit{t} does not imply anymore the validity of verification of \textit{p}:
+First of all, if \textit{t} has some dynamic  behaviour that \textit{p} does not have, then the semantics of \textit{p} is not preserved. So a valid verification of \textit{t} does not imply anymore the validity of verification of \textit{p}:
 \begin{figure}[H]
 \begin{diagram}
 t_{\mu} &	 \rTo^{GhostML} & &  
 t'_{\mu'} & \\
 \dImplies^{\ebot{t_{\mu}}} & & &   \dImplies_{\ebot{t'_{\mu'}}} & & \\
-p_{\ebot{t_{\mu}}} & \textcolor{red}{\nrepeat{10}\cdot \text{ \small MiniML} \nrepeat8\cdot >}   & &  q_{\mu_1}
+p_{\ebot{t_{\mu}}} & \textcolor{red}{\nrepeat{4}\cdot / \nrepeat3\cdot \text{ \small MiniML} \nrepeat3\cdot / \nrepeat4\cdot >}   & &  q_{\mu_1}
 \end{diagram}
 \begin{adjustwidth}{5em}{5em}
 %\caption{\scriptsize{\textbf{
