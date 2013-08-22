@@ -2390,23 +2390,22 @@ $\ghosttyping{r_{int}^{\gbtr} := 42}{()}{\bth}{\brh}{\gbtr}{}$.
 
 \paragraph*{The Invariant of Typing Relation}	
 	
-If a judgement $\vdash_{gh} t : \tau, (\theta, \rho, \gbtr)$, with $\theta = \tth$ or $\rho = \trh $, were valid, it would mean that $t$ is simultaneously a ghost term, and that is may produce some visible side-effects.
+If a judgement $\vdash_{gh} t : \tau, (\theta, \rho, \gbtr)$, with $\theta = \tth$ or $\rho = \trh $, were valid, it would mean that $t$ is simultaneously a ghost term, and that is may produce some visible side-effects. Moreover, that would mean that we can write a ghost code that diverges. 
 
-To take into account the side-effects of \textit{non-ghost} terms only, we impose the following invariant:
-
+To avoid this, we impose the following invariant:
+\hypertarget{gh-typ-inv}{}
 \begin{definition}[(Ghost-ML Typing Invariant)]
  $$\vdash_{gh} t : \tau, (\theta, \rho, \gbr) 
  ~~ \iff ~~
 \models (\gbr = \gbtr) \Rightarrow (\theta = \bth \bwedge \rho = \brh) $$
 \end{definition}   
-
-From now on, we assume that this invariant is added as a
-side-condition to every typing rule.
+That is, we take into account the side-effects of \textit{non-ghost} terms only, we and force the ghost code to be pure. 
+From now on, we assume that this invariant is added as a side-condition to every typing rule.
 
 \paragraph*{Typing Rules}	
 
-The whole set typing rules of ML-typing is given in the \ref{ghost-mini-ml-def-typ}.
-Below we explain each rule separately, to show what properties of ghost code it reflects. \\
+The whole set typing rules of ML-typing is given in the \cref{ghost-mini-ml-def-typ}.
+Below we explain them separately in order to show what properties of ghost code each rule reflects. \\
 
 The rules for variables, constants, reference access and ghost annotation itself are straightforward:  
 
@@ -2491,16 +2490,201 @@ that in compound expressions, if only one branch is ghost, then the entire expre
 \end{displaymath}
 \end{footnotesize}
 
-~\\
-The typing of \texttt{let} expression in more intricate.
-Suppose we want to type some term of the form $let~x^{\gbra{1}}_{\tau_1} = t_1~in~t_2$, where we know for $t_2$ that $t_2:\gbbr$.
-In that case
+
+The typing of lambda-abstractions shows that the ghost status of abstraction depends on the ghost status of its body:
+\begin{footnotesize}	
+\begin{displaymath}
+\begin{array}{l}
+\dfrac
+	{\ghosttyping
+		{t}
+		{\tau_1}
+		{\theta_1}
+		{\rho_1}
+		{\gbra{1}}
+		{}}
+	{\ghosttyping
+		{\lambda x^{\gbra{2}}_{\tau_2} . t}
+		{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}
+		{\bth}
+		{\brh}
+		{\gbra{1}}
+		{}}
+	{\textsc{  (T-lam)}}
+\end{array}	
+\end{displaymath}
+\end{footnotesize}	
+This rule gives us all four possibilities to :
 \begin{itemize}
-\item[(1)] we cannot bind $(t_1: \gbbr)$ to a variable $x_{\tau}^{\gbtr}$; 
-\item[(2)] we can bind $(t_1: \gbtr)$ to $x_{\tau}^{\gbbr}$, but in that case, we have  consider the case when $x_{\tau}^{\gbbr}$ occurs in $t_2$. 
-For instance, if $t_2 = x_{\tau}^{\gbbr}$ itself, we have to mark the entire expression as ghost, even thought $x_{\tau}^{\gbbr}$ and $ t_2$ were marked as non-ghost.   
+\item[(5)] write a Mini-ML function as \textbf{non-ghost} function with \textbf{non-ghost} formal parameter; 
+
+\item[(6,7)] modularize ghost code using \textbf{ghost} functions with \textbf{ghost} or \textbf{non-ghost} formal parameter; 
+
+\item[(8)] extend, as in the \hyperlink{list-iter}{example of list\_iter}, the definition of \textbf{non-ghost} function with \textbf{ghost} formal parameter.
 \end{itemize}
-A simple way to express conditions (1) (2) inside the typing of \texttt{let} is then: 
+~\\
+Typing recursive functions is a bit more intricate:
+\begin{footnotesize}	
+\begin{displaymath}
+\begin{array}{l}
+\dfrac
+	{\ghosttyping
+		{t}
+		{\tau_1}
+		{\theta_1}
+		{\rho_1}
+		{\gbra{1}}
+		{\quad \gba{1} \Rightarrow \beta_1'}}
+	{\ghosttyping
+		{\mu f^{\gbra{1}^{\rouge{'}}}:~(\tau_1, \theta_1).~\lambda x^{\gbra{2}}_{\tau_2}. t} 
+		{\tau_{2}^{\gbra{2}} \stackrel{(\theta_1 \bwedge \gbran{1}^{\rouge{'}}), \gbran{1}^{\rouge{'}}}{=======>} \tau_1}
+		{\bth}
+		{\brh}
+		{\gbra{1}^{\rouge{'}}}
+		{}}
+	{\textsc{  (T-rec)}}
+\end{array}	
+\end{displaymath}
+\end{footnotesize}
+We impose the condition $\textcolor{blue}{\gba{1} \Rightarrow \beta_1'}$, so that the body of the recursive function that is meant to be used in the source code ($\gbra{1}^{\rouge{'}} = \gbbr$), cannot be ghost ($\gbra{1} = \gbtr$).   
+We also write the \hyperlink{gh-typ-inv}{Ghost-ML typing invariant} explicitely, to stress that the latent effects of recursive function must verify the invariant condition:
+${\tau_{2}^{\gbra{2}} \stackrel{(\theta_1 \bwedge \gbran{1}^{\rouge{'}}), \gbran{1}^{\rouge{'}}}{=======>} \tau_1}$.
+
+Similarly, we mark the typing invariant explicitly in the typing of reference assignment:
+\begin{footnotesize}	
+\begin{displaymath}
+\begin{array}{l}
+\dfrac
+	{\ghosttyping
+		{v}
+		{\tau}
+		{\bth}
+		{\brh}
+		{\gbra{1}}
+		{\quad \gba{1} \Rightarrow \gba{1}^{{'}}}}
+	{\ghosttyping
+		{r^{\gbra{1}^{\rouge{'}}}_{\tau}~:=~v}
+		{unit}
+		{\gbran{1}^{\rouge{'}}}	
+		{\brh}
+		{\gbra{1}^{\rouge{'}} }
+		{}} 			
+ 	{\textsc{  (T-assign)}}
+\end{array}	
+\end{displaymath}
+\end{footnotesize}
+
+
+Suppose now that we want to type the application of a term 
+$\ghosttyping
+			{t}
+			{{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}}
+			{\theta_1}
+			{\rho_1}
+			{\gbra{1}}
+			{}$ to a  value 
+$\ghosttyping
+			{v}
+			{\tau_2}
+			{\theta_2}
+			{\rho_2}
+			{\gbra{2}^{\rouge{'}}}
+			{}$
+To explain how do we type $(t~v)$, let us first enumerate in the table below all possible cases for $(\gbra{1}, \gbra{2}, \gbra{2}^{\rouge{'}})$, and what is the ghost status of $(t~v)$ in each case:
+\begin{figure}[H]
+\begin{small}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|l|}
+\hline
+\multicolumn{6}{|c|} 
+ {$\ghosttyping
+			{t}
+			{{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}}
+			{\theta_1}
+			{\rho_1}
+			{\gbra{1}}
+			{}$ \quad
+		$\ghosttyping
+			{v}
+			{\tau_2}
+			{\theta_2}
+			{\rho_2}
+			{\gbra{2}^{\rouge{'}}}
+			{}$ 
+			}
+ 			
+			\\
+\hline
+& $\gbra{2} \text{(parameter)}$ & $\gbra{1} \text{(body)}$ & $\gbra{2}^{\rouge{'}} \text{(argument)}$
+ &  \multicolumn{2}{c|}{resulting ghost status} \\
+\hline\hline
+1 &  $\bot$ & $\bot$ & $\bot$ & $\bot$ &  pure source code application \\ \hline
+2 & $\top$ & $\bot$ & $\top$ & $\bot$ &  ghost code passing inside source code
+\\ \hline
+3 & $\top$ & $\top$ & $\top$ & $\top$ &  pure ghost code application \\ \hline
+4 & $\bot$ & $\top$ & $\bot$ & $\top$ &  source code passing inside ghost code
+ \\ \hline
+
+5 & $\bot$ & $\top$ & $\top$ & $\top$ &source code passing inside ghost code \\ \hline
+ 
+6 & $\bot$ & $\bot$ & $\top$ & $\top$ &function parameter and body contamination \\ \hline
+7 &  $\top$ & $\bot$ & $\bot$ & $-$ & forbidden \\ \hline
+8 & $\top$ & $\top$ & $\bot$ & $-$ & forbidden \\ \hline
+\end{tabular}
+\end{center}
+\caption{Ghost Code Propagation}
+\end{small}
+\end{figure}  
+In the table above, the resulting ghost status of in (1-4) is natural and intuitively the only possible.
+In (7-8) we forbid to pass a \textbf{non-ghost} argument to a ghost formal parameter because otherwise it would be impossible for us to define the ghost-code erasure as do in the next subsection. 
+Finally, (5) and (6) are rather a choice of design, that a necessary solution.
+Indeed,  (5) simply helps a programmer to drop the annotations of ghost parameters in a ghost function. On the other hand (6) authorizes to apply some non-ghost definition  
+to some ghost argument. This can be really helpful, because it allows to write less ghost annotations in program, leaving to the typing system to compute ghost code \textit{applicative} propagation. However, if we apply some non-ghost function to the ghost argument, the body of the function becomes "contaminated", so the application itself becomes ghost.
+
+That being said, the typing of applications is: 
+\begin{footnotesize}	
+\begin{displaymath}
+\begin{array}{l}
+\dfrac
+	{
+		\ghosttyping
+			{t}
+			{{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}}
+			{\theta_2}
+			{\rho_2}
+			{\gbra{1}}
+			{} \qquad
+		\ghosttyping
+		{v}
+		{\tau_2}
+		{\bth}
+		{\brh}
+		{\gbra{2}^{\rouge{'}}}
+		{\quad \gba{2} \Rightarrow \gba{2}^{'}}}
+	{
+		\ghosttyping
+			{t~v}
+			{\tau_1}
+			{\theta_1 \bvee \theta_2}
+			{\rho_1 \bvee \rho_2}
+			{\gbra{1} \bvee (\gbran{2} \bwedge \gbra{2}^{\rouge{'}})}
+			{}}
+	{
+		\textsc{  (T-app)}} 
+\end{array}	
+\end{displaymath}
+\end{footnotesize}	
+~\\
+Finally, we type \texttt{let} expressions alike applications, with the explanations similar those of the table above:
+%
+%Suppose we want to type some term of the form $let~x^{\gbra{1}}_{\tau_1} = t_1~in~t_2$, where we know for $t_2$ that $t_2:\gbbr$.
+%In that case
+%\begin{itemize}
+%\item[(1)] we cannot bind $(t_1: \gbbr)$ to a variable $x_{\tau}^{\gbtr}$; 
+%\item[(2)] we can bind $(t_1: \gbtr)$ to $x_{\tau}^{\gbbr}$, but in that case, we have  consider the case when $x_{\tau}^{\gbbr}$ occurs in $t_2$. 
+%For instance, if $t_2 = x_{\tau}^{\gbbr}$ itself, we have to mark the entire expression as ghost, even thought $x_{\tau}^{\gbbr}$ and $ t_2$ were marked as non-ghost.   
+%\end{itemize}
+%A simple way to express conditions (1) (2) inside the typing of \texttt{let} is then: 
 \begin{footnotesize}	
 \begin{displaymath}
 \begin{array}{l}
@@ -2533,104 +2717,6 @@ A simple way to express conditions (1) (2) inside the typing of \texttt{let} is 
 \end{displaymath}
 \end{footnotesize}	
 ~\\
-The typing of lambda-abstractions shows that the ghost status of abstraction depends on the ghost status of its body:
-\begin{footnotesize}	
-\begin{displaymath}
-\begin{array}{l}
-\dfrac
-	{\ghosttyping
-		{t}
-		{\tau_1}
-		{\theta_1}
-		{\rho_1}
-		{\gbra{1}}
-		{}}
-	{\ghosttyping
-		{\lambda x^{\gbra{2}}_{\tau_2} . t_1}
-		{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}
-		{\bth}
-		{\brh}
-		{\gbra{1}}
-		{}}
-	{\textsc{  (T-lam)}}
-\end{array}	
-\end{displaymath}
-\end{footnotesize}	
-This rule gives us all four possibilities to :
-\begin{itemize}
-\item[(5)] write a Mini-ML function as \textbf{non-ghost} function with \textbf{non-ghost} formal parameter; 
-
-\item[(6,7)] modularize ghost code using \textbf{ghost} functions with \textbf{ghost} or \textbf{non-ghost} formal parameter; 
-
-\item[(8)] extend, as in the \hyperlink{list-iter}{example above}, the definition of \textbf{non-ghost} function with \textbf{ghost} formal parameter.
-\end{itemize}
-~\\
-
-Suppose now that we want to type the application of a term 
-$\ghosttyping
-			{t}
-			{{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}}
-			{\theta_1}
-			{\rho_1}
-			{\gbra{1}}
-			{}$ to a  value 
-$\ghosttyping
-			{v}
-			{\tau_2}
-			{\theta_2}
-			{\rho_2}
-			{\gbra{2}^{\rouge{'}}}
-			{}$
-To understand how to type $(t~v)$, let us first enumerate all possible cases for 
-$(\gbra{1}, \gbra{2}, \gbra{2}^{\rouge{'}})$:
-
-
-\begin{figure}[H]
-\begin{small}
-\begin{center}
-\begin{tabular}{|c|c|c|c|l|}
-\hline
-\multicolumn{5}{|c|} 
- {$\ghosttyping
-			{t}
-			{{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}}
-			{\theta_1}
-			{\rho_1}
-			{\gbra{1}}
-			{}$ \quad
-		$\ghosttyping
-			{v}
-			{\tau_2}
-			{\theta_2}
-			{\rho_2}
-			{\gbra{2}^{\rouge{'}}}
-			{}$ 
-			}
- 			
-			\\
-\hline
-$\gbra{2} \text{(parameter)}$ & $\gbra{1} \text{(body)}$ & $\gbra{2}^{\rouge{'}} \text{(argument)}$
- &  \multicolumn{2}{c|}{resulting ghost status} \\
-\hline\hline
-$\bot$ & $\bot$ & $\bot$ & $\bot$ &  pure source code application \\ \hline
-$\top$ & $\bot$ & $\top$ & $\bot$ &  ghost code passing inside source code
-\\ \hline
-$\top$ & $\top$ & $\top$ & $\top$ &  pure ghost code application \\ \hline
-$\bot$ & $\top$ & $\bot$ & $\top$ &  source code passing inside ghost code
- \\ \hline
-
- $\bot$ & $\top$ & $\top$ & $\top$ &source code passing inside ghost code \\ \hline
- 
- $\bot$ & $\bot$ & $\top$ & $\top$ &function parameter and body contamination \\ \hline
-  $\top$ & $\bot$ & $\bot$ & $-$ & impossible \\ \hline
- $\top$ & $\top$ & $\bot$ & $-$ & impossible \\ \hline
-\end{tabular}
-\end{center}
-\caption{Ghost Code Propagation}
-\end{small}
-\end{figure}  
-
-
 
 \begin{figure}[H]
 %\hrule
@@ -2677,7 +2763,7 @@ $\bot$ & $\top$ & $\bot$ & $\top$ &  source code passing inside ghost code
 		{\gbra{1}}
 		{}}
 	{\ghosttyping
-		{\lambda x^{\gbra{2}}_{\tau_2} . t_1}
+		{\lambda x^{\gbra{2}}_{\tau_2} . t}
 		{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}
 		{\bth}
 		{\brh}
@@ -2687,7 +2773,7 @@ $\bot$ & $\top$ & $\bot$ & $\top$ &  source code passing inside ghost code
 	
 \dfrac
 	{\ghosttyping
-		{t_1}
+		{t}
 		{\tau_1}
 		{\theta_1}
 		{\rho_1}
@@ -2695,7 +2781,7 @@ $\bot$ & $\top$ & $\bot$ & $\top$ &  source code passing inside ghost code
 		{\quad \gba{1} \Rightarrow \beta_1'}}
 	{\ghosttyping
 		{\mu f^{\gbra{1}^{\rouge{'}}}:~(\tau_1, \theta_1).~\lambda x^{\gbra{2}}_{\tau_2}. t} 
-		{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \gbran{1}^{\rouge{'}}}{\Longrightarrow} \tau_1}
+		{\tau_{2}^{\gbra{2}} \stackrel{(\theta_1 \bwedge \gbran{1}^{\rouge{'}}), \gbran{1}^{\rouge{'}}}{=======>} \tau_1}
 		{\bth}
 		{\brh}
 		{\gbra{1}^{\rouge{'}}}
