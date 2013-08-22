@@ -784,6 +784,7 @@ However, our solution is to characterize a reasonably large subset of ML program
 
 \newpage
 \section{Higher-Order Programming Language }
+\label{sec:Mini-ML}
 
 	This section describes a little functional programming language \textit{Mini-ML}, in which we can write programs like previous examples. 
 	It also introduces ${\inlsrc}$, a restriction of Mini-ML in which we can only write programs we can inline correctly, like in the example of \texttt{sum\_iter}. 
@@ -1428,6 +1429,7 @@ So, we restrain $t_2$ to be free from any possible side-effects:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Inlining}
+\label{sec:Inlining}
 
  Previously we defined $\inlsrc$ as the domain language of our inlining procedure. 
  In this section we give a formal definition for the inlining procedure itself.
@@ -2180,8 +2182,7 @@ We need the following lemmas:
 	
 %TODO: Nice figure %
 
-\newpage
-\section{Verifying Programs in \texorpdfstring{$ML^{^{2}}$}{}}
+\subsection{Inlining of Logical Annotations}
 
 In this section, we give an informal explanation of how to specify and
 to verify programs in $\inlsrc$. The idea is to equip $\inlsrc$ with
@@ -2192,7 +2193,7 @@ on programs, the output of inlining is a first-order program annotated
 in first-order logic. Then we can pass it to some existing tool for
 program verification, Why3 in our case.
 
-\subsection*{Detailed Example}
+\subsubsection*{Detailed Example}
 
 Let us illustrate this, by rewriting the example of \texttt{sum\_iter} with lists.
 The source code of iterator itself is:
@@ -3275,7 +3276,8 @@ One can easily check that this program can be written with the syntax of $\inlsr
 
 
 
-\subsection{Programming Language}
+\subsection{Proofs of Section~\ref{sec:Mini-ML}}
+
 \hypertarget{proof:preserv-prop-p}{} 
 \begin{theorem}[(Preservation of Mini-ML, Strengthened)] 
 if $\vdash t : \tau, \textcolor{red}{\bth}, \rho$ holds and $\evalstep{t}{1}{t'}{2}$ then $\mu_1 = \mu_2$ and $\vdash t' : \tau, \textcolor{red}{\bth}, \rho'$ for some $\rho'$.
@@ -3335,38 +3337,38 @@ Finally, the proof of \textsc{(T-Let)} follows exactly the same scheme that in t
  In latter case, the result follows again from \hyperlink{subst-lemma}{substitution lemma}. Back to \ref{preserv-prop-d}.
 \end{proof}  	
 
-	\subsection{Inlining Second-Order Local Bindings}
+% 	\subsection{Inlining Second-Order Local Bindings}
 	
 
-%\begin{lemma}[(determinacy of $\inlletplus$)] 
-%	$\forall n \in \mathbb{N}.~ \forall t, t_1, t_2.
-%		(t \inlletarr^{n} {t_1} \bwedge t \inlletarr^{n} {t_2}) \brarr
-%			t_1 = t_2$.	
-%	\label{inllet-determ-p}	
-%\end{lemma}
+% %\begin{lemma}[(determinacy of $\inlletplus$)] 
+% %	$\forall n \in \mathbb{N}.~ \forall t, t_1, t_2.
+% %		(t \inlletarr^{n} {t_1} \bwedge t \inlletarr^{n} {t_2}) \brarr
+% %			t_1 = t_2$.	
+% %	\label{inllet-determ-p}	
+% %\end{lemma}
 
-\begin{proof}
-Start by proving the base case (\textsc{$I_1$-step}) by case analysis, for each possible form of $t$, on the leftmost immediate sub-term of $t$ containing an occurrence of some second-order variable $F$. 
-	  Do the remaining  (\textsc{$I_1$-trans}) case	by strong induction on $n$.  Back to \ref{inllet-determ-l}.
-\end{proof}	
+% % \begin{proof}
+% % Start by proving the base case (\textsc{$I_1$-step}) by case analysis, for each possible form of $t$, on the leftmost immediate sub-term of $t$ containing an occurrence of some second-order variable $F$. 
+% % 	  Do the remaining  (\textsc{$I_1$-trans}) case	by strong induction on $n$.  Back to \ref{inllet-determ-l}.
+% % \end{proof}	
 	
-\begin{lemma}[($\inlletarr$ Preservation Properties)]
-For any well-typed term $t$ such that\\ $\typerule{t}{\tau}{\theta}{\rho}$, if $\inllet{t}{t'}$ then
-\begin{displaymath}
-\begin{array}{l@{\hspace*{1cm}}l@{\hspace*{1cm}}l}
-	(1)& FV(t') \subseteq FV(t) & \textsc{(free variables inclusion)} \\
-	(2)& \typerule{t'}{\tau}{\theta}{\rho} &\textsc{(typing preservation)} \\
-	(3)& t' \in \inlT & \textsc{(A-normal form preservation)}
-\end{array}
-\end{displaymath}
- \label{inllet-prop-p}
-\end{lemma}
+% \begin{lemma}[($\inlletarr$ Preservation Properties)]
+% For any well-typed term $t$ such that\\ $\typerule{t}{\tau}{\theta}{\rho}$, if $\inllet{t}{t'}$ then
+% \begin{displaymath}
+% \begin{array}{l@{\hspace*{1cm}}l@{\hspace*{1cm}}l}
+% 	(1)& FV(t') \subseteq FV(t) & \textsc{(free variables inclusion)} \\
+% 	(2)& \typerule{t'}{\tau}{\theta}{\rho} &\textsc{(typing preservation)} \\
+% 	(3)& t' \in \inlT & \textsc{(A-normal form preservation)}
+% \end{array}
+% \end{displaymath}
+%  \label{inllet-prop-p}
+% \end{lemma}
 
-\begin{proof}
- By induction on the derivation of $\inllet{t}{t'}$.
- \label{TODO-inllet-prop-p}
- Back to \ref{inllet-prop-l}.
- \end{proof}	
+% \begin{proof}
+%  By induction on the derivation of $\inllet{t}{t'}$.
+%  \label{TODO-inllet-prop-p}
+%  Back to \ref{inllet-prop-l}.
+%  \end{proof}	
 	
 %  \begin{lemma}
 % 	If $\inllet{t}{t'}$, then $FV(t') \subseteq FV(t)$.
@@ -3404,28 +3406,28 @@ For any well-typed term $t$ such that\\ $\typerule{t}{\tau}{\theta}{\rho}$, if $
 %\end{proof}	
 	
 	
-\begin{lemma}([Normal Forms For $\inlletarr^\star$]) = Output language S
- \label{inllet-nforms-p}.
-\end{lemma}
-\begin{proof}
-Back to \ref{inllet-nforms-l}.
-\end{proof}
+% \begin{lemma}([Normal Forms For $\inlletarr^\star$]) = Output language S
+%  \label{inllet-nforms-p}.
+% \end{lemma}
+% \begin{proof}
+% Back to \ref{inllet-nforms-l}.
+% \end{proof}
 
 
-\begin{theorem}([Termination of $\inlletarr^\star$])
-\label{inllet-term-p}.
-\end{theorem}
-\begin{proof}
-  Back to \ref{inllet-term-l}.
-\end{proof}	
+% \begin{theorem}([Termination of $\inlletarr^\star$])
+% \label{inllet-term-p}.
+% \end{theorem}
+% \begin{proof}
+%   Back to \ref{inllet-term-l}.
+% \end{proof}	
 	
 	
 	
-	\subsection{Inlining Second-Order Applications}
+	% \subsection{Inlining Second-Order Applications}
 
 
 
-	\subsection{Semantic Equivalence Relation}
+	\subsection{Proofs of Section~\ref{sec:Inlining}}
 	\begin{lemma}
 		$\forall t,t'.~ \eqv{t} \Leftrightarrow 
 			(\forall v, v'.~\eqv{v}~\Rightarrow
