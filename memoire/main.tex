@@ -396,69 +396,60 @@ http://www.meganerd.com/erikd/Blog/CodeHacking/libsndfile/ten_years.html}}
 
 \section{Introduction}
 
-	The main goal of this memoir is to present the a technical solution of higher-order programs \textit{inlining} in the context of deductive program verification. 
-	
+	The main goal of this memoir is to present a technical solution of higher-order programs \textit{inlining} in the context of deductive program verification. 
 	Deductive software verification is the process where the correctness
 of programs is proved using computational logic and an axiomatic formal semantics approach$^{\cite{Hoare69anaxiomatic}}$.
 	In this process, first the correctness of a program is expressed
 as a set of axioms, hypotheses and assertions, called \textit{verification conditions}.
 	Using axioms and hypotheses, assertions are then proved
-by either interactive proof assistants or automated theorem provers.
+by either interactive proof assistants or automated theorem provers. \\
+
+\subsection{Motivations and Related Work}
 
 	Until recently, interactive proof assistants were predominating
 in verification practice.
 	Indeed, problems involving linear arithmetic, floating-point number analysis,
 or array bounds check, occur ubiquitously in any realistic software
  verification process, but were not supported by the earlier models of automated theorem provers, leaving no choice but to use proof assistants.
-	
 	The new generation of ATPs, the \textit{Satisfiability Modulo Theories} (SMT) provers, brings a hope of more automated verification.
 	SMT solvers combine a classical ATP approach for solving first-order logic problems with a built-in support for linear arithmetic, nonlinear arithmetic, bitvectors, arrays, datatypes, etc.
-	
-	Though these theorem provers are rather powerful, generally they do not yet perform proofs for programs that make use of higher-order definitions. \\
-	 
-	More generaly, deductive software verification was historically and still is a framework focusing mostly on the verification of imperative programs written in languages like C or Java.
-	
+	Though these theorem provers are rather powerful, generally they do not yet perform proofs for programs that make use of higher-order definitions. 
 	Consequentially, software verification environments (such as \textit{Why3} platform$^{\cite{boogie11why3}}$, or Microsoft research \textit{Spec\#}$^{\cite{DBLP:journals/cacm/BarnettFLMSV11}}$), that rely on ATPs to discharge verification conditions, do not yet provide a support for higher-order program specification. \\
-
-%
-%
-%	Verification process begins with writing down specifications for a program we want to prove. 
-%	Verification tools often dispose a special programming language, called \textit{Intermediate Specification Language (ISL)}, in which both programs and specifications can be written. 
-%	The computational part of an \textit{ISL} usually corresponds to a fragment of some existing programming language. 
-%	For instance, Why3 platform relies on a \textit{Whyml}, an ISL which contains a simplified subset of the Ocaml programming language. \\
-%	
-%	FramaC$^{\cite{Cuoq}}$'s \textit{isl} relies on \textit{CIL} (C Intermediate Language) which contains a simplified subset of the C programming language. \\
-%	
-
-  \subsection{Related Work}	
-  
-  
-	The aim of this memoire is somehow different from the works above. 
-	Our goal is not to describe the most general class of higher-order expressions that can be inlined, but to make rather a practical investigation about the potential of higer-order inlining in deductive verification discipline.  
 	
-	As we will show later in evaluation section, many of higher-order definitions of real projects does not require all the power of ML.
-	On the contrary, most of higher-order expressions encountered in practice are expressions such as \textit{iterators} \textit{mappings}, and \textit{folders}.
-	The goal of this work is thus to show that the verification of programs using these expressions can be done in a similar way to the verification of a programs using  simple imperative loop. 
+	More generaly, deductive software verification was historically and still is a framework focusing mostly on the verification of imperative programs written in languages like C or Java. 
+	In the last years, however, deductive verification of functional programs became an
+active research domain.  The work of Regis-Gianas and
+Pottier$^{\cite{regis-gianas-pottier-08}}$ defines a Hoare logic for a
+call-by-value programming language equipped with recursive,
+higher-order functions, algebraic data types, and a polymorphic type
+system in the style of Hindley and Milner.  The work of
+Kanig$^{~\cite{kanig2010specification}}$ is dedicated to the
+specification and proof of \textit{stateful} Higher-Order Programs,
+thus generalizing deductive verification approach for functional
+programs that can be written in languages with imperative features
+such as OCaml.
 
+ In this work, Kanig also provides the implementation of theoretical system that allows to actually prove the generated obligations using standard automated and interactive theorem provers. 
+ As his and other works in the domain show, sometimes using interactive proof assistants to verify higher-order programs automatically is necessary. 
+  
+ The aim of this memoir make rather a practical investigation about the simple higher-order programs for which the verification can be done automatically, and to propose a simple technical solution of higher-order definitions inlining. 
+	
+	We believe that many of higher-order definitions of every-day programming practice  
+are functions such as \textit{iterators}, \textit{mappings}, and \textit{folders},
+used to apply first-order functions to the elements
+of data structures such as arrays, lists, etc.  
+ Our intuition is that inlining of programs using these definitions can be a solution to the automated verification of these programs, performed in a similar way to the verification of a first-order programs using loops.	
+	
 	\subsection{Outline}	
 	
   We start our discussion by giving some of the key-ideas of inlining informally.
   Then, in Section 2 we describe the a simple functional programming language in which we can write interesting programs we want to inline. 
-  
    
-
-%		The rest of our work is dedicated to a more formal description of inlining. 
-%	In the section 2, we present Mini-ML, a tiny, but pertinent fragment of Ocaml, in which we can write programs like our introductory examples. 
-%	To eliminate all possible programs on which inlining would fail, we restrain Mini-ML to a subset of second-order Mini-ML programs of a particular form, $\inlsrc$, that contains only the programs on which inlining procedure can operate safely. 
-
 	Section 3 give then a formal definition of inlining of procedure itself and prove 
 	prove some results, like termination and soundness of the procedure. 
 
-
-	Section 4 is somehow orthogonal to the rest of work. It presents briefly the logic in which we can write annotations for our examples. It also introduces the notion ghost code, which will be useful to annotate programs more easily. 
-	
-	 Finally, Section 5 illustrates how the inlining procedure works on the examples involving the most common higher-order definitions such as \textit{List.map}, \textit{List.fold}, etc. 
-	
+	Finally, Section 4 gives a formalisation of the interesting notion of \textit{ghost code}, which is a useful technique in programs annotation.
+	 
  
   
 	
@@ -2410,6 +2401,7 @@ with the addition of a new reduction rule for ghost expressions:
 $$\dfrac{}{\rouge{ghost}~ t_\mu~ \rightarrow~ t_\mu}{\textsc{T-Ghost}}$$
 That is, the semantics of ghost-ML simply \textit{ignores} all ghost annotations (as it ignores type annotations for Mini-ML).
 
+
 \subsection{Ghost-ML Type System}
 
 The type system for Ghost-ML guarantees not only that "well-typed terms do not go wrong", but also give us control on the ghost code structural and applicative \textbf{\textit{propagation}} inside the program, and allows us to check  \textbf{\textit{non-interference}} of ghost code with the rest of the program.   
@@ -3322,6 +3314,16 @@ inlining was manually performed, the resulting programs being written in
 Why3 syntax. The results are definitely promising.
 We intend to work out other examples before the defense
 and to implement a prototype in the future.
+
+\paragraph{Acknowledgements} Above all, I would like to thank
+Jean-Christophe Filli\^atre,
+my internship adviser, for his great help, attention and care.
+I am also grateful to  Andre\"i Paskevich who gave me many precious advises during my intern-ship.
+Many thanks to all other members of Toccata extraordinary team for all those joyful moments we have spent together around the morning coffee and all passionate discussions we had about maths, football, and cooking.
+
+All this would not have been possible without the administrative help
+and permanent support of Isabelle Delais from ENS Computer Science department,
+and Regine Briquet, from LRI group.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \appendix
