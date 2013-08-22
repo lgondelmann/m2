@@ -465,7 +465,7 @@ is thus to know whether in practice we can perform verification of programs
 using these definitions in a similar way to the verification of a
 first-order programs using loops.
 
-\subsection*{Your contribution}
+\subsection*{Contribution}
 
 We present a pragmatic approach to the verification of stateful
 second-order programs.
@@ -520,7 +520,7 @@ as a set of axioms, hypotheses and assertions, called \textit{verification condi
 	Using axioms and hypotheses, assertions are then proved
 by either interactive proof assistants or automated theorem provers. \\
 
-\subsection{Motivations and Related Work}
+\subsection{Related Work and Motivation}
 
 	Until recently, interactive proof assistants were predominating
 in verification practice.
@@ -532,7 +532,7 @@ or array bounds check, occur ubiquitously in any realistic software
 	Though these theorem provers are rather powerful, generally they do not yet perform proofs for programs that make use of higher-order definitions. 
 	Consequentially, software verification environments (such as \textit{Why3} platform$^{\cite{boogie11why3}}$, or Microsoft research \textit{Spec\#}$^{\cite{DBLP:journals/cacm/BarnettFLMSV11}}$), that rely on ATPs to discharge verification conditions, do not yet provide a support for higher-order program specification. \\
 	
-	More generaly, deductive software verification was historically and still is a framework focusing mostly on the verification of imperative programs written in languages like C or Java. 
+	More generaly, deductive software verification was historically a framework focusing mostly on the verification of imperative programs written in languages like C or Java. 
 	In the last years, however, deductive verification of functional programs became an
 active research domain.  The work of Regis-Gianas and
 Pottier$^{\cite{regis-gianas-pottier-08}}$ defines a Hoare logic for a
@@ -546,9 +546,9 @@ programs that can be written in languages with imperative features
 such as OCaml.
 
  In this work, Kanig also provides the implementation of theoretical system that allows to actually prove the generated obligations using standard automated and interactive theorem provers. 
- As his and other works in the domain show, sometimes using interactive proof assistants to verify higher-order programs automatically is necessary. 
+ As his and other works in the domain show, sometimes using interactive proof assistants to verify higher-order programs is necessary. 
   
- The aim of this memoir make rather a practical investigation about the simple higher-order programs for which the verification can be done automatically, and to propose a simple technical solution of higher-order definitions inlining. 
+ The aim of this memoir is to make rather a practical investigation about the simple higher-order programs for which the verification can be done automatically, and to propose a simple technical solution of higher-order definitions inlining. 
 	
 	We believe that many of higher-order definitions of every-day programming practice  
 are functions such as \textit{iterators}, \textit{mappings}, and \textit{folders},
@@ -561,10 +561,9 @@ of data structures such as arrays, lists, etc.
   We start our discussion by giving some of the key-ideas of inlining informally.
   Then, in Section 2 we describe the a simple functional programming language in which we can write interesting programs we want to inline. 
    
-	Section 3 give then a formal definition of inlining of procedure itself and prove 
-	prove some results, like termination and soundness of the procedure. 
+	Section 3 gives then a formal definition of inlining of procedure itself and proves  termination and soundness of this procedure. 
 
-	Finally, Section 4 gives a formalisation of the interesting notion of \textit{ghost code}, which is a useful technique in programs annotation.
+	Finally, Section 4 gives a formalisation of \textit{ghost code}, a interesting technique that can used in program annotations.
 	 
  
   
@@ -689,7 +688,7 @@ type, remains syntactically unchanged.
 \begin{footnotesize}
 \begin{minipage}[t]{0.3\linewidth}
 	\begin{whycode}  
-   let array_iter ($\textcolor{red}{\text{f:int -> unit}}$) (b: int array)   
+   let array_iter ($\textcolor{red}{\text{f:int -> unit}}$) (b: array int)   
    = let rec loop (i: int) =  
        if i < b.length 
        then ($\textcolor{red}{\text{f}}$ b[i] ; loop (i + 1)) 
@@ -707,7 +706,7 @@ type, remains syntactically unchanged.
 	\begin{whycode}  
    let sum_iter (a: array int) =		
      let s = ref 0 in
-     let array_iter $\textcolor{Sepia}{\text{\textvisiblespace}}$ (b: int array)   
+     let array_iter $\textcolor{Sepia}{\text{\textvisiblespace}}$ (b: array int)   
      = let rec loop (i: int) =  
          if i < b.length then
          ($\textcolor{Sepia}{\text{\underline{(fun x -> s := !s + x)}}}$ b[i] ; 
@@ -722,10 +721,10 @@ type, remains syntactically unchanged.
 \end{adjustwidth}
 
 It remains to annotate (1.2) so that inlining would transform it into an annotated code that should suffice to prove the inlined program above. 
-This can be achieved by extending the definition of \texttt{array\_iter} with an additional parameter \textcolor{blue}{\texttt{\textbf{inv:int-> int array -> prop}}} which stands for the loop invariant $P$. 
+This can be achieved by extending the definition of \texttt{array\_iter} with an additional parameter \textcolor{blue}{\texttt{\textbf{inv:int-> array int -> prop}}} which stands for the loop invariant $P$. 
 \begin{small}\hypertarget{sum-iter}{example}
 \begin{whycode}  
-   let array_iter ($\textcolor{red}{\text{f:int -> unit}}$) (b: int array) ($\textcolor{red}{\text{inv:int -> int array -> prop}}$)    
+   let array_iter ($\textcolor{red}{\text{f:int -> unit}}$) (b: array int) ($\textcolor{red}{\text{inv:int -> array int -> prop}}$)    
      $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} 0~b \}}}$
      $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} b.length~b }\}}$  
    = let rec loop (i: int)
@@ -740,12 +739,12 @@ This can be achieved by extending the definition of \texttt{array\_iter} with an
 It is important to see that the specification above is not only higher-order, but also \textit{partial}: it provides no information about behaviour of its functional parameter \texttt{f}. 
 	For instance, it keeps no track of potential side-effects produced by \texttt{f}. 
 %	However, in the example we discuss here, as in many other realistic examples, the auxiliary function \texttt{loop} of \texttt{array\_iter} simulates to imperative loop reiteration by recursion, the body of \texttt{f} corresponds exactly to the body of the loop. 
-	However, we can provide the missing part of specification by instantiating  \textcolor{blue}{\texttt{\textbf{inv}}} with the actual loop invariant \textcolor{blue}{$\lambda i_{int}.\lambda c_{\texttt{int array}}. \sum_{~0\leq j < i} a[j] $} inside the call of \texttt{array\_iter}:
+	However, we can provide the missing part of specification by instantiating  \textcolor{blue}{\texttt{\textbf{inv}}} with the actual loop invariant \textcolor{blue}{$\lambda i_{int}.\lambda c_{\texttt{array int}}. \sum_{~0\leq j < i} a[j] $} inside the call of \texttt{array\_iter}:
 \begin{small}
 \begin{whycode} 
  let sum_iter (a: array int) =		 
    let s = ref 0 in 
-   array_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}~$ a $\textcolor{red}{(\lambda i_{int}.\lambda c_{\texttt{int array}}. \sum_{~0\leq j < i} a[j])}$                    
+   array_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}~$ a $\textcolor{red}{(\lambda i_{int}.\lambda c_{\texttt{array int}}. \sum_{~0\leq j < i} a[j])}$                    
                                    (*invariant instantiation in the source code *)
 \end{whycode}
 \end{small}
@@ -756,7 +755,7 @@ After inlining processing, we get:
 \begin{whycode}  
    let sum_iter (a: array int)		
      let s = ref 0 in
-     let array_iter $\textcolor{Sepia}{\text{\textvisiblespace}}$ (b: int array) $\textcolor{Sepia}{\text{\textvisiblespace}}$
+     let array_iter $\textcolor{Sepia}{\text{\textvisiblespace}}$ (b: array int) $\textcolor{Sepia}{\text{\textvisiblespace}}$
      $\textcolor{OliveGreen}{\text{requires} \{~\underline{!s = \sum_{~0\leq j < 0} b[j]}}~\}$      
      $\textcolor{OliveGreen}{\text{ensures~~}\{~\underline{!s = \sum_{~0\leq j < b.length} b[j]}\}}$    
      = let rec loop (i: int) = 
@@ -773,7 +772,7 @@ After inlining processing, we get:
 
 
 As we can see, the key-idea is to represent the loop invariant of while construction, splitting it between the specification of iterator's definition and the annotation-like formula of iterator's call.
-The advantage of this trick is that we need to write the specification of iterator only once, and to pass each call's invariant formula independently from the other calls.
+The advantage of this trick is that we need to write the specification of iterator only once, and that we can pass each call's invariant formula independently from the other calls.
 
 	So, the specification of \texttt{sum\_iter} after inlining is now expressed by within first-order logic.
 	Furthermore, it results in verification conditions similar to VCs \texttt{vc1-vc4}. 
@@ -886,8 +885,8 @@ $\lambda y. 0$, so that the soundness of inlining is broken: for instance, if fo
 non-null integer x the call $(\lambda y. t_0~x)$ loops, then while $(t'~x)$ will
 return zero, $(I(t')~x)$ will loop too. \\
 
-There may be several solutions to this problem. For example, we could define inlining, without guaranteeing that semantics of the source program is preserved. 
-However, our solution is to characterize a reasonably large subset of ML programs, such that every program can be inlined correctly. 
+There may be several solutions to this problem. 
+Our solution is to characterize a reasonably large subset of ML programs, such that every program can be inlined correctly. 
 
 \newpage
 \section{Higher-Order Programming Language }
@@ -988,7 +987,7 @@ p & ::=										 					& \textsc{programs} \\
 	 This does not reduce the expressiveness of the language. 
 	 Indeed, putting terms into A-normal form is just a compilation trick to make our presentation shorter and easier to read: 
 	 we could pass from any term in A-normal form to general form and back via \textit{let} expression 
-	 $$(t_1~t_2) \simeq~let~x~=~t_2~in~(t_1~x)$$.
+	 $$(t_1~t_2) \simeq~let~x~=~t_2~in~(t_1~x).$$
 	
 	
 \subsubsection*{The Semantics of Mini-ML }
@@ -2452,14 +2451,11 @@ To prove the verifications conditions above, we need various lemmas about logica
  function sum (l:list int) : int =
      match l with
        | Nil -> 0
-       | Cons x xs -> x + sum xs
-     end
+       | Cons x xs -> x + sum xs end
 
- lemma sum_append:
-    forall l1 l2 : list int. sum (l2 ++ l1) = (sum l1) + (sum l2)
+ lemma sum_append:  forall l1 l2 : list int. sum (l2 ++ l1) = (sum l1) + (sum l2)
 
- lemma sum_reverse:
-    forall l1 : list int. sum (reverse l1) = sum l1
+ lemma sum_reverse: forall l1 : list int. sum (reverse l1) = sum l1
 \end{whycode}
 \end{small}
 We can easily prove these lemmas by using induction tactic{\footnotesize$^{ \cite{LGm1}}$} of Why3. Furthermore, all verifications conditions (vc1-vc7) are proved by Alt-Ergo almost instantly.
