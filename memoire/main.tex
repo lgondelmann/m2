@@ -10,7 +10,7 @@
 \usepackage[english]{babel}
 \usepackage[a4paper,colorlinks=true,urlcolor=blue,pdfstartview=FitH]{hyperref}
 \usepackage{graphicx}
-\usepackage{amssymb,amsfonts,amsthm,amsmath}
+\usepackage{amssymb,amsfonts,amsthm,amsmath, array}
 \usepackage{titlesec}
 \usepackage{listings}
 \usepackage[usenames,dvipsnames]{xcolor}
@@ -301,12 +301,6 @@ keepspaces=true,
 \newcommand{\tystepone}[3]{\vdash_{g\lambda}  #1 : (#2, #3) }
 \newcommand{\typrule}[5]{~\vdash_{g\lambda}  #1 : (#2, #3, #4) #5}
 
-% ERASURE
-\newcommand{\e}{\mathcal{E}}
-\newcommand{\ebot}[1]{\e_{\bot}(#1)}
-\newcommand{\etop}[1]{\e_{\top}(#1)}
-\newcommand{\evar}[2]{\e_{#1}(#2)}
-
 
 % CONSTANTS
 \newcommand{\glvar}{\gvar{x}{}{}}
@@ -366,6 +360,12 @@ keepspaces=true,
 \newcommand{\gbtr}{\textcolor{red}{\gbt}}
 \newcommand{\gbran}[1]{\textcolor{red}{\neg\gba{#1}}}
 
+
+% ERASURE
+\newcommand{\e}{\mathcal{E}}
+\newcommand{\ebot}[1]{\e_{\gbbr}(#1)}
+\newcommand{\etop}[1]{\e_{\gbtr}(#1)}
+\newcommand{\egbra}[2]{\e_{\gbra{#1}}(#2)}
 
 \newcommand{\meganerd}	
 	{\url{http://www.meganerd.com/erikd/Blog/CodeHacking/Ocaml/fold.html}}
@@ -2380,7 +2380,7 @@ That is, the semantics of ghost-ML simply \textit{ignores} all ghost annotations
 
 \subsection{Ghost-ML Type System}
 
-The type system for Ghost-ML guarantees not-only that "well-typed terms do not go wrong", but also give us control on ghost code structural and applicative \textbf{\textit{propagation}} inside the program, and allows us to check  \textbf{\textit{non-interference}} of ghost code with the rest of the program.   
+The type system for Ghost-ML guarantees not-only that "well-typed terms do not go wrong", but also give us control on the ghost code structural and applicative \textbf{\textit{propagation}} inside the program, and allows us to check  \textbf{\textit{non-interference}} of ghost code with the rest of the program.   
 
 	Each typing rule is now of the form $\vdash_gh t : \tau,
         \theta, \rho, \rouge{\beta}$, where $\rouge{\beta}$ is a ghost indicator, $\tau$ stands for term's type, but where $\theta$ and $\rho$ indicate now the presence/absence of \textbf{non-ghost} reference assignments, and \textbf{non-ghost} recursive calls inside $t$.
@@ -2523,7 +2523,7 @@ This rule gives us all four possibilities to :
 \item[(8)] extend, as in the \hyperlink{list-iter}{example of list\_iter}, the definition of \textbf{non-ghost} function with \textbf{ghost} formal parameter.
 \end{itemize}
 ~\\
-Typing recursive functions is a bit more intricate:
+The typing of recursive functions is a bit more intricate:
 \begin{footnotesize}	
 \begin{displaymath}
 \begin{array}{l}
@@ -2546,8 +2546,8 @@ Typing recursive functions is a bit more intricate:
 \end{array}	
 \end{displaymath}
 \end{footnotesize}
-We impose the condition $\textcolor{blue}{\gba{1} \Rightarrow \beta_1'}$, so that the body of the recursive function that is meant to be used in the source code ($\gbra{1}^{\rouge{'}} = \gbbr$), cannot be ghost ($\gbra{1} = \gbtr$).   
-We also write the \hyperlink{gh-typ-inv}{Ghost-ML typing invariant} explicitely, to stress that the latent effects of recursive function must verify the invariant condition:
+We impose the condition $\textcolor{blue}{\gba{1} \Rightarrow \beta_1'}$, so that the body of the recursive non-ghost function ($\gbra{1}^{\rouge{'}} = \gbbr$) cannot be ghost ($\gbra{1} = \gbtr$).   
+We also write the \hyperlink{gh-typ-inv}{Ghost-ML typing invariant} explicitly, to point out that the latent effects of recursive function must verify the invariant condition:
 ${\tau_{2}^{\gbra{2}} \stackrel{(\theta_1 \bwedge \gbran{1}^{\rouge{'}}), \gbran{1}^{\rouge{'}}}{=======>} \tau_1}$.
 
 Similarly, we mark the typing invariant explicitly in the typing of reference assignment:
@@ -2635,11 +2635,10 @@ To explain how do we type $(t~v)$, let us first enumerate in the table below all
 \caption{Ghost Code Propagation}
 \end{small}
 \end{figure}  
-In the table above, the resulting ghost status of in (1-4) is natural and intuitively the only possible.
-In (7-8) we forbid to pass a \textbf{non-ghost} argument to a ghost formal parameter because otherwise it would be impossible for us to define the ghost-code erasure as do in the next subsection. 
-Finally, (5) and (6) are rather a choice of design, that a necessary solution.
-Indeed,  (5) simply helps a programmer to drop the annotations of ghost parameters in a ghost function. On the other hand (6) authorizes to apply some non-ghost definition  
-to some ghost argument. This can be really helpful, because it allows to write less ghost annotations in program, leaving to the typing system to compute ghost code \textit{applicative} propagation. However, if we apply some non-ghost function to the ghost argument, the body of the function becomes "contaminated", so the application itself becomes ghost.
+In the table above, the resulting ghost status of (1-4) is intuitively the only possible.
+In (7-8) we forbid to pass a \textbf{non-ghost} argument to a ghost formal parameter, to define ghost-code erasure as we do in the next subsection. 
+Finally, (5) and (6) are rather a choice of design, than a necessary solution.
+Indeed,  (5) simply helps to drop the annotations of ghost parameters in ghost functions. On the other hand, (6) authorizes the application of non-ghost function to some ghost argument. This can be really helpful, because it allows to write less ghost annotations in program, leaving the computation of ghost code \textit{applicative} propagation to the typing system. In this case, however, if we apply some non-ghost function to the ghost argument, then the body of the function becomes "contaminated", so the application itself becomes ghost.
 
 That being said, the typing of applications is: 
 \begin{footnotesize}	
@@ -2675,7 +2674,7 @@ That being said, the typing of applications is:
 \end{displaymath}
 \end{footnotesize}	
 ~\\
-Finally, we type \texttt{let} expressions alike applications, with the explanations similar those of the table above:
+Finally, we type \texttt{let} expressions alike applications, with the explanations similar to those of the table above.
 %
 %Suppose we want to type some term of the form $let~x^{\gbra{1}}_{\tau_1} = t_1~in~t_2$, where we know for $t_2$ that $t_2:\gbbr$.
 %In that case
@@ -2906,22 +2905,280 @@ Finally, we type \texttt{let} expressions alike applications, with the explanati
 
 \subsection{Ghost Code Erasure}
 
+In this subsection, we explain how to erase ghost-code in a term of Ghost-ML, so that
+after the erasure, we would get the term of Mini-ML. 
+To do so, we define the ghost-code erasure function $\e: (\gbr,\texttt{Ghost-ML}) \Longrightarrow \texttt{ML}$. 
+Because we need to erase all ghost annotations from types, terms, and global reference store, we will overload the notation of $\e$ for the erasure of each  category respectively.
+
+First, we define the erasure of ghost annotations in types:
 \begin{definition}[Type-Erasure] 
 \label{type-erasure}
-We define type-erasure  (parametrized by \{$\bot, top$\})  
-by induction on the structure of types : \vspace{0.2cm} 
-
-\noindent$ \e_{\top}(\tau) = \texttt{unit} $ \\
-\noindent$ 
-\e_{\bot}(\tau_{2}^{\mf{B_{2}}} \rightarrow \tau_{1})  
-= \e_{\mf{B_{2}}}(\tau_{2}) \rightarrow \e_{\bot}(\tau_{1}) $. \\
-\noindent$ \e_{\bot}(\tau_{1}) = \tau_{1}$ \qquad\qquad otherwise.\\
-
-%Also $\e_{\mf{B}}(\text{ref } \tau) = \text{ref } \e_{\mf{B}}(\tau) $.\\
+\hypertarget{type-erasure}{}
+~\\
+Let $\tau$ be some Ghost-ML type.
+The erasure $\e_{\gbr}(\tau)$ of type $\tau$ with respect to $\gbr$ is defined by type-erasure function $\e: (\beta, \mathfrak{T}_{\text{\tiny Ghost-ML}}) \Longrightarrow \mathfrak{T}_{\text{\tiny Mini-ML}}$ by induction on the structure of $\tau$ as follows:
+\begin{small}
+\begin{displaymath} 
+\begin{array}{llll}
+ \e_{\top}(\tau) &=& \texttt{unit} & \\
+ 
+\e_{\bot}(\tau_{2}^{\gbra{2}} \stackrel{\theta, \rho}{\Longrightarrow} \tau_{1})  
+&=& \e_{\gbra{2}}(\tau_{2}) \stackrel{\theta, \rho}{\Longrightarrow} \e_{\bot}(\tau_{1}) &  \text{if } \tau = \tau_{2}^{\gbra{2}} \stackrel{\theta, \rho}{\Longrightarrow} \tau_{1}. \\
+\e_{\bot}(\tau_{1}) &=& \tau_{1} & \text{otherwise}.\\
+\end{array}
+\end{displaymath}
+\end{small}
 \end{definition}
+
+The definition of the ghost-code erasure for GhostML terms is defined as follows:
+\begin{definition}[Term-Erasure] 
+\label{term-erasure}
+\hypertarget{term-erasure}{}
+~\\
+Let $t$ be a well typed term of Ghost-ML, such that 
+$\ghosttyping
+	{t}
+	{\tau}
+	{\theta}
+	{\rho}
+	{\gbr}
+	{}$ holds.
+The erasure $\e_{\gbr}(t)$ of term $t$ with respect to $\gbr$ is defined by term-erasure function $\e: (\beta, \mathbb{T}_{\text{\tiny Ghost-ML}}) \Longrightarrow \mathbb{T}_{\text{\tiny Mini-ML}}$ by induction on the structure of $t$ as follows.
+If $\gbr = \gbbr$, then
+\begin{small}
+\begin{adjustwidth}{0cm}{0cm}
+\begin{displaymath} 
+\begin{array}{lllr}
+~~ \etop{t} &=& () & 
+\end{array}
+\end{displaymath}
+\end{adjustwidth}
+\end{small}
+In particulary, $\etop{ghost~t_1} = ()$. Otherwise $\gbr = \gbtr$ and  
+\begin{small}
+\begin{adjustwidth}{0cm}{0cm}
+\begin{displaymath} 
+\begin{array}{llll}
+\ebot{c} =c &  & &\\[0.3cm]
+
+\ebot{x^{\gbbr}_{\tau}} = x_{\ebot{\tau}} &  & &\\[0.3cm]
+
+\ebot{\lambda x^{\gbra{2}}_{\tau_2} . t_1} =  
+\lambda x_{\egbra{2}{{\tau_2}}} . \ebot{t_1}  & & &\\[0.3cm]
+
+\ebot{
+	\mu f^{\gbbr}:~(\tau_1, \theta_1).~\lambda x^{\gbra{2}}_{\tau_2}. t_1} =
+	\mu f:~(\ebot{\tau_1}, \theta_1).~\lambda x_{\egbra{2}{\tau_2}}. \ebot{t_1} & & &
+	\\[0.3cm]
+
+\ebot{(r^{\gbbr}_{\tau}:= v)} ~~ = ~~ (r_{\ebot{\tau}} := \ebot{v}) & & &  \\[0.3cm]
+\ebot{!r^{\gbbr}_{\tau}} = !r_{\ebot{\tau}} & & &  \\[0.3cm]	
+	
+\ebot{if~v~then~t_1~else~t_2} & & & \\
+\qquad = if~v~then~\ebot{t_1}~else~\ebot{t_2} & & & \\[0.3cm]
+\ebot{match~v~with ~|~Nil~->~t_1~|~Cons~x_{int}~x_{int~list}~->t_2} & & & \\
+\qquad = match~v~with ~|~Nil~->~\ebot{t_1}~|~Cons~x_{int}~x_{int~list}~->\ebot{t_2} & & &  
+\end{array}
+\end{displaymath}
+\end{adjustwidth}
+\end{small}
+
+Finally, 
+
+%\noindent$\bullet$\quad  If $t = \mu f^{\gbbr}:~(\tau_1, \theta_1).~\lambda x^{\gbra{2}}_{\tau_2}. t_1$ , then as $\gbr = \gbbr$, the typing of recursive function is:
+%\begin{small}
+%$$\dfrac
+%	{\ghosttyping
+%		{t_1}
+%		{\tau_1}
+%		{\theta_1}
+%		{\rho_1}
+%		{\gbbr}
+%		{}}
+%	{\ghosttyping
+%		{\mu f^{\gbbr}:~(\tau_1, \theta_1).~\lambda x^{\gbra{2}}_{\tau_2}. t_1} 
+%		{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \trh}{\Longrightarrow} \tau_1}
+%		{\bth}
+%		{\brh}
+%		{\gbbr}
+%		{}}
+%	{}$$
+%	\end{small}
+%Therefore: 
+%\begin{small}
+%\begin{adjustwidth}{0cm}{0cm}
+%\begin{displaymath} 
+%\begin{array}{llll}
+%\ebot{
+%	\mu f^{\gbbr}:~(\tau_1, \theta_1).~\lambda x^{\gbra{2}}_{\tau_2}. t_1} &=&
+%	\mu f:~(\ebot{\tau_1}, \theta_1).~\lambda x_{\egbra{2}{\tau_2}}. \ebot{t_1}
+%\end{array}
+%\end{displaymath}
+%\end{adjustwidth}
+%\end{small}
+\noindent$\bullet$\quad If $t = (t_1~v)$ then, the the typing of $(t_1~v)$ is:
+\begin{small}
+$$ \dfrac
+	{
+		\ghosttyping
+			{t_1}
+			{{\tau_{2}^{\gbra{2}} \stackrel{\theta_1, \rho_1}{\Longrightarrow} \tau_1}}
+			{\theta_2}
+			{\rho_2}
+			{\gbra{1}}
+			{} \qquad
+		\ghosttyping
+		{v}
+		{\tau_2}
+		{\bth}
+		{\brh}
+		{\gbra{2}^{\rouge{'}}}
+		{\quad \gba{2} \Rightarrow \gba{2}^{'}}}
+	{
+		\ghosttyping
+			{t_1~v}
+			{\tau_1}
+			{\theta_1 \bvee \theta_2}
+			{\rho_1 \bvee \rho_2}
+			{\gbra{1} \bvee (\gbran{2} \bwedge \gbra{2}^{\rouge{'}})}
+			{}} $$
+\end{small}
+%(\gbra{2}^{\rouge{'}} = \gbbr \bvee \gbra{2} = \gbtr)
+%\bwedge (\gba{2} \Rightarrow \gba{2}^{'})
+%.
+Because $\gbr =  \gbbr = \gbra{1} \bvee (\gbran{2} \bwedge \gbra{2}^{\rouge{'}})$, we have that: 
+\begin{small}
+$$(\gbra{1} = \gbbr) \bwedge (\gbra{2} = \gbtr  \iff  \gbra{2}^{\rouge{'}} = \gbtr),$$
+\end{small} 
+so we can define the erasure of $(t_1~v)$ as:
+\begin{small}
+\begin{adjustwidth}{-4cm}{3cm}
+\begin{displaymath} 
+\begin{array}{llll}
+\ebot{t_1~v} &=& \ebot{t_1}\egbra{2}{v}
+\end{array}
+\end{displaymath}
+\end{adjustwidth}
+\end{small}
+\noindent$\bullet$\quad If $t = let~x^{\gbra{1}}_{\tau_1} = t_1~in~t_2$ then, the the typing of $t$ is:
+\begin{footnotesize}
+\begin{adjustwidth}{0cm}{0cm}
+\begin{displaymath} 
+\dfrac
+	{
+		\ghosttyping
+			{t_1}
+			{\tau_1}
+			{\theta_1}
+			{\rho_1}
+			{\gbra{1}^{\rouge{'}}}
+			{} \qquad
+		\ghosttyping
+			{t_2}
+			{\tau_2}
+			{\theta_2}
+			{\rho_2}
+			{\gbra{2}}
+			{\quad \gba{1} \Rightarrow \gba{1}^{'}}
+	}
+	{\ghosttyping
+		{let~x^{\gbra{1}}_{\tau_1} = t_1~in~t_2}
+		{\tau_2}
+		{\theta_1 \bvee \theta_2}
+		{\rho_1 \bvee \rho_2}
+		{\gbra{2} \bvee (\gbran{1} \bwedge \gbra{1}^{\rouge{'}})}
+		{}}
+\end{displaymath}
+\end{adjustwidth}
+\end{footnotesize}
+Thus, we define $\ebot{t}$ similarly to the case of application:
+\begin{small}
+\begin{adjustwidth}{-3cm}{0cm}
+\begin{displaymath} 
+\begin{array}{llll}
+\ebot{let~x^{\gbra{1}}_{\tau_1} = t_1~in~t_2} &=& 
+let~x_{\egbra{1}{\tau_1}} = \egbra{1}{t_1}~in~\ebot{t_2} 
+\end{array}
+\end{displaymath}
+\end{adjustwidth}
+\end{small}
+\end{definition}
+
+Finally, we define the erasure of store $\mu$ as follows:
+\begin{definition}[Store-Erasure]
+Let $\mu$ be a store of references to the Ghost-ML values. 
+The erasure $\ebot{\mu}$ is defined by restricting the domain of $\mu$ to the non-ghost references $r^{\gbbr}_{\tau}$ in the following manner:
+$$ \ebot{\mu} = \lbrace r_{\ebot{\tau}}, \ebot{\mu(r^{\gbbr}_{\tau})} \rbrace $$
+\label{sem-erasure}
+\hypertarget{sem-erasure}{}
+\end{definition}
+
+
 
 \subsection{Properties of Erasure}
 
+Ghost code is a part of program specification.
+Suppose we have a source program \textit{p} that we want to specify using
+ghost code inside. That is, the ghost-annotated version of \textit{p}, say a term \textit{t} can be typed in Ghost-ML as $\ghosttyping{t}{\tau}{\theta}{\rho}{\gbbr}{}$
+for some $\tau, \theta, \rho$.
+
+First of all, if \textit{t} has some dynamic  behaviour that \textit{p} does not even have, then the semantics of \textit{p} is not preserved. So a valid verification of \textit{t} does not imply anymore the validity of verification of \textit{p}:
+\begin{figure}[H]
+\begin{diagram}
+t_{\mu} &	 \rTo^{GhostML} & &  
+t'_{\mu'} & \\
+\dImplies^{\ebot{t_{\mu}}} & & &   \dImplies_{\ebot{t'_{\mu'}}} & & \\
+p_{\ebot{t_{\mu}}} & \textcolor{red}{\nrepeat{10}\cdot \text{ \small MiniML} \nrepeat8\cdot >}   & &  q_{\mu_1}
+\end{diagram}
+\begin{adjustwidth}{5em}{5em}
+%\caption{\scriptsize{\textbf{
+%The ghost-ML "\textit{non ghost}" head reduction from a ghostML term $t$ (program $p$'s specification) to $t'$), to $t'$ 
+%does not correspond to any of reductions of $p$.}}}
+\end{adjustwidth}
+\end{figure}
+
+On the other hand, if some dynamic behaviour of \textit{p} escapes from $t$, i.e.
+cannot be simulated by the evaluation of \textit{t}, then the meaning of \textit{p} is  not properly reflected by any specification of \textit{t}. Again, the validity of verification of \textit{t} does not imply anymore the validity of verification of \textit{p}:
+\begin{figure}[H]
+\begin{diagram}
+t_{\mu}				             &   & \rTo_{GhostML} &  
+\textcolor{red}{t'_{\mu'}} \\
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\dImplies^{\ebot{t_{\mu}}} &   &  &               &
+ \rdImplies(2,2)^{\ebot{t'_{\mu'}}}  \\
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+{p}_{\mu_0}                  &   & \rTo_{MiniML}  & 
+{p'}_{\mu'_0} & \textcolor{red}{\neq} & \textcolor{red}{\_} 
+\end{diagram}
+\end{figure}
+
+%\begin{diagram}
+%t_{|\mu} & \textcolor{red}{\dashrightarrow_{g\lambda}} & 
+%\textcolor{red}{t'_{|\mu'}}   \\
+%\qquad \Longdownarrow_{\ebot{t_{|\mu}}}     &  & \qquad  \textcolor{red}{\Longdownarrow_{\ebot{t'_{|\mu'}}}}\\
+%{t_{0}}_{|\mu_0}  & \longrightarrow_{\lambda}  &{t_{1}}_{|\mu_1}
+%\end{diagram}
+
+
+One can verify the absence of two pathological cases above for GhostML,
+using a technique called \textit{bi-simulation}, which consists in proving  
+the following two theorems:
+
+\begin{theorem}[Forward Simulation]
+~\\
+If t is a closed ghost-ML term, such that $\ghosttyping{t}{\tau}{\theta}{\rho}{\gbbr}{}$ ~holds and $\evalstar{t}{1}{v}{2}$ 
+for some value \textit{v}, then 
+${\ebot{t}}_{\ebot{\mu}} \rightarrow^\star {\ebot{v}}_{\ebot{\mu'}}$.
+\end{theorem}
+
+\begin{theorem}[Backward Simulation]
+If $t_0'$ is a closed Ghost-ML term, such that $\ghosttyping{t_0'}{\tau}{\theta}{\rho}{\gbbr}{}$ ~holds and 
+$\ebot{t_0'}_{\ebot{\mu_0'}}$ = ${{t_0}}_{{\mu_0}} \rightarrow^{\star} {{t_{1}}}_{\mu_1}$ 
+for some Mini-ML term $t_1$ and store $\mu_1$, 
+then there exist some Ghost-ML term $t_1'$ and some store $\mu_1'$~
+such that $t_1 =\ebot{t_1'}$, $\mu_1 = \ebot{\mu_1'}$ and 
+${t_0'}_{\mu_0'} \rightarrow^{\star} {t_1'}{\mu_1'}$.
+\end{theorem}
 
 % \subsection{Inlining of \texorpdfstring{$WhyML^{^{2}}$}{$WhyML^2$} programs}
 
