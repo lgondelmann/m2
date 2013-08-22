@@ -2222,11 +2222,11 @@ let list_iter ($\textcolor{black}{\text{f:int -> unit}}$) (l: int list)
    in loop l  
  	\end{whycode}
  \end{small}	 
-How do we represent the invariant of \texttt{list\_iter} ? As we see, the iteration on list \texttt{ai} relies on the structure of lists itself, using recursion and pattern-matching: at each step, we call \texttt{list\_array} recursively on the sub-list \texttt{xs} of \texttt{ai}.
+How do we represent the invariant of \texttt{list\_iter} ? As we can see, the iteration on list \texttt{ai} relies on the structure of \texttt{ai} itself, using recursion and pattern-matching: at each step, we call \texttt{list\_array} recursively on the sub-list \texttt{xs} of \texttt{ai}.
 
 Consequently, to prove the preservation of loop invariant at some step $i$, we need to show that the invariant property holds for all elements of \texttt{ai} iterated \textbf{before} the step $i$.
 
-That means that we need to extend the definition of \texttt{list\_iter} by an additional parameter \texttt{bi: int list} to keep track of the list \texttt{ai} elements accessed \textit{before} each recursive call: 
+That means that we need to extend the definition of \texttt{list\_iter} by an additional parameter \texttt{(bi:int list)} to keep track of the list \texttt{ai} elements accessed \textit{before} each recursive call: 
 \begin{small}
 	\begin{minipage}[t]{0.4\linewidth}	
 	\begin{whycode}  
@@ -2248,7 +2248,7 @@ let list_iter  ($\textcolor{black}{\text{f:int -> unit}}$) (l: int list)
 	
 	- after the last recursive call, the elements of \texttt{bi} are  exactly those of the initial list \texttt{l}. \\
 
-However, \texttt{l} and \texttt{bi} are not \textit{structurally} the same: the order of elements has been \textbf{reversed}. We must take that into account, when we apply the invariant \texttt{inv: int list -> int list -> prop} on $bi$ and $l$. Consequently, the specification of \texttt{list\_iter} should be: 
+However, at the end of execution, \texttt{l} and \texttt{bi} are not \textit{structurally} the same: the order of elements of \texttt{l} has been \textbf{reversed}. We must take that into account, when we apply the invariant \texttt{inv: int list -> int list -> prop} on $bi$ and $l$. Consequently, the specification of \texttt{list\_iter} should be: 
 \hypertarget{list-iter}{}
 
 \begin{small}
@@ -2271,9 +2271,9 @@ let list_iter ($\textcolor{red}{\text{inv:int list -> int list -> unit}}$) ($\te
  	\end{minipage}
  \end{small}	 
 
-As we can see, the original order of elements is restored in specification of \texttt{list\_iter} by reversing the entire list \texttt{l}; in specification of \texttt{loop} by concatenating the accessed elements \texttt{bi} in the reversed order to list \texttt{ai} of the remaining elements of \texttt{l}.
+As we can see, the original order of elements in specification of \texttt{list\_iter} in now reversed; it is also reversed in the specification of \texttt{loop} by concatenating the remaining elements of \texttt{l} in reversed order to the already accessed elements.
 
-The annotated program \texttt{sum\_iter} using \texttt{list\_iter} becomes:
+The program  using \texttt{list\_iter} is annotated as in the case of \texttt{sum\_iter}:
 \begin{whycode}
   let sum_list (l0: list int) : int
     ensures { result = $\sum$ l0 }
@@ -2339,7 +2339,7 @@ which can be processed by Why3 to get verification conditions:
 \end{displaymath}
 \end{footnotesize}
 
-To prove the verifications conditions above, we need various lemmas about logical functions of Why3 standard library such as \texttt{rev}, \texttt{rev\_append}. We also need write prove the following lemmas about function $\sum$ itself (defined as recursive function by induction on list l):   
+To prove the verifications conditions above, we need various lemmas about logical functions \texttt{rev} and \texttt{rev\_append} of Why3 standard library. We also need write the following lemmas about function $\sum$ itself (defined as recursive function by induction on list l):   
 \begin{small}
 \begin{whycode}
  function sum (l:list int) : int =
