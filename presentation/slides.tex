@@ -23,9 +23,27 @@
   \begin{columns}
   \column{0.5\textwidth}
 
-  bla bla bla
+		\begin{whycode}  
+ let sum_loop (a: array int) =		
+  let s = ref 0 in
+  let i = ref 0 in
+  while !i < a.length do
+    s := !s + a[!i];
+    i := !i + 1
+  done; !s 
+ (*Array sum with while loop*)
+		\end{whycode}
 
   \column{0.5\textwidth}
+
+
+		\begin{whycode} 
+  let sum_iter (a: array int) =		 
+    let s = ref 0 in
+    Array.iter (fun x -> s := !s + x) a;
+
+    (*Array sum with iterator*)
+		\end{whycode}	
 
   et la colonne deux
   \end{columns}
