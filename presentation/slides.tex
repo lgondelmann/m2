@@ -1,0 +1,76 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+\begin{document}
+
+\title{Deductive Verification of Stateful Second-Order Programs}
+\author{Léon Gondelman}
+\date{M2 internship \\ \today}
+
+\begin{frame}
+  \maketitle
+\end{frame}
+
+% 1. contexte, problème, exemple introductif (array_iter)
+% sum_loop et sum_iter en parallèle
+
+\begin{frame}\frametitle{}
+\end{frame}
+
+\begin{frame}\frametitle{}
+  \begin{columns}
+  \column{0.5\textwidth}
+
+  bla bla bla
+
+  \column{0.5\textwidth}
+
+  et la colonne deux
+  \end{columns}
+\end{frame}
+
+\begin{frame}\frametitle{}
+\end{frame}
+
+% solution technique = inlining, dérouler sur l'exemple de sum_iter
+
+% 2. quelles difficultés
+%    ce qui nous amène à Mini-ML = ML + références globales
+%    syntaxe, sémantique, système de types avec effets, preuve de type soundness
+%    identification d'un fragment de Mini-ML + définition inlining + preuve
+
+\begin{frame}\frametitle{}
+\end{frame}
+
+\begin{frame}\frametitle{}
+\end{frame}
+
+\begin{frame}\frametitle{}
+\end{frame}
+
+% 3. maintenant list_iter, servant à introduire l'idée de code ghost
+
+%  d'abord le code de list_iter + le code client sum_list
+
+%  puis la spec avec un argument supplémentaire
+
+% => introduit la notion de code ghost
+
+% un pgm avec du code ghost :
+%  - pour le prouver, je prends *tout* le code, sans distinction
+%  - pour l'exécuter, j'oublie le code ghost
+% tout est dans le typage, qui garantit la non-interférence
+
+% 4. formalisation de Ghost-ML
+%    syntaxe, sémantique, typage avec effets (montrer le jugement),
+%      bien expliquer qu'il y a des choix à faire (mais aussi des*)
+%      obligations), l'opération erasure et la preuve
+
+\end{document}
+
+% Local Variables:
+% compile-command: "rubber -d slides"
+% ispell-local-dictionary: "francais"
+% End:

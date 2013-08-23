@@ -34,5 +34,8 @@
 *.synctex.gz
 /memoire/main.pdf
 /memoire/fiche.pdf
+/presentation/slides.pdf
+/presentation/slides.nav
+/presentation/slides.snm
 *~
 *.rel
