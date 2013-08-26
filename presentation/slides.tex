@@ -1,58 +1,301 @@
-\documentclass{beamer}
+%\documentclass{beamer}
+%
+%\usepackage[utf8]{inputenc}
+%\usepackage[french]{babel}
+%
+%\begin{document}
+%
+%\title{Deductive Verification of Stateful Second-Order Programs}
+%\author{Léon Gondelman}
+%\date{M2 internship \\ \today}
+%
+%\begin{frame}
+%  \maketitle
+%\end{frame}
 
-\usepackage[utf8]{inputenc}
-\usepackage[french]{babel}
 
+\documentclass[xcolor=dvipsnames]{beamer}
+\usepackage{etex}
+\usetheme{Pittsburgh}
+\usepackage{lmodern} \linespread{1.1}
+\usepackage[latin1]{inputenc}
+\usepackage[sc]{mathpazo} \linespread{1.1}
+\usepackage{changepage}
+ \usepackage{float}
+\usepackage{setspace}
+\usepackage{pstricks,pstricks-add,pst-math,pst-xkey}
+\usepackage{multicol}
+
+
+%\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{mathdots}
+\usepackage[usenames,dvipsnames]{}
+\usepackage{amssymb,amsfonts,amsthm,amsmath}
+\RequirePackage{listings}
+\RequirePackage{amssymb}
+\usepackage{tikz}
+
+\lstset{
+	xleftmargin=\parindent,
+  basicstyle={\ttfamily},
+%  framesep=2pt,
+%  frame=single,
+  keywordstyle={\color{blue}},
+  stringstyle=\itshape,
+  commentstyle=\itshape,
+  columns=[l]fullflexible,
+  showstringspaces=false,
+  mathescape=true
+}
+
+%\lstset{basicstyle={\ttfamily}}
+\lstdefinelanguage{whycode}{
+morekeywords=[1]{},%
+string=[b]",%
+showstringspaces=false,%
+stringstyle=\itshape,%
+commentstyle= \color{gray}\small\texttt, %
+columns=[l]fullflexible,%
+sensitive=true,%
+morecomment=[s]{(*}{*)},%
+escapeinside={*?}{?*},%
+keepspaces=true}
+\lstset{language=whycode,
+emph={add, double, edges, vertices, merge,
+len,  nand, even, ackermann},
+emphstyle=\color{black},
+emph=[2]{namespace,predicate,function,inductive,type,use,clone,%
+import,export,theory,end,in,match,with,let,ensures,requires,ensures,invariant, rec,variant,then,if,else,%
+goal,axiom,lemma,forall, induction},
+emphstyle=[2]\color{blue},
+emph=[3]{},
+emphstyle=[3]\color{ForestGreen},
+emph=[4]{S, Cons, O, True, False, true, false, Leaf, Node},
+emphstyle=[4]\color{black}}
+
+\lstset{language=whycode}
+\lstnewenvironment{whycode}{\lstset{language=whycode}}{}
+\let\why\lstinline
+%\newcommand{\blue[1]}{\color{blue}}
+\let\emph\alert
+\beamertemplatenavigationsymbolsempty
+\newcommand{\HRule}{\rule{\linewidth}{0.1mm}}
+
+\newenvironment{aquote}[1]
+  {\savebox\mybox{#1}\begin{quote}}
+  {\signed{\usebox\mybox}\end{quote}}
+
+\addtobeamertemplate{footline}{\hfill\insertframenumber/\inserttotalframenumber}
+
+
+
+\newcommand{\bwedge}{\boldsymbol{~\wedge~}}
+\newcommand{\bvee}{\boldsymbol{~\vee~}}
+\newcommand{\brarr}{\boldsymbol{~\Rightarrow~}}
+\setbeamertemplate{frametitle}{\vspace*{1em}\insertframetitle} 
+
+
+\newcommand{\rond}[1]{
+\tikz \node[draw,circle,scale=0.22,fill=red]{\black \Huge  \textbf{#1}};}
 \begin{document}
-
-\title{Deductive Verification of Stateful Second-Order Programs}
-\author{Léon Gondelman}
-\date{M2 internship \\ \today}
-
+\section*{Title}
 \begin{frame}
-  \maketitle
+\begin{center}
+\vspace{-1.cm}
+%\HRule
+
+\textsc{\blue{\Large Deductive Verification of \\[0.2cm] 
+Stateful Second-Order Programs }}\\
+%\HRule
+ \textsc{ \scriptsize master's degree second year internship}\\[0.4cm]
+{\small  L\'eon \textsc{Gondelman}}  \\[0.5cm]
+%\includegraphics[scale=0.15]{image_title3}
+\end{center}
 \end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 % 1. contexte, problème, exemple introductif (array_iter)
 % sum_loop et sum_iter en parallèle
+
 
 
 \begin{frame}\frametitle{}
    
 \end{frame}
 
-\begin{frame}\frametitle{}
-  \begin{columns}
-  \column{0.5\textwidth}
+\section*{Introduction}
+\subsection*{Computing the sum of array elements}
+\begin{frame}[fragile]\frametitle{Computing the sum of array elements}
+\begin{adjustwidth}{-0.7cm}{1.5cm}
+\begin{footnotesize}
+\begin{minipage}[t]{0.4\textwidth}
+\begin{whycode}  
+ let sum_loop (a: array int) 	
+ = let s = ref 0 in
+   let i = ref 0 in
+   while !i < a.length do
+     s := !s + a[!i];
+     i := !i + 1
+   done; 
+   !s 
+\end{whycode}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.4\textwidth}
+\begin{whycode} 
+  let sum_iter (a: array int)
+  = let s = ref 0 in
+    array_iter (fun x -> s := !s + x) a;  
+    !s
+\end{whycode}	
+\end{minipage}
+\end{footnotesize}
+\end{adjustwidth}
+\end{frame}
 
-		\begin{whycode}  
- let sum_loop (a: array int) =		
-  let s = ref 0 in
+\subsection*{Verifying Sum_loop}
+\newcommand{\OliveGreen}[1]{\textcolor{OliveGreen}{#1}}
+\begin{frame}[fragile]
+\frametitle<1>
+{Verifying program using loop}
+\frametitle<2>
+{(1)\quad write the specification of function}
+\frametitle<3>
+{(2)\quad annotate loop invariant}
+\frametitle<4-8>
+{(3)\quad generate verification conditions}
+%\frametitle<5>
+%{loop initialisation}
+%\frametitle<6>
+%{loop preservation}
+%\frametitle<7>
+%{loop postcondition}
+%\frametitle<8>
+%{array bound check}
+\vspace*{-3em}
+\begin{displaymath} 	
+\begin{array}{@{\hspace*{-1em}}l@{\hspace*{1.5em}}ll@{\hspace*{1em}}l}
+\only<5>{
+ \rond{vc1}	 
+ &\textcolor{red}{\emptyset}
+ &\textcolor{red}{\vdash}
+ &\textcolor{red}{(0 \leq 0 \bwedge 0 \leq n) \bwedge 0 = \sum_{~0\leq j < 0} a[j]}}
+
+\only<6>{
+	\rond{vc2}
+	&\textcolor{red}{\mathcal{I} \bwedge i < n}
+	&\textcolor{red}{ \vdash} 
+	&\textcolor{red}{ 0 \leq i \leq n}}
+
+
+\only<7>{
+	\rond{vc3}
+	&\textcolor{red}{\mathcal{I} \bwedge i < n}
+	&\textcolor{red}{\vdash} 
+	&\textcolor{red}{(0 \leq (i+1) \leq n) \bwedge s + a[i] = \sum_{~0 \leq j < i+1} a[j]}}
+
+
+\only<8>{
+	\rond{vc4}
+	&\textcolor{red}{ \mathcal{I} \bwedge i \geq n} 
+	&\textcolor{red}{ \vdash}
+	&\textcolor{red}{ s = \sum_{~0 \leq j < n} a[j]}}
+
+\end{array}
+\end{displaymath}
+\vspace*{-2em}
+\begin{normalsize}
+	\begin{whycode}  
+let sum_loop (a: array int) *?\only<2->{\\ 
+	\OliveGreen{\texttt{ensures}$\{~\sum_{~0 \leq j < \text{a.length}} a[j]~\}$}}?* 
+= let s = ref 0 in
   let i = ref 0 in
-  while !i < a.length do
-    s := !s + a[!i];
+  *?\only<5-8>{\hspace*{-2em}\rond{vc1}~}?*while !i < a.length do *?\only<3->{\\~~ 
+   \OliveGreen{\texttt{invariant} 
+  	$\{\mathcal{I:}~!s = \sum_{~0\leq j < i} a[j] ~\bwedge~ 0 \leq !i \leq \text{a.length}\}$}}?*
+ *?\only<6-8>{\hspace*{-1.5em}\rond{vc2}}?* s := !s + a[!i]; 
     i := !i + 1
-  done; !s 
- (*Array sum with while loop*)
-		\end{whycode}
-
-  \column{0.5\textwidth}
-
-
-		\begin{whycode} 
-  let sum_iter (a: array int) =		 
-    let s = ref 0 in
-    Array.iter (fun x -> s := !s + x) a;
-
-    (*Array sum with iterator*)
-		\end{whycode}	
-
-  et la colonne deux
-  \end{columns}
+ *?\only<7-8>{\hspace*{-1.5em}\rond{vc3}}?* done; 
+ *?\only<8>{\hspace*{-1.5em}\rond{vc4}}?* !s 
+\end{whycode}\vspace*{-0.5em}
+\end{normalsize}
 \end{frame}
 
-\begin{frame}\frametitle{}
+\begin{frame}
+\frametitle{(4)\quad use automated theorem provers}
+\begin{itemize}
+\item<1-> All verification conditions {\tiny \rond{vc1} - \rond{vc4}} are first-order formulas.
+\item<2-> Automated theorem provers easily prove them.
+\item<3-> {\color{red} Can we specify \texttt{sum\_iter} in a similar way ?}
+\item<4-> {\color{red} Can we generate first-order VCs from that specification ?}
+\end{itemize}
 \end{frame}
+
+\subsection*{Verifying Sum_iter}
+\begin{frame}[fragile]
+\frametitle<1>
+{Verifying program using array\_iter}
+\frametitle<2>
+{(1)\quad write the specification of functions}
+\frametitle<3>
+{(2)\quad annotate loop invariant}
+\frametitle<4-8>
+{(3)\quad generate verification conditions}
+
+\begin{footnotesize}
+\begin{minipage}[t]{0.3\linewidth}
+\begin{whycode}  
+   let array_iter ($\textcolor{red}{\text{f:int -> unit}}$) (b: array int)   
+   = let rec loop (i: int) =  
+       if i < b.length 
+       then ($\textcolor{red}{\text{f}}$ b[i] ; loop (i + 1)) 
+     in loop 0
+   
+   let sum_iter (a: array int)
+   =  let s = ref 0 in
+     array_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}$ a; 
+     !s 
+\end{whycode}
+\end{minipage}
+\end{footnotesize}
+\end{frame}
+
+\subsubsection*{Spec of array_inter}
+\begin{frame}[fragile]{blabla}
+\begin{footnotesize}
+\begin{whycode}  
+   let array_iter ($\textcolor{red}{\text{f:int -> unit}}$) (b: array int) ($\textcolor{red}{\text{inv:int -> array int -> prop}}$)    
+     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} 0~b \}}}$
+     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} b.length~b }\}}$  
+   = let rec loop (i: int)
+       $\textcolor{OliveGreen}{ \text{requires \{~\textcolor{red}{inv} i b} \bwedge \text{0 <= i <= b.length}~\}}$
+       $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} b.length~b}\}}$ =    
+       = if i < b.length then ($\textcolor{red}{\text{f}}$ b[i]; loop (i+1)) 
+     in loop 0       
+                                          (*array_iter partial specification*)
+\end{whycode}
+\begin{whycode} 
+ let sum_iter (a: array int) =$\pause$		 
+   let s = ref 0 in 
+   array_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}~$ a $\textcolor{red}{(\lambda i_{int}.\lambda c_{\texttt{array int}}. \sum_{~0\leq j < i} a[j])}$                    
+                                   (*invariant instantiation in the source code *)
+\end{whycode}
+\end{footnotesize}
+\end{frame}
+
+\subsubsection*{Annot of sum_iter}
+\begin{frame}[fragile]{blabla}
+d
+\end{frame}
+
+\subsubsection*{Inlining}
+\begin{frame}[fragile]{blabla}
+d
+\end{frame}
+
 
 % solution technique = inlining, dérouler sur l'exemple de sum_iter
 
@@ -60,6 +303,7 @@
 %    ce qui nous amène à Mini-ML = ML + références globales
 %    syntaxe, sémantique, système de types avec effets, preuve de type soundness
 %    identification d'un fragment de Mini-ML + définition inlining + preuve
+\subsection*{Inlining procedure}
 
 \begin{frame}\frametitle{}
 \end{frame}
@@ -90,7 +334,50 @@
 
 \end{document}
 
+
+%\subsubsection*{VCs}
+%\begin{frame}[fragile]\frametitle{Verification Conditions}
+%
+%\begin{footnotesize}
+%\begin{displaymath}
+%\begin{array}{@{\hspace*{-2.5em}}l@{\hspace*{1.5em}}rl@{\hspace*{1em}}l}
+%% \textsc{\scriptsize (Notations)} 
+%%  &  &  n:~~ \text{a.length} & \\
+%%  
+%%  & & & P:~~ s = \sum_{~0\leq j < i} a[j] ~\bwedge~ 0 \leq i \leq n \\[1em]
+%
+% \textsc{\scriptsize (loop initialisation)}  
+% & \emptyset 
+% &\vdash 
+% &(0 \leq 0 \bwedge 0 \leq n) \bwedge 0 = \sum_{~0\leq j < 0} a[j]	
+% \\[1em]
+%
+%	\textsc{\scriptsize (loop preservation)} 
+%	& P \bwedge i < n 
+%	&\vdash 
+%	&	(0 \leq (i+1) \leq n) \bwedge s + a[i] = \sum_{~0 \leq j < i+1} a[j]
+%	\\[1em]
+%
+%	\textsc{\scriptsize (array bound check)} 
+%	& P \bwedge i < n 
+%	& \vdash 
+%	& 0 \leq i \leq n 
+%	\\[1em]
+%
+%	\textsc{\scriptsize (postcondition)}  
+%	& P \bwedge i \geq n 
+%	& \vdash 
+%	& s = \sum_{~0 \leq j < n} a[j] 
+%
+%\end{array}
+%\end{displaymath}
+%\end{footnotesize}
+%\end{frame}
+
 % Local Variables:
 % compile-command: "rubber -d slides"
 % ispell-local-dictionary: "francais"
 % End:
+
+
+
