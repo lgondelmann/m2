@@ -64,20 +64,37 @@ morecomment=[s]{(*}{*)},%
 escapeinside={*?}{?*},%
 keepspaces=true}
 \lstset{language=whycode,
-emph={add, double, edges, vertices, merge,
-len,  nand, even, ackermann},
-emphstyle=\color{black},
-emph=[2]{namespace,predicate,function,inductive,type,use,clone,%
+emph={namespace,predicate,module,fun,while,done,function,inductive,type,use,clone,%
 import,export,theory,end,in,match,with,let,ghost,ensures,requires,ensures,invariant, rec,variant,then,if,else,%
 goal,axiom,lemma,forall, induction},
-emphstyle=[2]\color{blue},
-emph=[3]{},
-emphstyle=[3]\color{ForestGreen},
-emph=[4]{S, Cons, O, True, False, true, false, Leaf, Node},
-emphstyle=[4]\color{black}}
+emphstyle=\color{blue}}
 
 \lstset{language=whycode}
 \lstnewenvironment{whycode}{\lstset{language=whycode}}{}
+
+\label{whygray}
+\lstdefinelanguage{whygray}{
+morekeywords=[1]{},%
+string=[b]",%
+showstringspaces=false,%
+stringstyle=\itshape,%
+commentstyle= \color{gray}\small\texttt, %
+columns=[l]fullflexible,%
+sensitive=true,%
+morecomment=[s]{(*}{*)},%
+escapeinside={*?}{?*},%
+keepspaces=true}
+
+\lstnewenvironment{whygray}{
+\lstset{
+language=whygray, 
+stringstyle=\color{gray},
+emphstyle=\color{gray}}\gray}{\gray}
+
+
+
+
+
 \let\why\lstinline
 %\newcommand{\blue[1]}{\color{blue}}
 \let\emph\alert
@@ -95,8 +112,8 @@ emphstyle=[4]\color{black}}
 \newcommand{\bwedge}{\boldsymbol{~\wedge~}}
 \newcommand{\bvee}{\boldsymbol{~\vee~}}
 \newcommand{\brarr}{\boldsymbol{~\Rightarrow~}}
-\setbeamertemplate{frametitle}{\vspace*{1em}\hspace*{-1.5em}\insertframetitle} 
-
+\setbeamertemplate{frametitle}{\vspace*{1em}\hfill\insertframetitle} 
+\addtocounter{framenumber}{-1}
 
 \newcommand{\crond}[2]{
 \tikz \node[draw,circle,scale=0.21,fill=#2]{\black \Huge  \textbf{#1}};}
@@ -114,96 +131,137 @@ Stateful Second-Order Programs }}\\
 %\HRule
  \textsc{ \scriptsize master's degree second year internship}\\[0.4cm]
 {\small  L\'eon \textsc{Gondelman}}  \\[0.5cm]
+
 %\includegraphics[scale=0.15]{image_title3}
 \end{center}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
 % 1. contexte, problème, exemple introductif (array_iter)
 % sum_loop et sum_iter en parallèle
 
 
+\begin{frame}{Formal Verification Informally}
+\begin{quotation}
+ ''The most important property of a program is whether it accomplishes the intention of its user.''\\
+\hfill{\blue{C.A.R. Hoare}}
+\end{quotation}
+\bigskip
+\end{frame}
 
-\begin{frame}\frametitle{}
-   The most important property of a program is to correspond to the intentions of the programmer
+\begin{frame}
+\frametitle{Deductive program verification}
+Proof + program $\rightarrow$ mathematical statement  $\rightarrow$ proof \\[1cm]
+\pause
+  \begin{enumerate}
+  \item {\red specify} an (existing) program \pause
+
+  % \begin{center}
+  %   \includegraphics{approach3.mps}
+  % \end{center}
+  \item {\red generate} verification conditions \pause
+  \item {\red discharge} them, using
+    \begin{itemize}
+    \item ATP when possible
+    \item proof assistants otherwise
+    \end{itemize}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{}
+- used for  
+	-  imperative programs written in languages such as C and Java.  \\
+	-  first-order 
+	-  OK with ATPs
+
+- Recently, emergence of research works on the verification of higher-order \\
+	- functional programs (Yann, Coq, ...)\\
+	- stateful programs (Kanig, F-star, Arthur, ...)\\
+  - higher-order logic
+
+Challenge: proof automation ...
 \end{frame}
 
 \section*{Introduction}
 \subsection*{Computing the sum of array elements}
 \begin{frame}[fragile]\frametitle{Computing the sum of array elements}
-\begin{adjustwidth}{-0.7cm}{1.5cm}
-\begin{footnotesize}
+\begin{adjustwidth}{-0.3cm}{1.0cm}
+\begin{small}
 \begin{minipage}[t]{0.4\textwidth}
 \begin{whycode}  
- let sum_loop (a: array int) 	
- = let s = ref 0 in
-   let i = ref 0 in
-   while !i < a.length do
-     s := !s + a[!i];
-     i := !i + 1
-   done; 
-   !s 
+let sum_loop (a: int array)
+= let s = ref 0 in
+  let n = Array.length a in
+  let i = ref 0 in
+  while !i < n do
+    s := !s + a.(!i);
+    i := !i + 1
+  done;
+  !s
 \end{whycode}
 \end{minipage}\hfill
 \begin{minipage}[t]{0.4\textwidth}
 \begin{whycode} 
-  let sum_iter (a: array int)
-  = let s = ref 0 in
-    array_iter (fun x -> s := !s + x) a;  
-    !s
+let sum_iter (a: int array)
+= let s = ref 0 in
+  Array.iter 
+    (fun x -> s := !s + x) a;
+  !s
 \end{whycode}	
 \end{minipage}
-\end{footnotesize}
+\end{small}
 \end{adjustwidth}
 \end{frame}
 
-\subsection*{Verifying Sum_loop}
+\subsection*{Verifying Sum\_loop}
 \subsubsection*{Code}
 \newcommand{\OliveGreen}[1]{\textcolor{OliveGreen}{#1}}
 \newcommand{\Rouge}[1]{\textcolor{red}{#1}}
 \newcommand{\Noir}[1]{\textcolor{black}{#1}}
 \begin{frame}[fragile]
 \frametitle<1>
-{Verifying program using loop}
+{sum example with {loop}}
 \frametitle<2>
-{(1)\quad specification of function}
+{\quad program specification}
 \frametitle<3>
-{(2)\quad loop invariant annotation}
-\frametitle<4> 
-{(3)\quad verification conditions}
+{\quad loop invariant}
+\frametitle<4>
+{precondition}
 \frametitle<5>
-{loop initialisation}
-\frametitle<6>
-{loop preservation}
-\frametitle<7>
-{loop postcondition}
-\frametitle<8>
 {array bound check}
+\frametitle<6>
+{preservation}
+\frametitle<7>
+{postcondition}
 \vspace*{-3em}
 \begin{displaymath} 	
 \begin{array}{@{\hspace*{0em}}l@{\hspace*{1.5em}}ll@{\hspace*{1em}}l}
-\only<5>{
+
+\only<-3>{\vspace*{2em}}
+\only<4>{
  \rond{vc1}	 
  &\textcolor{red}{\emptyset}
  &\textcolor{red}{\vdash}
  &\textcolor{red}{(0 \leq 0 \bwedge 0 \leq n) \bwedge 0 = \sum_{~0\leq j < 0} a[j] \phantom{ phantom of the opera is here right now}}}
 
-\only<6>{
+\only<5>{
 	\rond{vc2}
 	&\textcolor{red}{\mathcal{I} \bwedge i < n}
 	&\textcolor{red}{ \vdash} 
-	&\textcolor{red}{ 0 \leq i \leq n} \phantom{phantom of the opera is here right now}}
+	&\textcolor{red}{ 0 \leq i < n} \phantom{phantom of the opera is here right now}}
 
 
-\only<7>{
+\only<6>{
 	\rond{vc3}
 	&\textcolor{red}{\mathcal{I} \bwedge i < n}
 	&\textcolor{red}{\vdash} 
-	&\textcolor{red}{(0 \leq (i+1) \leq n) \bwedge s + a[i] = \sum_{~0 \leq j < i+1} a[j] \phantom{phantom of the opera is here right now}}}
+	&\textcolor{red}{s + a[i] = \sum_{~0 \leq j < i+1} a[j] \bwedge (0 \leq (i+1) \leq n)   \phantom{phantom of the opera is here right now}}}
 
 
-\only<8>{
+\only<7>{
 	\rond{vc4}
 	&\textcolor{red}{ \mathcal{I} \bwedge i \geq n} 
 	&\textcolor{red}{ \vdash}
@@ -214,271 +272,364 @@ Stateful Second-Order Programs }}\\
 \vspace*{-2em}
 \begin{normalsize}
 	\begin{whycode}  
-let sum_loop (a: array int) *?\only<2->{\\ 
-	\OliveGreen{\texttt{ensures}$\{~\sum_{~0 \leq j < \text{a.length}} a[j]~\}$}}?* 
+let sum_loop (a: int array) *?\only<2->{\\ 
+	{\blue ensures} $\{\texttt{ {\blue result} = }{\red~\sum_{~0 \leq j < \text{a.length}} a[j]}~\}$}?* 
 = let s = ref 0 in
+  let n = Array.length a in
   let i = ref 0 in
-  *?\only<5>{\hspace*{-2em}\crond{vc1}{red}~}\only<6-8>{\hspace*{-2em}\crond{vc1}{gray}~}?*while !i < a.length do *?\only<3->{\\~~ 
-   \OliveGreen{\texttt{invariant} 
-  	$\{\mathcal{I:}~!s = \sum_{~0\leq j < i} a[j] ~\bwedge~ 0 \leq !i \leq \text{a.length}\}$}}?*
- *?\only<6>{\hspace*{-1.5em}\crond{vc2}{red}}\only<5,7-8>{\hspace*{-1.5em}\crond{vc2}{gray}}?* s := !s + a[!i]; 
+  *?\only<4>{\hspace*{-2em}\crond{vc1}{red}~}\only<5->{\hspace*{-2em}\crond{vc1}{gray}~}?*while !i < n do *?
+  
+  \only<3->{\\    
+  ${ \blue \hspace*{1em} \texttt{invariant}}  
+   ~\{{\red~\mathcal{I}: \texttt{!s = } \sum_{0\leq j < !i} a[j] \bwedge 0 \leq !i \leq \texttt{n}}~\}$} 
+  ?*
+	 	*?
+	 	\only<5>{\hspace*{-2em}\crond{vc2}{red}~}
+	 	\only<4,6->{\hspace*{-2em}\crond{vc2}{gray}~}?*  s := !s + a.(!i);  
     i := !i + 1
-  *?\only<7>{\hspace*{-2em}\crond{vc3}{red}}\only<5-6,8>{\hspace*{-2em}\crond{vc3}{gray}}?* done; 
- *?\only<8>{\hspace*{-1.5em}\crond{vc4}{red}}\only<5-7>{\hspace*{-1.5em}\crond{vc4}{gray}}?* !s 
+ *?\only<6>{\hspace*{-1.5em}\crond{vc3}{red}\hspace*{-0.0em}}
+ 	\only<4-5,7->{\hspace*{-1.5em}\crond{vc3}{gray}\hspace*{-0.0em}}?* done;
+ *?\only<4-6>{\hspace*{-1.5em}\crond{vc4}{gray}}\only<7->{\hspace*{-1.5em}\crond{vc4}{red}}?* !s 
 \end{whycode}\vspace*{-0.5em}
 \end{normalsize}
 \end{frame}
 
 \subsubsection*{Conclusion}
 \begin{frame}
-\frametitle{(4)\quad use automated theorem provers}
+\frametitle{automated proof}
 \begin{itemize}
-\item<1-> All verification conditions {\tiny \rond{vc1} - \rond{vc4}} are first-order formulas.
-\item<2-> Automated theorem provers easily prove them.
-\item<3-> {\color{red} Can we specify \texttt{sum\_iter} in a similar way ?}
+\item All verification conditions {\tiny \rond{vc1} - \rond{vc4}} are first-order formulas.
+\item Automated theorem provers easily prove them. 
 %\item<4-> {\color{red} Can we generate first-order VCs from that specification ?}
 \end{itemize}
+\bigskip\pause
+\begin{center}
+ {\color{red} Can we prove \texttt{sum\_iter} in a similar way ?}
+\end{center}
 \end{frame}
 
-\subsection*{Verifying Sum_iter}
+\subsection*{Verifying Sum\_iter}
 \subsubsection*{Code}
+
+
 \begin{frame}[fragile]
-\frametitle<1>
-{Verifying program using array\_iter}
-\frametitle<2>
-{(1)\quad write the specification of sum\_iter}
-\frametitle<3>
-{(2)\quad represent the loop invariant as argument of function}
-\frametitle<4>
-{(3)\quad invariant precondition and postcondition}
-\frametitle<5>
-{(3)\quad invariant preservation}
-
-
-\begin{footnotesize}
-\begin{minipage}[t]{0.3\linewidth}
-\begin{whycode}  
-   let array_iter  *?\only<3->{$\color{red}\texttt{(inv:int -> array int -> prop})$\\\hspace*{2em}}?* (f:int -> unit) (b: array int)*?\only<4->{\\ 
-	   \Rouge{$\hspace*{3em}\texttt{requires }\{\texttt{ inv 0 b }\}$} \\
-     \Rouge{$\hspace*{3em}\texttt{ensures  }\{\texttt{ inv b.length b}\bwedge \mbox{$0 \leq i \leq b.length$}~\}$}}?* 
-   = let rec loop (i: int) *?\only<5->{\\ 
-	   \Rouge{$\hspace*{4em}\texttt{requires }\{\texttt{ inv i b }\}$} \\
-     \Rouge{$\hspace*{4em}\texttt{ensures  }\{\texttt{ inv b.length b }\}$}}?*
-      = if i < b.length 
-       then (f b[i] ; loop (i + 1)) 
-     in loop 0
-   
-   let sum_iter (a: array int) *?\only<2->{\\\hspace*{3em} 
-	\OliveGreen{\texttt{ensures}$\{~\sum_{~0 \leq j < \text{a.length}} a[j]~\}$}}?* 
-   =  let s = ref 0 in
-     array_iter *?\only<3->{\Rouge{\mbox{$(\lambda \texttt{i:int}. \lambda \texttt{c:array int}. \sum_{~0\leq j < i} c[j]))$}\\\hspace*{3em}}}?* (fun x -> s := !s + x) a; 
+\frametitle<1>{sum example with {iterator}}
+\frametitle<2>{program specification}
+\frametitle<3>{invariant formula}
+\begin{whycode}
+ let sum_iter (a: int array) *?\only<2->{\\
+	{\blue \texttt{ ensures }}\{\texttt{ {\blue result} =} 
+	${\red ~\sum_{~0 \leq j < \text{a.length}} a[j]~}$\}}?* 
+ = let s = ref 0 in
+   Array.iter*?
+   \only<3->{\\\hspace*{3.5em}
+   {\red(fun i -> !s = $\sum_{~0\leq j < i} a[j]$)}\\}?* 
+       (fun x ->  s := !s + x) a; 
      !s 
 \end{whycode}
-\end{minipage}
-\end{footnotesize}
 \end{frame}
 
-\subsubsection*{Problem}
-\begin{frame}
-\frametitle<1-3>{\quad  Yes, but ...}
-\frametitle<4->{\quad Pragmatic approach:}
-\begin{itemize}
-\item[-]<1-> function \texttt{Array\_iter} is second-order code;
-\item[-]<2-> invariant \texttt{inv} is a second-order formula;
-\item[-]<3-> {\color{red} we cannot generate first-order VCs.}\\[1cm]
-%\item[-]<4-> { Yes, by second-order inlining !}\\[1em]
-\only<4->{ A simple solution:}~\\[0.5em]
-\begin{itemize}
-\item[\color{blue} 1)]<4-> {\color{blue} inline the definition of array\_iter};\\[1em]
-\item[\color{blue} 2)]<4-> {\color{blue} instantiate functional parameters \texttt{f} and \texttt{inv} }.
-\end{itemize}
-\end{itemize}
+\begin{frame}[fragile]
+\frametitle<1>{iterator specification}
+\frametitle<2>{additional parameter}
+\frametitle<3>{loop initial and final states}
+\frametitle<4>{loop preservation}
+\frametitle<5-6>{pros and cons}
+\frametitle<7>{an existing solution}
+\frametitle<8>{inlining}
+\begin{whycode}  
+let iter *?\only<2->{{\red \texttt{(inv:int -> prop) }}}?*(f:int -> unit) (b: int array) *?\only<3->{\\ 
+\texttt{\blue requires }\{{\red \texttt{ inv 0 }}\} \\
+\texttt{\blue ensures~  }\{{\red \texttt{ inv b.length }}\}}?* 
+= let rec aux (i: int) *?\only<4->{\\
+\texttt{~~\blue requires }\{{\red \texttt{ inv i} $\bwedge (0 \leq i \leq b.length)$}        \} \\
+\texttt{~~\blue ensures~   }\{{\red \texttt{ inv b.length }}\}}?*  
+  = if i < Array.length b 
+    then (f b[i] ; aux (i + 1)) 
+  in aux 0
+\end{whycode} 
+\bigskip
+\only<5>{
+$$ \fbox{\texttt{{\blue pros}: specification above is {\blue modular}}} $$}
+\only<6>{
+$$ \fbox{\texttt{{\red cons}: specification above is {\red partial}}} $$}
+\only<7>{
+ $$\texttt{\OliveGreen{complete the specification}}$$\vspace*{-1.5em} 
+$$ \textcolor{purple}{\texttt{may be difficult to prove automatically}}$$
+}
+\only<8>{
+$$ \texttt{\OliveGreen{\underline{inline} the definition of iterator}} $$
+\vspace*{-1.5em} 
+$$ \hspace*{0.5em}\texttt{\OliveGreen{\underline{instantiate} functional arguments}}$$}
 \end{frame}
+
+
+%
+%\subsubsection*{Problem}
+%\begin{frame}
+%\frametitle<1-3>{\quad  Yes, but ...}
+%\frametitle<4->{\quad Pragmatic approach:}
+%\begin{itemize}
+%\item[-]<1-> function \texttt{Array\_iter} is second-order code;
+%\item[-]<2-> invariant \texttt{inv} is a second-order formula;
+%\item[-]<3-> {\color{red} we cannot generate first-order VCs.}\\[1cm]
+%%\item[-]<4-> { Yes, by second-order inlining !}\\[1em]
+%\only<4->{ A simple solution:}~\\[0.5em]
+%\begin{itemize}
+%\item[\color{blue} 1)]<4-> {\color{blue} inline the definition of array\_iter};\\[1em]
+%\item[\color{blue} 2)]<4-> {\color{blue} instantiate functional parameters \texttt{f} and \texttt{inv} }.
+%\end{itemize}
+%\end{itemize}
+%\end{frame}
+%
+
 \subsubsection*{Solution:Second-Order Inlining}
 \begin{frame}[fragile]
-\frametitle<1>
-{Inline \texttt{array\_iter} definition}
+%\frametitle{\OliveGreen{inline definition of iterator}}
+\vspace*{0em}
 \begin{footnotesize}
-\begin{minipage}[t]{0.3\linewidth}
+\begin{whycode} 
+module Array 
+... 
+   let iter (inv:int -> prop) (f:int -> unit) (b: int array)
+   requires { inv 0 } 
+   ensures  { inv b.length } 
+   = let rec aux (i: int)
+     requires { inv i$\bwedge 0 \leq \texttt{i} \leq \texttt{b.length}$ }
+     ensures  { inv b.length }
+     = if i < Array.length b
+       then (f b[i] ; aux (i + 1)) 
+     in aux 0
+...
+end
 
-\begin{whycode} 
-   let array_iter  $\color{black}\texttt{(inv:int -> array int -> prop})$ 
-   (f:int -> unit) (b: array int)
-	   $\Noir{\\ \hspace*{1em}\texttt{\blue requires }\{\texttt{ inv 0 b }\} }$
-     $\Noir{\\ \hspace*{0em}\texttt{\blue ensures  }\{\texttt{ inv b.length b}\bwedge 0 \leq i \leq b.length~\}}$ 
-   = let rec loop (i: int)
-	   $\Noir{\hspace*{2em}\texttt{\blue requires }\{\texttt{ inv i b }\}}$
-     $\Noir{\hspace*{1em}\texttt{\blue ensures  }\{\texttt{ inv b.length b }\}}$
-      = if i < b.length 
-       then (f b[i] ; loop (i + 1)) 
-     in loop 0
-  
-   let sum_iter (a: array int) 
-	$\hspace*{2em}\Noir{\texttt{\blue ensures}\{~\sum_{~0 \leq j < \text{a.length}} a[j]~\}}$
-   =  let s = ref 0 in
-     array_iter $\Noir{(\lambda \texttt{i:int}. \lambda \texttt{c:array int}. \sum_{~0\leq j < i} c[j]))}$
-                (fun x -> s := !s + x) a; 
-     !s
-\end{whycode}
-\end{minipage}
+let sum_iter (a: int array) 
+ensures { $\texttt{result = }\sum_{~0 \leq j < \text{a.length}} a[j]$ }
+= let s = ref 0 in
+  Array.iter 
+    (fun i -> !s = $\sum_{~0\leq j < i} a[j]$) (fun x -> s := !s + x) a; 
+  !s
+\end{whycode} 
 \end{footnotesize}
 \end{frame}
+\addtocounter{framenumber}{-1}
 
-\addtocounter{framenumber}{-1}
-\subsubsection*{Inline array_iter definition}
-\begin{frame}[fragile]
-{Inline \texttt{array\_iter} definition}
-\begin{footnotesize}
-\begin{minipage}[t]{0.3\linewidth}
 
-\begin{whycode} 
-   $\color{gray}\texttt{let sum\_iter (a: array int)}$
-	$\hspace*{2em}\color{gray}\texttt{ensures}\{~\sum_{~0 \leq j < \text{a.length}} a[j]~\}$
-   $\color{gray}\texttt{=  let s = ref 0 in}$
-      let array_iter  $\color{black}\texttt{(inv:int -> array int -> prop})$ 
-      (f:int -> unit) (b: array int)
-	      $\Noir{\\ \hspace*{1em}\texttt{\blue requires }\{\texttt{ inv 0 b }\} }$
-        $\Noir{\\ \hspace*{0em}\texttt{\blue ensures  }~\{\texttt{ inv b.length b}\bwedge 0 \leq i \leq b.length~\}}$ 
-      = let rec loop (i: int)
-	      $\Noir{\hspace*{2em}\texttt{\blue requires }\{\texttt{ inv i b }\}}$
-        $\Noir{\hspace*{1em}\texttt{\blue ensures  }~\{\texttt{ inv b.length b }\}}$
-        = if i < b.length 
-          then (f b[i] ; loop (i + 1)) 
-        in loop 0   
-      in $\color{gray}\texttt{array\_iter }{(\lambda \texttt{i:int}. \lambda \texttt{c:array int}. \sum_{~0\leq j < i} c[j]))}$
-                $\color{gray}\texttt{(fun x -> s := !s + x) a;}$
-     $\color{gray}\texttt{!s}$
-\end{whycode}
-\end{minipage}
-\end{footnotesize}
-\end{frame}
-\addtocounter{framenumber}{-1}
-\subsubsection*{Instantiate the invariant formula}
+
+
 \begin{frame}[fragile]
-{Instantiate the invariant formula}
+\frametitle{\OliveGreen{inline iter}}
+\vspace*{0em}
 \begin{footnotesize}
-\begin{minipage}[t]{0.3\linewidth}
-\begin{whycode} 
-   $\color{black}\texttt{let sum\_iter (a: array int)}$
-	$\hspace*{2em}\texttt{\blue ensures}\{~\sum_{~0 \leq j < \text{a.length}} a[j]~\}$
-   $\color{black}\texttt{=  let s = ref 0 in}$
-      let array_iter  $\color{red}\texttt{(inv:int -> array int -> prop})$ 
-      (f:int -> unit) (b: array int)
-	      $\Noir{\\ \hspace*{1em}\texttt{\blue requires }\{\texttt{ inv 0 b }\} }$
-        $\Noir{\\ \hspace*{0em}\texttt{\blue ensures  }~\{\texttt{ inv b.length b}\bwedge 0 \leq i \leq b.length~\}}$ 
-      = let rec loop (i: int)
-	      $\Noir{\hspace*{2em}\texttt{\blue requires }\{\texttt{ inv i b }\}}$
-        $\Noir{\hspace*{1em}\texttt{\blue ensures  }~\{\texttt{ inv b.length b }\}}$
-        = if i < b.length 
-          then (f b[i] ; loop (i + 1)) 
-        in loop 0   
-      in $\color{black}\texttt{array\_iter }{\color{red}(\lambda \texttt{i:int}. \lambda \texttt{c:array int}. \sum_{~0\leq j < i} c[j]))}$
-                $\color{black}\texttt{(fun x -> s := !s + x) a;}$
-     $\color{black}\texttt{!s}$
-\end{whycode}
-\end{minipage}
+\begin{whygray}
+let sum_iter (a: int array) 
+ensures { $\texttt{result = }\sum_{~0 \leq j < \text{a.length}} a[j]$ }
+= let s = ref 0 in 
+\end{whygray}\vspace*{-1.15em} 
+\begin{whycode}
+  let iter (inv:int -> prop) (f:int -> unit) (b: int array)
+  requires { inv 0 } 
+  ensures  { inv b.length } 
+  = let rec aux (i: int)
+    requires { inv i$\bwedge 0 \leq \texttt{i} \leq \texttt{b.length}$ }
+    ensures  { inv b.length }
+    = if i < Array.length b
+      then (f b[i] ; aux (i + 1)) 
+    in aux 0 \end{whycode} \vspace*{-1.15em} 
+ \begin{whygray}
+  in iter (fun i -> !s = $\sum_{~0\leq j < i} a[j]$) (fun x -> s := !s + x) a; 
+  !s
+\end{whygray}
 \end{footnotesize}
 \end{frame}
 \addtocounter{framenumber}{-1}
+
+
+\subsubsection*{instantiate invariant}
 \begin{frame}[fragile]
-{Instantiate the invariant formula}
+\frametitle{\OliveGreen{instantiate inv}}
+\vspace*{0em}
 \begin{footnotesize}
-\begin{minipage}[t]{0.3\linewidth}
-\begin{whycode} 
-   $\texttt{let sum\_iter (a: array int)}$
-	$\hspace*{2em}\texttt{\blue ensures}\{~\sum_{~0 \leq j < \texttt{a.length}} a[j]~\}$
-   $\color{black}\texttt{=  let s = ref 0 in}$
-      let array_iter (f:int -> unit) (b: array int)
-	      $\\ \hspace*{1em}\texttt{\blue requires }\{\Rouge{~\sum_{~0 \leq j < 0} b[j]~}\} $
-        $\\ \hspace*{0em}\texttt{\blue ensures  }~\{\Rouge{~\sum_{~0 \leq j < b.length} b[j]}~\bwedge 0 \leq i \leq b.length~\}$ 
-      = let rec loop (i: int)
-	      $\\ \hspace*{2em}\texttt{\blue requires }\{\Rouge{~\sum_{~0 \leq j < i} b[j]~}\} $
-        $\\ \hspace*{1em}\texttt{\blue ensures  }~\{\Rouge{~\sum_{~0 \leq j < b.length}}\}$
-        = if i < b.length 
-          then (f b[i] ; loop (i + 1)) 
-        in loop 0   
-      in ${\color{black}\texttt{array\_iter }}$ ${\color{black}\texttt{(fun x -> s := !s + x) a;}}$
-     ${\color{black}\texttt{!s}}$
+\begin{whycode}
+let sum_iter (a: int array) 
+ensures { $\texttt{result = }\sum_{~0 \leq j < \text{a.length}} a[j]$ }
+= let s = ref 0 in 
+  let iter ${\red \texttt{(inv:int -> prop)}}$ (f:int -> unit) (b: int array)
+  requires { inv 0 } 
+  ensures  { inv b.length } 
+  = let rec aux (i: int)
+    requires { inv i$\bwedge 0 \leq \texttt{i} \leq \texttt{b.length}$ }
+    ensures  { inv b.length }
+    = if i < Array.length b
+      then (f b[i] ; aux (i + 1)) 
+    in aux 0
+  in iter ${\red \texttt{(fun i -> !s = } \sum_{~0\leq j < i} a[j])}$ (fun x -> s := !s + x) a; 
+  !s
 \end{whycode}
-\end{minipage}
 \end{footnotesize}
 \end{frame}
 \addtocounter{framenumber}{-1}
+
+
+\begin{frame}[fragile]
+\frametitle{\OliveGreen{instantiate inv}}
+\vspace*{0em}
+\begin{footnotesize}
+\begin{whycode}
+let sum_iter (a: int array) 
+ensures { $\texttt{result = }\sum_{~0 \leq j < \text{a.length}} a[j]$ }
+= let s = ref 0 in 
+  let iter (f:int -> unit) (b: int array)
+  requires { ${\red \texttt{!s = } \sum_{~0\leq j < 0} \texttt{ a[j]})}$ } 
+  ensures  { ${\red \texttt{!s = } \sum_{~0\leq j < \texttt{b.length}} \texttt{a[j]}})$ } 
+  = let rec aux (i: int)
+    requires { inv i$\bwedge 0 \leq \texttt{i} \leq \texttt{b.length}$ }
+    ensures  { inv b.length }
+    = if i < Array.length b
+      then (f b[i] ; aux (i + 1)) 
+    in aux 0
+  in iter (fun x -> s := !s + x) a; 
+  !s
+\end{whycode}
+\end{footnotesize}
+\end{frame}
+\addtocounter{framenumber}{-1}
+
+
+
+\begin{frame}[fragile]
+\frametitle{\OliveGreen{instantiate inv}}
+\vspace*{0em}
+\begin{footnotesize}
+\begin{whycode}
+let sum_iter (a: int array) 
+ensures { $\texttt{result = }\sum_{~0 \leq j < \text{a.length}} a[j]$ }
+= let s = ref 0 in 
+  let iter (f:int -> unit) (b: int array)
+  requires { ${\red \texttt{!s = } \sum_{~0\leq j < 0} \texttt{ a[j]})}$ } 
+  ensures  { ${\red \texttt{!s = } \sum_{~0\leq j < \texttt{b.length}} \texttt{a[j]}})$ } 
+  = let rec aux (i: int)
+    requires { ${\red \texttt{!s = } \sum_{~0\leq j < \texttt{i}} \texttt{a[j]}} \bwedge 0 \leq \texttt{i} \leq \texttt{b.length}$ }
+    ensures  { ${\red \texttt{!s = } \sum_{~0\leq j < \texttt{b.length}} \texttt{a[j]}}$ }
+    = if i < Array.length b
+      then (f b[i] ; aux (i + 1)) 
+    in aux 0
+  in iter (fun x -> s := !s + x) a; 
+  !s
+\end{whycode}
+\end{footnotesize}
+\end{frame}
+\addtocounter{framenumber}{-1}
+
 \subsubsection*{Instantiate function f}
 \begin{frame}[fragile]
-{Instantiate function \texttt{f}}
+\frametitle{\OliveGreen{instantiate f}}
+\vspace*{0em}
 \begin{footnotesize}
-\begin{minipage}[t]{0.3\linewidth}
-\begin{whycode} 
-   $\color{black}\texttt{let sum\_iter (a: array int)}$
-	$\hspace*{2em}\color{black}\texttt{\blue ensures}\{~\sum_{~0 \leq j < \texttt{a.length}} a[j]~\}$
-   $\color{black}\texttt{=  let s = ref 0 in}$
-      let array_iter $\Rouge{\texttt{(f:int -> unit)}}$ (b: array int)
-	      $\\ \hspace*{1em}\texttt{\blue requires }\{\Noir{~\sum_{~0 \leq j < 0} b[j]~}\} $
-        $\\ \hspace*{0em}\texttt{\blue ensures  }~\{\Noir{~\sum_{~0 \leq j < b.length} b[j]}~\bwedge 0 \leq i \leq b.length~\}$ 
-      = let rec loop (i: int)
-	      $\\ \hspace*{2em}\texttt{\blue requires }\{\Noir{~\sum_{~0 \leq j < i} b[j]~}\} $
-        $\\ \hspace*{1em}\texttt{\blue ensures  }~\{\Noir{~\sum_{~0 \leq j < b.length}}\}$
-        = if i < b.length 
-          then (f b[i] ; loop (i + 1)) 
-        in loop 0   
-      in ${\color{black}\texttt{array\_iter }}$ ${\color{red}\texttt{(fun x -> s := !s + x)}}$ a;
-     ${\color{black}\texttt{!s}}$
+\begin{whycode}
+let sum_iter (a: int array) 
+ensures { $\texttt{result = }\sum_{~0 \leq j < \text{a.length}} a[j]$ }
+= let s = ref 0 in 
+  let iter (f:int -> unit) (b: int array)
+  requires { ${ \texttt{!s = } \sum_{~0\leq j < 0} \texttt{ a[j]})}$ } 
+  ensures  { ${ \texttt{!s = } \sum_{~0\leq j < \texttt{b.length}} \texttt{a[j]}})$ } 
+  = let rec aux (i: int)
+    requires { ${ \texttt{!s = } \sum_{~0\leq j < \texttt{i}} \texttt{a[j]}} \bwedge 0 \leq \texttt{i} \leq \texttt{b.length}$ }
+    ensures  { ${ \texttt{!s = } \sum_{~0\leq j < \texttt{b.length}} \texttt{a[j]}}$ }
+    = if i < Array.length b
+      then (${\red\texttt{f}}$ b[i] ; aux (i + 1)) 
+    in aux 0
+  in iter ${\red\texttt{(fun x -> s := !s + x)}}$ a; 
+  !s
 \end{whycode}
-\end{minipage}
 \end{footnotesize}
 \end{frame}
 \addtocounter{framenumber}{-1}
 
 \begin{frame}[fragile]
-{Instantiate function \texttt{f}}
+\frametitle{\OliveGreen{instantiate f}}
+\vspace*{0em}
 \begin{footnotesize}
-\begin{minipage}[t]{0.3\linewidth}
-\begin{whycode} 
-   $\color{black}\texttt{let sum\_iter (a: array int)}$
-	$\hspace*{2em}\color{black}\texttt{\blue ensures}\{~\sum_{~0 \leq j < \texttt{a.length}} a[j]~\}$
-   $\color{black}\texttt{=  let s = ref 0 in}$
-      let array_iter (b: array int)
-	      $\\ \hspace*{1em}\texttt{\blue requires }\{\Noir{~\sum_{~0 \leq j < 0} b[j]~}\} $
-        $\\ \hspace*{0em}\texttt{\blue ensures  }~\{\Noir{~\sum_{~0 \leq j < b.length} b[j]}~\bwedge 0 \leq i \leq b.length~\}$ 
-      = let rec loop (i: int)
-	      $\\ \hspace*{2em}\texttt{\blue requires }\{\Noir{~\sum_{~0 \leq j < i} b[j]~}\} $
-        $\\ \hspace*{1em}\texttt{\blue ensures  }~\{\Noir{~\sum_{~0 \leq j < b.length}}\}$
-        = if i < b.length 
-          then (${\color{red}\texttt{s := !s + b[i]}}$; loop (i + 1)) 
-        in loop 0   
-      in ${\color{black}\texttt{array\_iter}}$ a;
-     ${\color{black}\texttt{!s}}$
+\begin{whycode}
+let sum_iter (a: int array) 
+ensures { $\texttt{result = }\sum_{~0 \leq j < \text{a.length}} a[j]$ }
+= let s = ref 0 in 
+  let iter (f:int -> unit) (b: int array)
+  requires { ${ \texttt{!s = } \sum_{~0\leq j < 0} \texttt{ a[j]})}$ } 
+  ensures  { ${ \texttt{!s = } \sum_{~0\leq j < \texttt{b.length}} \texttt{a[j]}})$ } 
+  = let rec aux (i: int)
+    requires { ${ \texttt{!s = } \sum_{~0\leq j < \texttt{i}} \texttt{a[j]}} \bwedge 0 \leq \texttt{i} \leq \texttt{b.length}$ }
+    ensures  { ${ \texttt{!s = } \sum_{~0\leq j < \texttt{b.length}} \texttt{a[j]}}$ }
+    = if i < Array.length b
+      then (${\red\texttt{s := !s + b[i]}}$ ; aux (i + 1)) 
+    in aux 0
+  in iter a; 
+  !s
 \end{whycode}
-\end{minipage}
 \end{footnotesize}
 \end{frame}
+\addtocounter{framenumber}{-1}
 
-\section*{Inlining: General Approach}
-\subsection*{Question}
-\begin{frame}\frametitle<1->{\quad Generalizing approach for second-order programs}
-%\frametitle<2->{\quad \color{red} }
-\vspace*{-4em}
-An annotated {\red second-order} program $\mathcal{P}$ of some language $\mathcal{L}$ with 
+
+\section*{Inlining}
+\begin{frame}
+ \begin{itemize}
+ 	\item[] $${\large \red \texttt{Inlining}}$$
+ 	\begin{center}
+% 	\includegraphics[scale=0.31]{GhostBusters}
+ 	\end{center} 
+ \end{itemize}
+\end{frame}
+\addtocounter{framenumber}{-1}
+
+\subsection*{our contribution}
+\begin{frame}[fragile]
+\frametitle{our contribution}
+
+figure TODO \\
+\bigskip
+\begin{enumerate}
+\item we identified the fragment of ML where inlining can be done
 \begin{itemize}
-\item[-]<1-> data structures: arrays, second-order functions, ...
-\item[-]<1-> side effects: mutable references, recursive functions, ...
+\item syntax, semantics, type system with effects, typing restrictions
+\item inlining formal description
+\end{itemize} 
+\item we proved that our inlining procedure is sound:
+\begin{itemize}
+\item inlining always terminates
+\item inlining preserves the semantics
 \end{itemize}
-becomes a {\red first-order} annotated program $\mathcal{I(P)}$.\\[2em]
-
-\only<2->{\textbf{Can we use the VCs generated from $\mathcal{I(P)}$ to verify  $\mathcal{P}$}? } ~ \\[0.5em]
-\only<4->{{\blue \quad Yes, but we must prove that $\mathcal{P}$ and $\mathcal{I(P)}$ are equivalent.}} ~ \\[0.5em]
-\only<3->{\textbf{ Can we generalize our approach for \textit{any} such program $\mathcal{P}$?}} ~ \\[0.5em]
-\only<5->{{\blue \quad It depends on what is $\mathcal{L}$.}} 
-%\only<5->{{\blue \quad No for any \textit{arbitrary} second-order program.} } ~ \\
-%\only<5->{{\blue \quad Yes for any program of some restricted \textit{subset} of programs similar to \texttt{sum\_iter}}}.
+\end{enumerate}
 \end{frame}
 
-\subsection*{Les Liaisons Dangeureuses}
 
-\begin{frame}[fragile]\frametitle{Les Liaisons dangeureuses}
+
+% 2. quelles difficultés
+%    ce qui nous amène à Mini-ML = ML + références globales
+%    syntaxe, sémantique, système de types avec effets, preuve de type soundness
+%    identification d'un fragment de Mini-ML + définition inlining + preuve
+
+%\begin{frame}\frametitle<1->{\quad Generalizing approach for second-order programs}
+%%\frametitle<2->{\quad \color{red} }
+%\vspace*{-4em}
+%An annotated {\red second-order} program $\mathcal{P}$ of some language $\mathcal{L}$ with 
+%\begin{itemize}
+%\item[-]<1-> data structures: arrays, second-order functions, ...
+%\item[-]<1-> side effects: mutable references, recursive functions, ...
+%\end{itemize}
+%becomes a {\red first-order} annotated program $\mathcal{I(P)}$.\\[2em]
+%
+%\only<2->{\textbf{Can we use the VCs generated from $\mathcal{I(P)}$ to verify  $\mathcal{P}$}? } ~ \\[0.5em]
+%\only<4->{{\blue \quad Yes, but we must prove that $\mathcal{P}$ and $\mathcal{I(P)}$ are equivalent.}} ~ \\[0.5em]
+%\only<3->{\textbf{ Can we generalize our approach for \textit{any} such program $\mathcal{P}$?}} ~ \\[0.5em]
+%\only<5->{{\blue \quad It depends on what is $\mathcal{L}$.}} 
+%%\only<5->{{\blue \quad No for any \textit{arbitrary} second-order program.} } ~ \\
+%%\only<5->{{\blue \quad Yes for any program of some restricted \textit{subset} of programs similar to \texttt{sum\_iter}}}.
+%\end{frame}
+
+\subsection*{identify fragment}
+\begin{frame}[fragile]\frametitle{les liaisons dangereuses}
 \begin{small}
-
 \begin{whycode} 
 ${\red \only<1>{\mathcal{P}_1}\only<2->{\mathcal{P}_2}}$: 
    let F = 
@@ -493,23 +644,22 @@ ${\red\only<1>{ \mathcal{I}(P_1)}\only<2->{\mathcal{I}(P_2)}}: \only<1>{\texttt{
 *?%$\hspace*{8em}\only<2>{\mathcal{I}(P_1)_{\{r=0\}} \longrightarrow^{\star} 3_{\{r=2\}}}\only<4>{\mathcal{I}(P_2)_{\{r=0\}} \longrightarrow^{\star} ()_{\{r=0\}}}$      
 ?*
 \end{whycode}
-\only<3->{If we define $\mathcal{L}$ as the whole set of ML programs, inlining is incomplete.}
 \end{small}
 \end{frame}
 
-
-\subsection*{Defining the subset of second-order programs}
+\subsection*{type system with effects}
 \begin{frame}[fragile]
-%\frametitle{Restrictions on the second-order programs}
-\hspace*{-2em} \mbox{{\blue Our approach}: identify the subset of ML language in which we can write}\vspace*{-0.5em}
+\frametitle{experimental language}
+%\hspace*{-2em} \mbox{{\blue Our approach}: identify the subset of ML language in which we can write}\vspace*{-0.5em}
+%\begin{itemize}
+%\item[-] interesting examples like sum\_iter;
+%\item[-] only programs we can inline correctly.\\[1em]
+%\end{itemize}\pause
+%{\hspace*{-2em} \blue A hint of the solution}: 
+a fragment of ML with
 \begin{itemize}
-\item[-] interesting examples like sum\_iter;
-\item[-] only programs we can inline correctly.\\[1em]
-\end{itemize}\pause
-
-{\hspace*{-2em} \blue A hint of the solution}: 
-\begin{itemize}
-	\item[-] {\red order} types according to their degree:\\[0.5em]
+	\item[-] references, recursion, integers, integer lists
+	\item[-] {\red second-order} typed terms\\[0.5em]
 		\begin{itemize}	
 		\begin{footnotesize} 
 			\item[] \qquad$\tau^{\red 0}:\{\texttt{ int, bool,... }\}$
@@ -518,7 +668,7 @@ ${\red\only<1>{ \mathcal{I}(P_1)}\only<2->{\mathcal{I}(P_2)}}: \only<1>{\texttt{
 		\end{footnotesize}
 		\end{itemize}
 		 \pause
-	\item[-] use the typing system {\red with effects}:\\[0.5em]
+	\item[-] a type system {\red with effects}:\\[0.5em]
 		\begin{itemize}
 			\item[] \qquad $\Gamma \vdash t^{i}: \tau, {\red \theta, \rho} $
 		\end{itemize}
@@ -592,11 +742,14 @@ ${\red\only<1>{ \mathcal{I}(P_1)}\only<2->{\mathcal{I}(P_2)}}: \only<1>{\texttt{
 
 \subsection*{Ghost properties informally}
 \begin{frame}
-	
-% un pgm avec du code ghost :
-%  - pour le prouver, je prends *tout* le code, sans distinction
-%  - pour l'exécuter, j'oublie le code ghost
-% tout est dans le typage, qui garantit la non-interférence
+\frametitle{\red{Ghost code}}
+	may be inserted for the purpose of specification and/or proof.
+	\begin{itemize}
+	\item[\red $\bullet$] regular code does not see ghost data
+	\item[\red $\bullet$] ghost code may read regular data (but cannot modify it)
+	\end{itemize}
+in particular, ghost code may be removed without observable modification
+
 
 \end{frame}
 
@@ -657,43 +810,43 @@ ${\gray\texttt{let list\_iter (inv:int list -> int list -> unit)}}$
 \end{frame}
 
 \subsection*{Intro example}
-\begin{frame}[fragile]
-\frametitle{Verification: there and back again}
-%We can inline and prove sum\_iter with lists alike we did with arrays. \\
-%What if we want to go back to unspecified version of list\_iter ?
-\begin{footnotesize}
-\begin{whycode}
-let list_iter ($\textcolor{red}{\text{inv:int list -> unit}})$ 
-    (f:int -> unit) (l: int list)
- = let rec loop (ai: int list) $(\textcolor{red}{\text{bi: int list}})$
-    = match ai with 
-       | Nil       -> ()
-       | Cons x xs -> f x; loop xs $(\textcolor{red}{\text{Cons x bi}})$) end
-   in loop l Nil
-\end{whycode}
-\end{footnotesize}
-%OK for \texttt{inv}. What to do with \texttt{bi} ?
-\end{frame}
-\addtocounter{framenumber}{-1}
+%\begin{frame}[fragile]
+%\frametitle{Verification: there and back again}
+%%We can inline and prove sum\_iter with lists alike we did with arrays. \\
+%%What if we want to go back to unspecified version of list\_iter ?
+%\begin{footnotesize}
+%\begin{whycode}
+%let list_iter ($\textcolor{red}{\text{inv:int list -> unit}})$ 
+%    (f:int -> unit) (l: int list)
+% = let rec loop (ai: int list) $(\textcolor{red}{\text{bi: int list}})$
+%    = match ai with 
+%       | Nil       -> ()
+%       | Cons x xs -> f x; loop xs $(\textcolor{red}{\text{Cons x bi}})$) end
+%   in loop l Nil
+%\end{whycode}
+%\end{footnotesize}
+%%OK for \texttt{inv}. What to do with \texttt{bi} ?
+%\end{frame}
+%\addtocounter{framenumber}{-1}
 
 
-\begin{frame}[fragile]
-\frametitle{Program specification: there and back again}
-%We can inline and prove sum\_iter with lists alike we did with arrays. \\
-%What if we want to go back to unspecified version of list\_iter ?
-\begin{footnotesize}
-\begin{whycode}
-let list_iter (f:int -> unit) (l: int list)
- = let rec loop (ai: int list) $(\textcolor{red}{\text{bi: int list}})$
-    = match ai with 
-       | Nil       -> ()
-       | Cons x xs -> f x; loop xs $(\textcolor{red}{\text{Cons x bi}})$) end
-   in loop l Nil
-\end{whycode}
-\end{footnotesize}
-%OK for \texttt{inv}. What to do with \texttt{bi} ?
-\end{frame}
-\addtocounter{framenumber}{-1}
+%\begin{frame}[fragile]
+%\frametitle{Program specification: there and back again}
+%%We can inline and prove sum\_iter with lists alike we did with arrays. \\
+%%What if we want to go back to unspecified version of list\_iter ?
+%\begin{footnotesize}
+%\begin{whycode}
+%let list_iter (f:int -> unit) (l: int list)
+% = let rec loop (ai: int list) $(\textcolor{red}{\text{bi: int list}})$
+%    = match ai with 
+%       | Nil       -> ()
+%       | Cons x xs -> f x; loop xs $(\textcolor{red}{\text{Cons x bi}})$) end
+%   in loop l Nil
+%\end{whycode}
+%\end{footnotesize}
+%%OK for \texttt{inv}. What to do with \texttt{bi} ?
+%\end{frame}
+%\addtocounter{framenumber}{-1}
 
 \begin{frame}[fragile]
 \frametitle{Ghost Code}
@@ -716,9 +869,13 @@ let list_iter (ghost $\textcolor{black}{\text{inv:int list -> unit}})$
 
 \subsection*{Ghost formalisation}
 
+% un pgm avec du code ghost :
+%  - pour le prouver, je prends *tout* le code, sans distinction
+%  - pour l'exécuter, j'oublie le code ghost
+% tout est dans le typage, qui garantit la non-interférence
 \section*{Conclusion}
 
-
+	
 % In this work (1) formalize domain 
 % prove soundness 
 
