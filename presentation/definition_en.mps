@@ -1,0 +1,77 @@
+%!PS
+%%BoundingBox: -4 -20 256 26 
+%%HiResBoundingBox: -4 -19.59644 255.25919 25.05096 
+%%Creator: MetaPost 1.208
+%%CreationDate: 2013.01.14:1749
+%%Pages: 1
+%*Font: cmss10 10.9091 9.96265 0c:8000000175c80542c03205fcfba4
+%%BeginProlog
+%%EndProlog
+%%Page: 1 1
+ 0.85098 0.85098 0.85098 setrgbcolor
+newpath 0.46469 25.05096 moveto
+67.4903 25.05096 lineto
+69.9561 25.05096 71.95499 23.05206 71.95499 20.58626 curveto
+71.95499 -15.13173 lineto
+71.95499 -17.59753 69.9561 -19.59644 67.4903 -19.59644 curveto
+0.46469 -19.59644 lineto
+-2.00111 -19.59644 -4 -17.59753 -4 -15.13173 curveto
+-4 20.58626 lineto
+-4 23.05206 -2.00111 25.05096 0.46469 25.05096 curveto closepath fill
+ 0 0 0 setrgbcolor
+15.1745 13.5666 moveto
+(p) cmss10 10.9091 fshow
+20.5079 13.5666 moveto
+(rogram) cmss10 10.9091 fshow
+29.7352 0.0175 moveto
+(+) cmss10 10.9091 fshow
+5.9776 -13.5317 moveto
+(sp) cmss10 10.9091 fshow
+16.0988 -13.5317 moveto
+(eci\014cation) cmss10 10.9091 fshow
+ 0.85098 0.85098 0.85098 setrgbcolor
+newpath 110.0648 18.27646 moveto
+173.58821 18.27646 lineto
+175.30571 18.27646 176.69801 16.88406 176.69801 15.16656 curveto
+176.69801 -9.71204 lineto
+176.69801 -11.42953 175.30571 -12.82193 173.58821 -12.82193 curveto
+110.0648 -12.82193 lineto
+108.3473 -12.82193 106.955 -11.42953 106.955 -9.71204 curveto
+106.955 15.16656 lineto
+106.955 16.88406 108.3473 18.27646 110.0648 18.27646 curveto closepath fill
+ 0 0 0 setrgbcolor
+116.9326 6.792 moveto
+(veri\014cation) cmss10 10.9091 fshow
+118.8265 -6.7571 moveto
+(conditions) cmss10 10.9091 fshow
+ 0.85098 0.85098 0.85098 setrgbcolor
+newpath 213.4529 11.50185 moveto
+253.50429 11.50185 lineto
+254.4735 11.50185 255.25919 10.71614 255.25919 9.74692 curveto
+255.25919 -4.29239 lineto
+255.25919 -5.26161 254.4735 -6.04732 253.50429 -6.04732 curveto
+213.4529 -6.04732 lineto
+212.48369 -6.04732 211.698 -5.26161 211.698 -4.29239 curveto
+211.698 9.74692 lineto
+211.698 10.71614 212.48369 11.50185 213.4529 11.50185 curveto closepath fill
+ 0 0 0 setrgbcolor
+221.6756 0.0175 moveto
+(p) cmss10 10.9091 fshow
+227.0089 0.0175 moveto
+(ro) cmss10 10.9091 fshow
+236.4938 0.0175 moveto
+(of) cmss10 10.9091 fshow
+ 0.8 0 0 setrgbcolor 0 1.5 dtransform truncate idtransform setlinewidth pop
+ [] 0 setdash 1 setlinecap 1 setlinejoin 10 setmiterlimit
+newpath 74.45576 2.72726 moveto
+104.45576 2.72726 lineto stroke
+newpath 100.992 0.72726 moveto
+104.456 2.72726 lineto
+100.992 4.72726 lineto stroke
+newpath 179.19896 2.72726 moveto
+209.19789 2.72726 lineto stroke
+newpath 205.734 0.72726 moveto
+209.198 2.72726 lineto
+205.734 4.72726 lineto stroke
+showpage
+%%EOF
