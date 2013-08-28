@@ -1,3 +1,193 @@
+
+
+%\begin{frame}[fragile]
+%\frametitle{Specifying \texttt{list\_iter}}
+%\begin{footnotesize}
+%\begin{whycode}
+%let list_iter ($\textcolor{red}{\text{inv:int list -> int list -> unit}})$ 
+%    (f:int -> unit) (l: int list)
+%     requires  $\text{\{\text{inv } Nil~l \}}$
+%     ensures $\text{~~}\{ \text{inv (reverse l)~Nil
+%     	 }\}$    
+% =
+%\end{whycode}
+%\end{footnotesize}
+%\vspace*{6em}
+%\end{frame}
+%\addtocounter{framenumber}{-1}
+
+%\begin{footnotesize}
+%\begin{whycode}
+%let list_iter ($\textcolor{red}{\text{inv:int list -> unit}})$ 
+%    (f:int -> unit) (l: int list)
+%     ${\gray\texttt{requires \{ inv Nil \}}}$
+%     ${\gray\texttt{ensures \{ inv (reverse l)\}}}$    
+% = let rec loop (ai: int list) $(\textcolor{red}{\text{bi: int list}})$
+%      ${\gray\texttt{requires \{ inv (rev bi) \} }}$
+%      ${\gray\texttt{ensures  \{ inv (rev\_append ai bi) \}}}$  
+%    = match ai with 
+%       | Nil       -> ()
+%       | Cons x xs -> f x; loop xs $(\textcolor{red}{\text{Cons x bi}})$) end
+%   in loop l Nil
+%\end{whycode}
+%\end{footnotesize}
+
+
+%\subsubsection*{Spec of array_inter}
+%\begin{frame}[fragile]{blabla}
+%\begin{footnotesize}
+%\begin{whycode}  
+%   let array_iter ($\textcolor{red}{\text{f:int -> unit}}$) (b: array int) ($\textcolor{red}{\text{inv:int -> array int -> prop}}$)    
+%     $\textcolor{OliveGreen}{\text{requires \{ \textcolor{red}{\text{inv }} 0~b \}}}$
+%     $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} b.length~b }\}}$  
+%   = let rec loop (i: int)
+%       $\textcolor{OliveGreen}{ \text{requires \{~\textcolor{red}{inv} i b} \bwedge \text{0 <= i <= b.length}~\}}$
+%       $\textcolor{OliveGreen}{\text{ensures~~}\{ \text{ \textcolor{red}{inv} b.length~b}\}}$ =    
+%       = if i < b.length then ($\textcolor{red}{\text{f}}$ b[i]; loop (i+1)) 
+%     in loop 0       
+%                                          (*array_iter partial specification*)
+%\end{whycode}
+%\begin{whycode} 
+% let sum_iter (a: array int) =$\pause$		 
+%   let s = ref 0 in 
+%   array_iter $\textcolor{red}{\text{(fun x -> s := !s + x)}}~$ a $\textcolor{red}{(\lambda i_{int}.\lambda c_{\texttt{array int}}. \sum_{~0\leq j < i} a[j])}$                    
+%                                   (*invariant instantiation in the source code *)
+%\end{whycode}
+%\end{footnotesize}
+%\end{frame}
+%
+%\subsubsection*{Annot of sum_iter}
+%\begin{frame}[fragile]{blabla}
+%d
+%\end{frame}
+
+%\subsubsection*{Inlining}
+%\begin{frame}[fragile]{blabla}
+%d
+%\end{frame}
+
+
+% solution technique = inlining, dérouler sur l'exemple de sum_iter
+
+% 2. quelles difficultés
+%    ce qui nous amène à Mini-ML = ML + références globales
+%    syntaxe, sémantique, système de types avec effets, preuve de type soundness
+%    identification d'un fragment de Mini-ML + définition inlining + preuve
+%\subsection*{Inlining procedure}
+%
+%\begin{frame}\frametitle{}
+%\end{frame}
+%
+%\begin{frame}\frametitle{}
+%\end{frame}
+%
+%\begin{frame}\frametitle{}
+%\end{frame}
+
+% 3. maintenant list_iter, servant à introduire l'idée de code ghost
+
+%  d'abord le code de list_iter + le code client sum_list
+
+%  puis la spec avec un argument supplémentaire
+
+% => introduit la notion de code ghost
+%\subsubsection*{VCs}
+%\begin{frame}[fragile]\frametitle{Verification Conditions}
+%
+%\begin{footnotesize}
+%\begin{displaymath}
+%\begin{array}{@{\hspace*{-2.5em}}l@{\hspace*{1.5em}}rl@{\hspace*{1em}}l}
+%% \textsc{\scriptsize (Notations)} 
+%%  &  &  n:~~ \text{a.length} & \\
+%%  
+%%  & & & P:~~ s = \sum_{~0\leq j < i} a[j] ~\bwedge~ 0 \leq i \leq n \\[1em]
+%
+% \textsc{\scriptsize (loop initialisation)}  
+% & \emptyset 
+% &\vdash 
+% &(0 \leq 0 \bwedge 0 \leq n) \bwedge 0 = \sum_{~0\leq j < 0} a[j]	
+% \\[1em]
+%
+%	\textsc{\scriptsize (loop preservation)} 
+%	& P \bwedge i < n 
+%	&\vdash 
+%	&	(0 \leq (i+1) \leq n) \bwedge s + a[i] = \sum_{~0 \leq j < i+1} a[j]
+%	\\[1em]
+%
+%	\textsc{\scriptsize (array bound check)} 
+%	& P \bwedge i < n 
+%	& \vdash 
+%	& 0 \leq i \leq n 
+%	\\[1em]
+%
+%	\textsc{\scriptsize (postcondition)}  
+%	& P \bwedge i \geq n 
+%	& \vdash 
+%	& s = \sum_{~0 \leq j < n} a[j] 
+%
+%\end{array}
+%\end{displaymath}
+%\end{footnotesize}
+%\end{frame}
+
+
+
+%\begin{frame}[fragile]
+%\frametitle{Verification: there and back again}
+%%We can inline and prove sum\_iter with lists alike we did with arrays. \\
+%%What if we want to go back to unspecified version of list\_iter ?
+%\begin{footnotesize}
+%\begin{whycode}
+%let list_iter ($\textcolor{red}{\text{inv:int list -> unit}})$ 
+%    (f:int -> unit) (l: int list)
+% = let rec loop (ai: int list) $(\textcolor{red}{\text{bi: int list}})$
+%    = match ai with 
+%       | Nil       -> ()
+%       | Cons x xs -> f x; loop xs $(\textcolor{red}{\text{Cons x bi}})$) end
+%   in loop l Nil
+%\end{whycode}
+%\end{footnotesize}
+%%OK for \texttt{inv}. What to do with \texttt{bi} ?
+%\end{frame}
+%\addtocounter{framenumber}{-1}
+
+
+%\begin{frame}[fragile]
+%\frametitle{Program specification: there and back again}
+%%We can inline and prove sum\_iter with lists alike we did with arrays. \\
+%%What if we want to go back to unspecified version of list\_iter ?
+%\begin{footnotesize}
+%\begin{whycode}
+%let list_iter (f:int -> unit) (l: int list)
+% = let rec loop (ai: int list) $(\textcolor{red}{\text{bi: int list}})$
+%    = match ai with 
+%       | Nil       -> ()
+%       | Cons x xs -> f x; loop xs $(\textcolor{red}{\text{Cons x bi}})$) end
+%   in loop l Nil
+%\end{whycode}
+%\end{footnotesize}
+%%OK for \texttt{inv}. What to do with \texttt{bi} ?
+%\end{frame}
+%\addtocounter{framenumber}{-1}
+
+\begin{frame}[fragile]
+\frametitle{Ghost Code}
+\begin{footnotesize}
+\begin{whycode}
+let list_iter (ghost $\textcolor{black}{\text{inv:int list -> unit}})$ 
+    (f:int -> unit) (l: int list)
+     ${\gray\texttt{requires \{ inv Nil \}}}$
+     ${\gray\texttt{ensures \{ inv (reverse l)\}}}$    
+ = let rec loop (ai: int list) (ghost$\textcolor{black}{\text{ bi: int list}})$
+      ${\gray\texttt{requires \{ inv (rev bi) \} }}$
+      ${\gray\texttt{ensures  \{ inv (rev\_append ai bi) \}}}$  
+    = match ai with 
+       | Nil       -> ()
+       | Cons x xs -> f x; loop xs $(\textcolor{red}{\text{Cons x bi}})$) end
+   in loop l Nil
+\end{whycode}
+\end{footnotesize}
+\end{frame}
 	
 %Let \texttt{P} be a program of $\inlsrc$ and \texttt{L} the logical expressions of $WhyML^2$ used to specify and annotate \texttt{P}.
 %	Imagine that there is a virtual machine that executes programs of $\inlsrc$. 
