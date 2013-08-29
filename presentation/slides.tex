@@ -196,9 +196,9 @@ Jean-Christophe \textsc{Filli\^atre}
   \end{enumerate}
 \end{frame}
 
-\section*{State of art}
+\section*{Related work}
 \begin{frame}
-\frametitle{State of art}
+\frametitle{Related work}
 {\red last 40 years}
 	\begin{itemize}
 		\item[] formal verification of imperative programs 
@@ -207,8 +207,8 @@ Jean-Christophe \textsc{Filli\^atre}
 	\end{itemize}\vspace*{1em} \pause
 {\red more recently}
 	\begin{itemize}
-		\item[] higher-order functional programs (Coq, Pangolin,...)
-		\item[] higher-order {\red stateful} programs (Who, F$^\star$, ...)
+		\item[] higher-order functional programs (Coq, PVS, Pangolin,...)
+		\item[] higher-order {\red stateful} programs (Who, F$^\star$, HTT, CFML, ...)
 	\end{itemize}
 \pause
 \bigskip
@@ -580,7 +580,7 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 
 
 %
-\section*{Our contribution}
+\section*{Our first contribution}
 \begin{frame}[fragile]
 \frametitle{\red Our contribution}
 \begin{displaymath}
@@ -645,12 +645,17 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 %\frametitle<3>{Ordering types}
 \frametitle<3>{Reference assignment}
 \frametitle<4>{Recursive calls}
+\frametitle<5>{Inlining correctness}
 \begin{large}
 \only<1>{
 $$\Gamma \vdash t: \tau^{\texttt{\textbf{i}}}{, \theta, \rho}$$\bigskip
-$$\hspace*{-7.5em}\OliveGreen{\normalsize \texttt{gathers information about side-effects}}$$
-$$\OliveGreen{\normalsize \texttt{guarantees that well-typed terms can be inlined correctly}}$$
+$$~$$
+$$~$$
 $$~$$}
+%$$ \hspace*{0em}\OliveGreen{\small \texttt{restricts the order of references and recursive functions}} $$
+%$$\hspace*{-7.5em}\OliveGreen{\small \texttt{gathers information about side-effects}}$$
+%$$\OliveGreen{\small \texttt{guarantees that well-typed terms can be inlined correctly}}$$
+%$$~$$}
 \only<2>{
 $$\hspace*{3em}\Gamma \vdash t: \tau^{\red \texttt{\textbf{i}}}, \theta, \rho \quad {\small \red \texttt{i = 0,1,2}} $$\bigskip
 $$\hspace*{-16.5em}\texttt{{\blue ref} x:}~\tau^{\red 0}$$
@@ -662,14 +667,27 @@ $$\hspace*{2.5em}\texttt{{\blue fun} h:}~\tau^{\red 1} \texttt{ -> } \texttt{(} 
 \only<3>{
 $$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, {\red \theta}, \rho $$ \bigskip
 $$ \texttt{\red t may modify the global state}$$ $$~$$ $$~$$}
-%$${\small \theta = \top \iff \texttt{r:= ? } \in \texttt{t}}$$}
 \only<4>{
 $$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, {\red \rho} $$\bigskip 
 $$ \texttt{\red t may diverge} $$
 $$~$$
+$$~$$}
+\only<5>{
+$$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, \rho $$\bigskip 
+$$\OliveGreen{\texttt{well-typed terms {\red -->} terms inlined correctly}}$$
 $$~$$
-%$${\small \rho = \top \iff \texttt{fact ?} \in \texttt{t}}$$
-}
+$$~$$}
+%\only<6>{
+%$$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, \rho $$\bigskip 
+%$$\OliveGreen{\texttt{well-typed terms {\red -->} terms inlined correctly}}$$
+%$$\quad \OliveGreen{\texttt{restrictions typing rules}}$$
+%$$~$$}
+%\only<7>{
+%$$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, \rho $$\bigskip 
+%$$\OliveGreen{\texttt{well-typed terms {\red -->} terms inlined correctly}}$$
+%$$\quad \OliveGreen{\bullet \texttt{restrictions typing rules}}$$
+%$$\quad \OliveGreen{\bullet \texttt{proving semantics preservation}}$$}
+
 \end{large}
 \end{frame}
 
@@ -763,38 +781,9 @@ $$~$$
 \end{frame}
 \addtocounter{framenumber}{-1}
 
-
-\section*{liaisons dangereuses}
+\subsection*{restriction on typing}
 \begin{frame}[fragile]
-\frametitle{les liaisons dangereuses}
-\begin{small}
-\begin{whycode} 
-${\red \only<1-2>{\mathcal{P}_1}\only<3-4>{\mathcal{P}_2}}$: 
-   let F = ($\only<1-2>{\texttt{\red r:= !r + 1;}}\only<3-4>{\texttt{\red diverge(); }}$ fun (f:int -> int) -> f !r)
-   in $\only<1-2>{\texttt{(F id) + (F id)}}\only<3-4>{\texttt{()}}$
-   
-*?%$\hspace*{8em}\only<2>{{\red \mathcal{P}_{1_{\{r=0\}}} \longrightarrow^{\star} 2_{\{ r=1\}}}}\only<4>{\red \mathcal{P}_{2_{\{r=0\}}} \longrightarrow^{\star} \infty}$
-?* 
-${\red\only<1-2>{ \mathcal{I}(P_1)}\only<3-4>{\mathcal{I}(P_2)}}:$ 
-$\only<1-2>{\qquad \texttt{(r:= !r + 1; !r) + (r:= !r + 1; !r)}}
-\only<3-4>{\qquad \texttt{()}}$ 
-   
-*?%$\hspace*{8em}\only<2>{\mathcal{I}(P_1)_{\{r=0\}} \longrightarrow^{\star} 3_{\{r=2\}}}\only<4>{\mathcal{I}(P_2)_{\{r=0\}} \longrightarrow^{\star} ()_{\{r=0\}}}$      
-?*
-\end{whycode} \bigskip
-\only<1>{
-$$ \fbox{\texttt{\red effect is duplicated}} $$}
-\only<3>{
-$$ \fbox{\texttt{\red  semantics is not preserved}} $$}
-\only<2,4>{
-$$ \fbox{\texttt{\OliveGreen{must be rejected by type system}}} $$}
-\end{small}
-\end{frame}
-
-
-\subsection*{condition}
-\begin{frame}[fragile]
-\frametitle{example: let in}
+\frametitle{restriction on typing}
 		\infrule[] 
 			{\vspace*{0.5em}{\red \Gamma} \vdash t_1 :  {\red \tau^i, \theta_1, \rho_1}  \phantom{tttttttt} 
 			\quad {\red \Gamma, x:\tau^i}  \vdash t_2 : {\red \tau^j, \theta_2, \rho_2}  \phantom{ttttt} {\blue \texttt{\textbf{Cond}}}} 
@@ -809,17 +798,46 @@ $$ \textcolor{blue}{\texttt{Cond: } \texttt{(i = 2)} \Rightarrow
 \end{frame}
 \addtocounter{framenumber}{-1}
 
-
-\subsection*{example: sum of list elements} 
+\section*{liaisons dangereuses}
 \begin{frame}[fragile]
-\frametitle{the sum of list elements}
+\frametitle{les liaisons dangereuses}
+\hspace*{-1em}
+\begin{small}
+\begin{whycode} 
+${\red \only<1-2>{\mathcal{P}_1}\only<3-4>{\mathcal{P}_2}}$: 
+   let F = ($\only<1-2>{\texttt{\red r:= !r + 1;}}\only<3-4>{\texttt{\red diverge(); }}$ fun (f:int -> int) -> f !r)
+   in $\only<1-2>{\texttt{(F id) + (F id)}}\only<3-4>{\texttt{()}}$
+   
+*?%$\hspace*{8em}\only<2>{{\red \mathcal{P}_{1_{\{r=0\}}} \longrightarrow^{\star} 2_{\{ r=1\}}}}\only<4>{\red \mathcal{P}_{2_{\{r=0\}}} \longrightarrow^{\star} \infty}$
+?* 
+${\red\only<1-2>{ \mathcal{I}(P_1)}\only<3-4>{\mathcal{I}(P_2)}}:$ 
+$\only<1-2>{\qquad \texttt{(r:= !r + 1; !r) + (r:= !r + 1; !r)}}
+\only<3-4>{\qquad \texttt{()}}$ 
+   
+*?%$\hspace*{8em}\only<2>{\mathcal{I}(P_1)_{\{r=0\}} \longrightarrow^{\star} 3_{\{r=2\}}}\only<4>{\mathcal{I}(P_2)_{\{r=0\}} \longrightarrow^{\star} ()_{\{r=0\}}}$      
+?*
+\end{whycode}
+\end{small} \bigskip
+\only<1>{
+$$ \texttt{\red effect is duplicated} $$}
+\only<3>{
+$$ \texttt{\red  semantics is not preserved} $$}
+\only<2,4>{
+$$ \OliveGreen{ \texttt{rejected by type system}} $$}
+\end{frame}
+
+
+\section*{Example: sum of list elements} 
+\begin{frame}[fragile]
+\frametitle{example the sum of list elements}
+\hspace*{-1em}
 \begin{footnotesize}
 \begin{whycode}
  let sum_list (l: int list) : int
  ensures { result = $\sum$ l }
  = let s = ref 0 in
    List.iter 
-     (${\red\texttt{fun before -> !s = }\sum \texttt{ before}}$) (fun x -> s := !s + x) l; 
+     (${\red\texttt{fun before after -> !s = }\sum \texttt{ before}}$) (fun x -> s := !s + x) l; 
    !s     
 \end{whycode}
 \end{footnotesize}
@@ -827,14 +845,15 @@ $$ \textcolor{blue}{\texttt{Cond: } \texttt{(i = 2)} \Rightarrow
 
 \begin{frame}[fragile]
 \frametitle{precondition and postcondition}
+\hspace*{-4em}
 \begin{footnotesize}
 \begin{whycode}
-let iter ($\textcolor{red}{\text{inv:int list -> prop}}$) (f:int -> unit) (l: int list)
-requires { ${\red \texttt{inv Nil}}$ }
-ensures  { ${\red \texttt{inv (reverse l)}}$ } 
+let iter ($\textcolor{red}{\text{inv:int list -> int list -> prop}}$) (f:int -> unit) (l: int list)
+requires { ${\red \texttt{inv Nil l}}$ }
+ensures  { ${\red \texttt{inv (reverse l) Nil}}$ } 
 = ${\gray\texttt{let rec loop (before:int list) (after:int list)}}$
-  ${\gray\texttt{requires \{ inv (before) \} }}$
-  ${\gray\texttt{ensures~ \{ inv (rev\_append after before) \}}}$  
+  ${\gray\texttt{requires \{ inv before after \} }}$
+  ${\gray\texttt{ensures~ \{ inv ((reverse after) ++ before)) Nil \}}}$  
   ${\gray\texttt{= match after with}}$
      ${\gray\texttt{| Nil~~~~~~ -> ()}}$
      ${\gray\texttt{| Cons x xs -> f x; loop (Cons x before) xs}}$
@@ -848,15 +867,16 @@ ensures  { ${\red \texttt{inv (reverse l)}}$ }
 
 \begin{frame}[fragile]
 \frametitle{loop invariant}
+\hspace*{-1em}
 \begin{footnotesize}
 \begin{whycode}
-${\gray\texttt{let iter (inv:int list -> prop)}} ~
+${\gray\texttt{let iter (inv:int list -> int list -> prop)}} ~
 {\gray\texttt{(f:int -> unit) (l:int list)}}$
-${\gray\texttt{requires \{ inv Nil \}}}$
-${\gray\texttt{ensures~ \{ inv (reverse l)\}}}$    
+${\gray\texttt{requires \{ inv Nil l \}}}$
+${\gray\texttt{ensures~ \{ inv (reverse l) Nil\}}}$    
 = let rec loop $(\textcolor{red}{\text{before:int list}})$ (after: int list) 
-  requires $\texttt{\{ inv {\red (before)} \}}$
-  ensures  $\texttt{\{ inv {\red(rev\_append after before)} }\}$  
+  requires $\texttt{\{ inv {\red before after} \}}$
+  ensures  $\texttt{\{ inv {\red((reverse after) ++ before) Nil }}\}$  
   ${\gray\texttt{= match after with}}$
      ${\gray\texttt{| Nil~~~~~~ -> ()}}$
      ${\gray\texttt{| Cons x xs -> f x; loop (Cons x before) xs}}$
@@ -869,15 +889,16 @@ ${\gray\texttt{ensures~ \{ inv (reverse l)\}}}$
 
 \begin{frame}[fragile]
 \frametitle{regular code}
+\hspace*{-1em}
 \begin{footnotesize}
 \begin{whycode}
-${\gray\texttt{let iter (inv:int list -> prop)}} ~
+${\gray\texttt{let iter (inv:int list -> int list -> prop)}} ~
 {\gray\texttt{(f:int -> unit) (l:int list)}}$
-${\gray\texttt{requires \{ inv Nil \}}}$
-${\gray\texttt{ensures~ \{ inv (reverse l)\}}}$    
+${\gray\texttt{requires \{ inv Nil l \}}}$
+${\gray\texttt{ensures~ \{ inv (reverse l) Nil \}}}$    
 = ${\gray\texttt{let rec loop (before:int list) (after:int list)}}$
-  ${\gray\texttt{requires \{ inv (before) \} }}$
-  ${\gray\texttt{ensures~ \{ inv (rev\_append after before) \}}}$
+  ${\gray\texttt{requires \{ inv before after \} }}$
+  ${\gray\texttt{ensures~ \{ inv ((reverse after) ++ before) Nil \}}}$
   = match after with 
      | Nil       -> ()
      | Cons x xs -> f x; loop ($\textcolor{red}{\text{Cons x before}}$) xs 
@@ -891,12 +912,12 @@ ${\gray\texttt{ensures~ \{ inv (reverse l)\}}}$
 \frametitle{\red{ghost code}}
 \begin{footnotesize}
 \begin{whycode}
-let iter ($\textcolor{red}{\text{ghost inv:int list -> prop}}$) (f:int -> unit) (l: int list)
-requires { ${ \texttt{inv Nil}}$ }
-ensures  { ${ \texttt{inv (reverse l)}}$ }
+let iter ($\textcolor{red}{\text{ghost inv:int list -> int list -> prop}}$) (f:int -> unit) (l: int list)
+requires { ${ \texttt{inv Nil l }}$ }
+ensures  { ${ \texttt{inv (reverse l) Nil}}$ }
 = let rec loop $(\textcolor{red}{\text{ghost before:int list}})$ (after: int list) 
-  requires $\texttt{\{ inv { (before)} \}}$
-  ensures  $\texttt{\{ inv {(rev\_append after before)} }\}$     
+  requires $\texttt{\{ inv { before after} \}}$
+  ensures  $\texttt{\{ inv {((reverse after) ++ before)} }\}$     
   = match after with 
      | Nil       -> ()
      | Cons x xs -> f x; loop ($\textcolor{red}{\text{Cons x before}}$) xs 
@@ -914,7 +935,7 @@ ensures  { ${ \texttt{inv (reverse l)}}$ }
  \begin{itemize}
  	\item[] $${\large \red \texttt{Ghost Code}}$$
  	\begin{center}
- 	\includegraphics[scale=0.31]{GhostBusters}
+ 	\includegraphics[scale=0.2]{Ghostbusters2}
  	\end{center} 
  \end{itemize}
 \end{frame}
@@ -927,7 +948,7 @@ ensures  { ${ \texttt{inv (reverse l)}}$ }
 
 \begin{frame}
 \frametitle{\red{ghost code}}
-	may be inserted for the purpose of specification and/or proof. \\[1em]
+	may be inserted for the purpose of specification and/or proof \\[1em]
 	\pause	
 	\begin{itemize}
 	\item[\red $\bullet$] regular code does not see ghost data
@@ -947,7 +968,7 @@ in particular, ghost code may be removed without observable modification
 %      obligations), l'opération erasure et la preuve
 
 \begin{frame}
-\frametitle{our contribution}
+\frametitle{our second contribution}
 \begin{itemize}
 \item formalize Ghost-ML: syntax, semantics, type system with ghost effects \pause
 \item prove ghost code non-interference with regular code \pause
