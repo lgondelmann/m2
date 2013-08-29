@@ -1,17 +1,4 @@
-%\documentclass{beamer}
-%
-%\usepackage[utf8]{inputenc}
-%\usepackage[french]{babel}
-%
-%\begin{document}
-%
-%\title{Deductive Verification of Stateful Second-Order Programs}
-%\author{Léon Gondelman}
-%\date{M2 internship \\ \today}
-%
-%\begin{frame}
-%  \maketitle
-%\end{frame}
+
 
 
 \documentclass[xcolor=dvipsnames]{beamer}
@@ -136,6 +123,10 @@ emphstyle=\color{gray}}\gray}{\gray}
 \tikz \node[draw,circle,scale=0.21,fill=#2]{\black \Huge  \textbf{#1}};}
 \newcommand{\rond}[1]{
 \tikz \node[draw,circle,scale=0.21,fill=red]{\black \Huge  \textbf{#1}};}
+
+\definecolor{cblue}{RGB}{90,110,160}
+
+
 \begin{document}
 \section*{Title}
 \begin{frame}
@@ -352,7 +343,7 @@ $$ \textcolor{purple}{\texttt{may be difficult to prove automatically}}$$
 \only<8>{
 $$ \texttt{\OliveGreen{\underline{inline} the definition of iterator}} $$
 \vspace*{-1.5em} 
-$$ \hspace*{0.5em}\texttt{\OliveGreen{\underline{instantiate} functional arguments}}$$}
+$$ \hspace*{0em}\texttt{\OliveGreen{\underline{instantiate} the invariant formula}}$$}
 \end{frame}
 
 
@@ -526,6 +517,8 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 \end{frame}
 \addtocounter{framenumber}{-1}
 
+
+% TODO : conclusion we get FO program + FO spec -> (OK for provers) 
 \subsection*{Instantiate f 2}
 \begin{frame}[fragile]
 \frametitle{\OliveGreen{Instantiate f}}
@@ -550,21 +543,54 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 \end{whycode}
 \end{footnotesize}
 \end{frame}
-\addtocounter{framenumber}{-1}
 
-\definecolor{cblue}{RGB}{90,110,160}
+% TODO : conclusion we get FO program + FO spec -> (OK for provers) 
+\subsection*{Proving the result}
+\begin{frame}[fragile]
+\frametitle<1-4>{\OliveGreen{Instantiate f}}
+\frametitle<5>{\normalsize \red Seems to be a good idea}
+\vspace*{-2em}
+\begin{footnotesize}
+\begin{whycode}
+let sum_iter (a: int array) 
+ensures { $\texttt{result = sum 0 (length a) a }$}
+= let s = ref 0 in 
+  let iter (b: int array)
+  requires { ${ \texttt{!s = sum 0 0 a}}$ } 
+  ensures  { ${ \texttt{!s = sum 0 (length b) a}}$ } 
+  = let n = Array.length b in
+    let rec aux (i: int)
+    requires { ${\texttt{!s = sum 0 i a}\bwedge 0 \leq \texttt{i} \leq \texttt{n}}$ }
+    ensures  { ${\texttt{!s = sum 0 n a}}$ }
+    = if i < n
+      then (${\red\texttt{s := !s + b.(i)}}$ ; aux (i + 1)) 
+    in aux 0
+  in iter a; 
+  !s
+\end{whycode}
+\vspace*{-4em}
+\begin{center} 
+\only<2>{$$\fbox{\OliveGreen{\textbf{we get a first-order program}}}$$}
+\only<3>{$$\fbox{\OliveGreen{\textbf{spec is first-order and complete}}}$$}
+\only<4>{$$\fbox{\OliveGreen{\textbf{generated VCs can be proved automatically}}}$$}
+\only<5>{$$\texttt{\Rouge{\textbf{\normalsize Let's work it out !}}}$$}
+\end{center}
+\end{footnotesize}
+\end{frame}
+
+
 %
 \section*{Our contribution}
 \begin{frame}[fragile]
 \frametitle{\red Our contribution}
 \begin{displaymath}
-\begin{array}{@{\hspace*{-1em}}llllllll}
+\begin{array}{@{\hspace*{-1.2em}}llllllll}
   \begin{minipage}{0.2\textwidth}
   {\texttt{{\red HO} program}}\vspace*{-0.5em} \\
  	\hspace*{2em}+\vspace*{-0.5em}\\ 
 	{\hspace*{0.5em}\texttt{{\blue FO} spec}}
   \end{minipage} & 
-	\stackrel{\texttt{\normalsize \red inlining}}{\texttt{-------->}}  
+	\stackrel{\texttt{\normalsize \red inlining}}{\texttt{---------->}} \hspace*{0.1em} 
 & 
 	  \begin{minipage}{0.2\textwidth}
   {\texttt{\color{cblue}{FO} \gray program}}\vspace*{-0.5em} \\
@@ -575,9 +601,9 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 \end{array}
 \end{displaymath}\bigskip\pause
 \begin{itemize}
-\item[{\red 1.}] identify the fragment of ML where inlining can be done 
-\item[{\red 2.}] define inlining procedure \pause
-\item[{\red 3.}] prove that inlining 
+\item[{\red 1.}] identify a fragment of ML where inlining can be done correctly \pause
+\item[{\red 2.}] define inlining procedure on that fragment \pause
+\item[{\red 3.}] prove that inlining procedure  
 \begin{itemize}	
 \item[{\red $\bullet$}] {\normalsize always {\red terminates}}
 \item[{\red $\bullet$}] {\normalsize {\red preserves} semantics}
@@ -590,120 +616,198 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 %    syntaxe, sémantique, système de types avec effets, preuve de type soundness
 %    identification d'un fragment de Mini-ML + définition inlining + preuve
 
-
 \section*{Fragment of ML}
 \begin{frame}[fragile]
-\frametitle{experimental language}
-%\hspace*{-2em} \mbox{{\blue Our approach}: identify the subset of ML language in which we can write}\vspace*{-0.5em}
-%\begin{itemize}
-%\item[-] interesting examples like sum\_iter;
-%\item[-] only programs we can inline correctly.\\[1em]
-%\end{itemize}\pause
-%{\hspace*{-2em} \blue A hint of the solution}: 
-a fragment of ML with
+\frametitle{A fragment of ML with}
+ \pause
 \begin{itemize}
-	\item[-] references, recursion, integers, integer lists
-	\item[-] {\red second-order} programs with types \\[0.5em]
-		\begin{itemize}	
-		\begin{footnotesize} 
-			\item[] \qquad$\tau^{\red 0}:\{\texttt{ int, bool,... }\}$
-			\item[] \qquad$\tau^{\red 1}:\{\texttt{ int -> bool, int -> (int -> bool), ... }\}$
-			\item[] \qquad$\tau^{\red 2}:\{\texttt{ (int -> int) -> bool, ... }\}$\\[1em]
-		\end{footnotesize}
-		\end{itemize}
-		 \pause
-	\item[-] a type system {\red with effects}:\\[0.5em]
-		\begin{itemize}
-			\item[] \qquad $\Gamma \vdash t: \tau^{i}, {\red \theta, \rho} $
-		\end{itemize}
+	\item[-] {\red second-order} closures  
+	\begin{footnotesize}
+	\begin{whycode}
+	    'apply2' : (int -> int -> bool) -> (int -> (int -> bool)) \end{whycode}
+	\end{footnotesize}	\pause
+	\item[-] global {\red mutable} references (with primitive data values) \pause
+	\item[-] {\red first-order} recursion 
+	\begin{small}
+	\begin{whycode}
+	      let h (f: int -> int)
+        = let rec g (x: int)
+          = if x = 0 then ${\red\texttt{(f x)}}$ else g${\red\texttt{ (f (x-1))}}$ \end{whycode}
+	\end{small}\pause
+	\item[-] a type system {\red with effets}
 \end{itemize}
 \end{frame}
-\section*{Type system with effects}
-%CIA
 
-\section*{let in examples}
-\begin{frame}[fragile]\frametitle{les liaisons dangereuses}
-\begin{small}
-\begin{whycode} 
-${\red \only<1>{\mathcal{P}_1}\only<2->{\mathcal{P}_2}}$: 
-   let F = 
-      ($\only<1>{\texttt{\red r:= !r + 1;}}\only<2->{\texttt{\red diverge(); }}$ fun (f:int -> int) -> f !r)
-   in $\only<1>{\texttt{(F id) + (F id)}}\only<2->{\texttt{()}}$
-   
-*?%$\hspace*{8em}\only<2>{{\red \mathcal{P}_{1_{\{r=0\}}} \longrightarrow^{\star} 2_{\{ r=1\}}}}\only<4>{\red \mathcal{P}_{2_{\{r=0\}}} \longrightarrow^{\star} \infty}$
-?* 
-${\red\only<1>{ \mathcal{I}(P_1)}\only<2->{\mathcal{I}(P_2)}}: \only<1>{\texttt{(r:= !r + 1; !r) + (r:= !r + 1; !r)}}
-\only<2->{\texttt{()}}$
-   
-*?%$\hspace*{8em}\only<2>{\mathcal{I}(P_1)_{\{r=0\}} \longrightarrow^{\star} 3_{\{r=2\}}}\only<4>{\mathcal{I}(P_2)_{\{r=0\}} \longrightarrow^{\star} ()_{\{r=0\}}}$      
-?*
-\end{whycode}
-\end{small}
+\section*{Type system with effects}
+\begin{frame}[fragile]
+\frametitle<1>{Type system with effects}
+\frametitle<2>{Ordering types}
+%\frametitle<3>{Ordering types}
+\frametitle<3>{Reference assignment}
+\frametitle<4>{Recursive calls}
+\begin{large}
+\only<1>{
+$$\Gamma \vdash t: \tau^{\texttt{\textbf{i}}}{, \theta, \rho}$$\bigskip
+$$\hspace*{-7.5em}\OliveGreen{\normalsize \texttt{gathers information about side-effects}}$$
+$$\OliveGreen{\normalsize \texttt{guarantees that well-typed terms can be inlined correctly}}$$
+$$~$$}
+\only<2>{
+$$\hspace*{3em}\Gamma \vdash t: \tau^{\red \texttt{\textbf{i}}}, \theta, \rho \quad {\small \red \texttt{i = 0,1,2}} $$\bigskip
+$$\hspace*{-16.5em}\texttt{{\blue ref} x:}~\tau^{\red 0}$$
+$$\hspace*{-5em}\texttt{{\blue rec} g:}~\tau^{\red 0} \texttt{ -> } \texttt{(} \tau^{\red 0} \texttt{ -> ... -> } \tau^{\red 0} \texttt{)}$$
+$$\hspace*{2.5em}\texttt{{\blue fun} h:}~\tau^{\red 1} \texttt{ -> } \texttt{(} \tau^{\red 1} \texttt{ -> ... -> (} \tau^{{\red 0}} \texttt{ -> ... -> } \tau^{{\red 0}} \texttt{))}$$}
+%\only<3>{
+%$$\Gamma \vdash t: \tau^{\red \texttt{\textbf{i}}}{\white, \theta, \rho} $$\bigskip
+%$$\hspace*{-1em}\texttt{{\blue fun} h:}~\tau^{\red 1} \texttt{ -> } \texttt{(} \tau^{\red 1} \texttt{ -> ... -> (} \tau^{{\red 0}} \texttt{ -> ... -> } \tau^{{\red 0}} \texttt{))}$$ $$~$$}
+\only<3>{
+$$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, {\red \theta}, \rho $$ \bigskip
+$$ \texttt{\red t may modify the global state}$$ $$~$$ $$~$$}
+%$${\small \theta = \top \iff \texttt{r:= ? } \in \texttt{t}}$$}
+\only<4>{
+$$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, {\red \rho} $$\bigskip 
+$$ \texttt{\red t may diverge} $$
+$$~$$
+$$~$$
+%$${\small \rho = \top \iff \texttt{fact ?} \in \texttt{t}}$$
+}
+\end{large}
 \end{frame}
 
 \section*{typing of let in examples}
+\subsection*{let 0}
 \begin{frame}[fragile]
-\frametitle{les liaisons moins dangereuses}
-\begin{small}
-%\begin{adjustwidth}{-1.5em}{0em}
-%\begin{displaymath}
-%		\dfrac
-%		 {\Gamma_1 \vdash t_1 : \tau^i, \theta_1, \rho_1
-%		  \qquad \Gamma_2, x:\tau^i  \vdash t_2 : \tau^j, \theta_2, \rho_2 
-%		  \qquad \only<1>{\phantom{\textcolor{red}{(i = 2) \Rightarrow 
-%			\boldsymbol{(\theta_1 = \bot_{\theta}\bwedge \rho_1 = \bot_{\rho})}}}}			
-%			\only<2->{ \textcolor{red}{(i = 2) \Rightarrow 
-%			\boldsymbol{(\theta_1 = \bot_{\theta}\bwedge \rho_1 = \bot_{\rho})}}}}
-%		 {\Gamma_1 \vdash \text{ let } x = t_1 \text{ in } t_2 
-%				: \tau^{j}, 
-%				(\theta_1 \bvee \theta_2), 
-%				(\rho_1 \bvee \rho_2)}
-%\end{displaymath}		
-%\end{adjustwidth}	
+\frametitle{example: let in}
 
 		\infrule[] 
-			{\vspace*{0.5em}\hspace*{-2.1em}\Gamma \vdash t_1 : \tau^i, \Rouge{\theta_1}, \Rouge{\rho_1} 
-			\quad \Gamma, x:\tau^i  \vdash t_2 : \tau^j, \Rouge{\theta_2}, \Rouge{\rho_2} 
-			\quad 
-			\only<1>{\phantom{\textcolor{blue}{(i = 2) \Rightarrow 
-			\boldsymbol{(\theta_1 = \bot_{\theta}\bwedge \rho_1 = \bot_{\rho})}}}}			
-			\only<2->{ \textcolor{blue}{(i = 2) \Rightarrow 
-			(\theta_1 = \bot_{\theta}\bwedge \rho_1 = \bot_{\rho})}}} 
-			{\vspace*{-1em}\hspace*{-2.1em}\Gamma \vdash \text{ let } x = t_1 \text{ in } t_2 
-				: \tau^{j}, 
-				(\Rouge{\theta_1 \bvee \theta_2}), 
-				(\Rouge{\rho_1 \bvee \rho_2})}
-	\end{small}
+			{\vspace*{0.5em} \vdash t_1 : \phantom{tttttttttttttttttt}
+			\quad   \vdash t_2 : \phantom{ttttttttttttttt}} 
+			{\vspace*{-1em}\hspace*{-2.1em} {\red \Gamma} \vdash \text{ let } x = t_1 \text{ in } t_2 
+				: \phantom{ttttttttttttttt}}
+
 	%\end{adjustwidth}	
-\end{frame}
-
-\section*{Ghost Code}
-
-\begin{frame}
- \begin{itemize}
- 	\item[] $${\large \red \texttt{Ghost Code}}$$
- 	\begin{center}
- 	\includegraphics[scale=0.31]{GhostBusters}
- 	\end{center} 
- \end{itemize}
 \end{frame}
 \addtocounter{framenumber}{-1}
 
-\subsection*{ghost properties informally}
-% un pgm avec du code ghost :
-%  - pour le prouver, je prends *tout* le code, sans distinction
-%  - pour l'exécuter, j'oublie le code ghost
 
-\begin{frame}
-\frametitle{\red{ghost code}}
-	may be inserted for the purpose of specification and/or proof. \\[1em]
-	\pause	
-	\begin{itemize}
-	\item[\red $\bullet$] regular code does not see ghost data
-	\item[\red $\bullet$] ghost code may read regular data (but cannot modify it)\\[1em]
-	\end{itemize}
-in particular, ghost code may be removed without observable modification
+\subsection*{let 1}
+\begin{frame}[fragile]
+\frametitle{example: let in}
+
+		\infrule[] 
+			{\vspace*{0.5em}{\red \Gamma} \vdash t_1 :  {\red \tau^i, \Rouge{\theta_1}, \Rouge{\rho_1}}  \phantom{ttttttttttt} 
+			\quad  \vdash t_2 : \phantom{ttttttttttttttttt}} 
+			{\vspace*{-1em}\hspace*{-2.1em}{\red \Gamma} \vdash \text{ let } x = t_1 \text{ in } t_2 
+				: \phantom{ttttttttttttttt}}
+
+	%\end{adjustwidth}	
 \end{frame}
+\addtocounter{framenumber}{-1}
+
+\subsection*{let 2}
+\begin{frame}[fragile]
+\frametitle{example: let in}
+
+		\infrule[] 
+			{\vspace*{0.5em}{\red \Gamma} \vdash t_1 :  {\red \tau^i, \Rouge{\theta_1}, \Rouge{\rho_1}}  \phantom{tttttttttttttt} 
+			\quad {\red \Gamma, x:\tau^i}  \vdash t_2 : {\red \tau^j, \theta_2, \rho_2}  \phantom{tttttttt}} 
+			{\vspace*{-1em}\hspace*{-2.1em}{\red \Gamma} \vdash \text{ let } x = t_1 \text{ in } t_2 
+				: \phantom{tttttttttt}}
+
+	%\end{adjustwidth}	
+\end{frame}
+\addtocounter{framenumber}{-1}
+
+
+\subsection*{let 3a}
+\begin{frame}[fragile]
+\frametitle{example: let in}
+
+		\infrule[] 
+			{\vspace*{0.5em}{\red \Gamma} \vdash t_1 :  {\red \tau^i, \theta_1, \rho_1}  \phantom{tttttttttttt} 
+			\quad {\red \Gamma, x:\tau^i}  \vdash t_2 : {\red \tau^j, \theta_2, \rho_2}  \phantom{tttttttt}} 
+			{\vspace*{-1em}\hspace*{-2.1em}{\red \Gamma} \vdash \text{ let } x = t_1 \text{ in } t_2 
+				: {\red \tau^{j}} \phantom{tttttt}}
+
+	%\end{adjustwidth}	
+\end{frame}
+\addtocounter{framenumber}{-1}
+
+\subsection*{let 3b}
+\begin{frame}[fragile]
+\frametitle{example: let in}
+
+		\infrule[] 
+			{\vspace*{0.5em}{\red \Gamma} \vdash t_1 :  {\red \tau^i, \theta_1, \rho_1}  \phantom{tttttttttttt} 
+			\quad {\red \Gamma, x:\tau^i}  \vdash t_2 : {\red \tau^j, \theta_2, \rho_2}  \phantom{tttttttt}} 
+			{\vspace*{-1em}\hspace*{-2.1em}{\red \Gamma} \vdash \text{ let } x = t_1 \text{ in } t_2 
+				: {\red \tau^{j}, 
+				(\theta_1 \bvee \theta_2)} \phantom{tttttt}}
+
+	%\end{adjustwidth}	
+\end{frame}
+\addtocounter{framenumber}{-1}
+
+\subsection*{let 3c}
+\begin{frame}[fragile]
+\frametitle{example: let in}
+
+		\infrule[] 
+			{\vspace*{0.5em}{\red \Gamma} \vdash t_1 :  {\red \tau^i, \theta_1, \rho_1}  \phantom{tttttttttttt} 
+			\quad {\red \Gamma, x:\tau^i}  \vdash t_2 : {\red \tau^j, \theta_2, \rho_2}  \phantom{tttttttt}} 
+			{\vspace*{-1em}\hspace*{-2.1em}{\red \Gamma} \vdash \text{ let } x = t_1 \text{ in } t_2 
+				: {\red \tau^{j}, 
+				(\theta_1 \bvee \theta_2), 
+				(\rho_1 \bvee \rho_2)} \phantom{tttttt}}
+
+	%\end{adjustwidth}	
+\end{frame}
+\addtocounter{framenumber}{-1}
+
+
+\section*{liaisons dangereuses}
+\begin{frame}[fragile]
+\frametitle{les liaisons dangereuses}
+\begin{small}
+\begin{whycode} 
+${\red \only<1-2>{\mathcal{P}_1}\only<3-4>{\mathcal{P}_2}}$: 
+   let F = ($\only<1-2>{\texttt{\red r:= !r + 1;}}\only<3-4>{\texttt{\red diverge(); }}$ fun (f:int -> int) -> f !r)
+   in $\only<1-2>{\texttt{(F id) + (F id)}}\only<3-4>{\texttt{()}}$
+   
+*?%$\hspace*{8em}\only<2>{{\red \mathcal{P}_{1_{\{r=0\}}} \longrightarrow^{\star} 2_{\{ r=1\}}}}\only<4>{\red \mathcal{P}_{2_{\{r=0\}}} \longrightarrow^{\star} \infty}$
+?* 
+${\red\only<1-2>{ \mathcal{I}(P_1)}\only<3-4>{\mathcal{I}(P_2)}}:$ 
+$\only<1-2>{\qquad \texttt{(r:= !r + 1; !r) + (r:= !r + 1; !r)}}
+\only<3-4>{\qquad \texttt{()}}$ 
+   
+*?%$\hspace*{8em}\only<2>{\mathcal{I}(P_1)_{\{r=0\}} \longrightarrow^{\star} 3_{\{r=2\}}}\only<4>{\mathcal{I}(P_2)_{\{r=0\}} \longrightarrow^{\star} ()_{\{r=0\}}}$      
+?*
+\end{whycode} \bigskip
+\only<1>{
+$$ \fbox{\texttt{\red effect is duplicated}} $$}
+\only<3>{
+$$ \fbox{\texttt{\red  semantics is not preserved}} $$}
+\only<2,4>{
+$$ \fbox{\texttt{\OliveGreen{must be rejected by type system}}} $$}
+\end{small}
+\end{frame}
+
+
+\subsection*{condition}
+\begin{frame}[fragile]
+\frametitle{example: let in}
+		\infrule[] 
+			{\vspace*{0.5em}{\red \Gamma} \vdash t_1 :  {\red \tau^i, \theta_1, \rho_1}  \phantom{tttttttt} 
+			\quad {\red \Gamma, x:\tau^i}  \vdash t_2 : {\red \tau^j, \theta_2, \rho_2}  \phantom{ttttt} {\blue \texttt{\textbf{Cond}}}} 
+			{\vspace*{-1em}\hspace*{-2.1em}{\red \Gamma} \vdash \text{ let } x = t_1 \text{ in } t_2 
+				: {\red \tau^{j}, 
+				(\theta_1 \bvee \theta_2), 
+				(\rho_1 \bvee \rho_2)} \phantom{tttttttt}}
+
+\bigskip
+$$ \textcolor{blue}{\texttt{Cond: } \texttt{(i = 2)} \Rightarrow 
+			(\theta_1 = \bot_{\theta}\bwedge \rho_1 = \bot_{\rho})}$$
+\end{frame}
+\addtocounter{framenumber}{-1}
 
 
 \subsection*{example: sum of list elements} 
@@ -801,6 +905,38 @@ ensures  { ${ \texttt{inv (reverse l)}}$ }
 \end{footnotesize}
 \end{frame}
 \addtocounter{framenumber}{-1}
+
+
+
+\section*{Ghost Code}
+
+\begin{frame}
+ \begin{itemize}
+ 	\item[] $${\large \red \texttt{Ghost Code}}$$
+ 	\begin{center}
+ 	\includegraphics[scale=0.31]{GhostBusters}
+ 	\end{center} 
+ \end{itemize}
+\end{frame}
+\addtocounter{framenumber}{-1}
+
+\subsection*{ghost properties informally}
+% un pgm avec du code ghost :
+%  - pour le prouver, je prends *tout* le code, sans distinction
+%  - pour l'exécuter, j'oublie le code ghost
+
+\begin{frame}
+\frametitle{\red{ghost code}}
+	may be inserted for the purpose of specification and/or proof. \\[1em]
+	\pause	
+	\begin{itemize}
+	\item[\red $\bullet$] regular code does not see ghost data
+	\item[\red $\bullet$] ghost code may read regular data (but cannot modify it)\\[1em]
+	\end{itemize}
+in particular, ghost code may be removed without observable modification
+\end{frame}
+
+
 
 
 \subsection*{Ghost formalisation}
@@ -905,6 +1041,65 @@ $$\Gamma \vdash_{gh} t : \tau, (\theta, \rho, \gbr)
 % Example
 \end{document}
 
+\begin{frame}[fragile]
+%\frametitle{example: let in}
+%\begin{small}
+%		\infrule[] 
+%			{\vspace*{0.5em}\Gamma \vdash t_1 :  {\red \tau^i, \theta_1, \rho_1}  \quad 
+%			\quad \Gamma, x:\tau^i  \vdash t_2 : {\red \tau^j, \theta_2, \rho_2}  \quad {\footnotesize \textcolor{blue}{(i = 2) \Rightarrow 
+%			(\theta_1 = \bot_{\theta}\bwedge \rho_1 = \bot_{\rho})}}} 
+%			{\vspace*{-1em}\hspace*{-2.1em}\Gamma \vdash \text{ let } x = t_1 \text{ in } t_2 
+%				: {\red \tau^{j}, 
+%				(\theta_1 \bvee \theta_2), 
+%				(\rho_1 \bvee \rho_2)} \phantom{ttttttttttt}}
+%	\end{small}	
+%	\begin{small}
+%\begin{whycode} 
+%${\red \only<1>{\mathcal{P}_1}\only<2->{\mathcal{P}_2}}$: 
+%   let F = 
+%      ($\only<1>{\texttt{\red r:= !r + 1;}}\only<2->{\texttt{\red diverge(); }}$ fun (f:int -> int) -> f !r)
+%   in $\only<1>{\texttt{(F id) + (F id)}}\only<2->{\texttt{()}}$
+%
+%${\red\only<1>{ \mathcal{I}(P_1)}\only<2->{\mathcal{I}(P_2)}}: \only<1>{\texttt{(r:= !r + 1; !r) + (r:= !r + 1; !r)}}
+%\only<2->{\texttt{()}}$
+%\end{whycode}
+%\end{small}
+%\end{frame}
+%\addtocounter{framenumber}{-1}
+%\begin{itemize}	
+%	\item[-] {\red } ordered simple types 
+%	\begin{footnotesize} 
+%		\item[] \qquad$\tau^{\red 0}:\{\texttt{ bool, int list,... }\}$
+%		\item[] \qquad$\tau^{\red 1}:\{\texttt{ int -> bool, int -> (int -> bool), ... }\}$
+%		\item[] \qquad$\tau^{\red 2}:\{\texttt{ (int -> int) -> bool, ... }\}$\\[1em]
+%	\end{footnotesize}
+%	\end{itemize}
+%	\item[-] a type system {\red with effects}:\\[0.5em]
+%		\begin{itemize}
+
+%\begin{frame}[fragile]
+%\frametitle{Experimental language}
+%a fragment of ML with
+%\begin{itemize}
+%	\item[-] built-in data (int, int list, ...)
+%	\item[-] zero-order global references 
+%	\item[-] first-order recursion
+%	\item[-] second-order closures 
+%	\item[-] {\red second-order} programs with types \\[0.5em]
+%		\begin{itemize}	
+%		\begin{footnotesize} 
+%			\item[] \qquad$\tau^{\red 0}:\{\texttt{ int, bool,... }\}$
+%			\item[] \qquad$\tau^{\red 1}:\{\texttt{ int -> bool, int -> (int -> bool), ... }\}$
+%			\item[] \qquad$\tau^{\red 2}:\{\texttt{ (int -> int) -> bool, ... }\}$\\[1em]
+%		\end{footnotesize}
+%		\end{itemize}
+%		 \pause
+%	\item[-] a type system {\red with effects}:\\[0.5em]
+%		\begin{itemize}
+%			\item[] \qquad $\Gamma \vdash t: \tau^{i}, {\red \theta, \rho} $
+%		\end{itemize}
+%\end{itemize}
+%\end{frame}
 
 %\begin{frame}[fragile]
 %\frametitle{\OliveGreen{instantiate inv}}
@@ -1081,6 +1276,21 @@ $$\Gamma \vdash_{gh} t : \tau, (\theta, \rho, \gbr)
 %\end{center}
 %\end{frame}
 
+
+%\documentclass{beamer}
+%
+%\usepackage[utf8]{inputenc}
+%\usepackage[french]{babel}
+%
+%\begin{document}
+%
+%\title{Deductive Verification of Stateful Second-Order Programs}
+%\author{Léon Gondelman}
+%\date{M2 internship \\ \today}
+%
+%\begin{frame}
+%  \maketitle
+%\end{frame}
 
 % Local Variables:
 % compile-command: "rubber -d slides"
