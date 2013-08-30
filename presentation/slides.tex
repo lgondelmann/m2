@@ -622,30 +622,30 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 
 
 % TODO : conclusion we get FO program + FO spec -> (OK for provers) 
-\subsection*{Instantiate f 2}
-\begin{frame}[fragile]
-\frametitle{\OliveGreen{Instantiate f}}
-\vspace*{0em}
-\begin{footnotesize}
-\begin{whycode}
-let sum_iter (a: int array) 
-ensures { $\texttt{result = sum 0 (length a) a }$}
-= let s = ref 0 in 
-  let iter (b: int array)
-  requires { ${ \texttt{!s = sum 0 0 a}}$ } 
-  ensures  { ${ \texttt{!s = sum 0 (length b) a}}$ } 
-  = let n = Array.length b in
-    let rec aux (i: int)
-    requires { ${\texttt{!s = sum 0 i a}\bwedge 0 \leq \texttt{i} \leq \texttt{n}}$ }
-    ensures  { ${\texttt{!s = sum 0 n a}}$ }
-    = if i < n
-      then (${\red\texttt{s := !s + b.(i)}}$ ; aux (i + 1)) 
-    in aux 0
-  in iter a; 
-  !s
-\end{whycode}
-\end{footnotesize}
-\end{frame}
+%\subsection*{Instantiate f 2}
+%\begin{frame}[fragile]
+%\frametitle{\OliveGreen{Instantiate f}}
+%\vspace*{0em}
+%\begin{footnotesize}
+%\begin{whycode}
+%let sum_iter (a: int array) 
+%ensures { $\texttt{result = sum 0 (length a) a }$}
+%= let s = ref 0 in 
+%  let iter (b: int array)
+%  requires { ${ \texttt{!s = sum 0 0 a}}$ } 
+%  ensures  { ${ \texttt{!s = sum 0 (length b) a}}$ } 
+%  = let n = Array.length b in
+%    let rec aux (i: int)
+%    requires { ${\texttt{!s = sum 0 i a}\bwedge 0 \leq \texttt{i} \leq \texttt{n}}$ }
+%    ensures  { ${\texttt{!s = sum 0 n a}}$ }
+%    = if i < n
+%      then (${\red\texttt{s := !s + b.(i)}}$ ; aux (i + 1)) 
+%    in aux 0
+%  in iter a; 
+%  !s
+%\end{whycode}
+%\end{footnotesize}
+%\end{frame}
 
 % TODO : conclusion we get FO program + FO spec -> (OK for provers) 
 \subsection*{Proving the result}
@@ -730,13 +730,13 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 	    'apply2' : (int -> int -> bool) -> (int -> (int -> bool)) \end{whycode}
 	\end{footnotesize}	\pause
 	\item[-] global {\red mutable} references (with int, int list, ...) \pause
-	\item[-] {\red first-order} recursion 
-	\begin{small}
-	\begin{whycode}
-	      let h (f: int -> int)
-        = let rec g (x: int)
-          = if x = 0 then ${\red\texttt{(f x)}}$ else g${\red\texttt{ (f (x-1))}}$ \end{whycode}
-	\end{small}\pause
+	\item[-] {\red first-order} recursion  \pause
+%	\begin{small}
+%	\begin{whycode}
+%	      let h (f: int -> int)
+%        = let rec g (x: int)
+%          = if x = 0 then ${\red\texttt{(f x)}}$ else g${\red\texttt{ (f (x-1))}}$ \end{whycode}
+%	\end{small}
 	\item[-] a type system {\red with effets}
 \end{itemize}
 \end{frame}
@@ -748,8 +748,9 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 %\frametitle<3>{Ordering types}
 \frametitle<3>{Reference assignment}
 \frametitle<4>{Recursive calls}
-\frametitle<5-6>{Inlining correctness}
-\frametitle<7>{Restrictions on typing system}
+\frametitle<5>{Inlining correctness}
+\frametitle<6>{Writing a proof}
+\frametitle<7>{Restricting typing rules}
 \begin{large}
 \only<1>{
 $$\Gamma \vdash t: \tau^{\texttt{\textbf{i}}}{, \theta, \rho}$$\bigskip
@@ -946,12 +947,12 @@ $$ \OliveGreen{ \texttt{rejected by type system}} $$}
 \begin{frame}
 \frametitle{Experimental evaluation}
 \begin{itemize}
-\item apply inlining manually on various 
+\item we applied inlining manually on various 
 \begin{itemize}
 \item {\red HO functions} (iterators, maps, folders,...)
 \item {\red data structures} (arrays, lists, binary trees, ...) \pause \bigskip
 \end{itemize}
-\item use existing {\red verification tools (Why3, Alt-Ergo)} to compare VCs generated from inlined programs vs loop programs
+\item we used existing {\red verification tools} (Why3, Alt-Ergo) to compare generated VCs
 \end{itemize}
 \end{frame}
 
