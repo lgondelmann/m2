@@ -79,7 +79,9 @@ stringstyle=\color{gray},
 emphstyle=\color{gray}}\gray}{\gray}
 
 
-
+\newcommand{\OliveGreen}[1]{\textcolor{OliveGreen}{#1}}
+\newcommand{\Rouge}[1]{\textcolor{red}{#1}}
+\newcommand{\Noir}[1]{\textcolor{black}{#1}}
 
 
 \let\why\lstinline
@@ -169,10 +171,10 @@ Jean-Christophe \textsc{Filli\^atre}
 
 
 % 1. contexte, problème, exemple introductif (array_iter)
-% sum_loop et sum_iter en parallèle
+% sum_while et sum_iter en parallèle
 
-\section*{Quote}
-\begin{frame}{Formal verification informally}
+\section*{Idea}
+\begin{frame}{Idea}
 \begin{quotation}
  ''The most important property of a program is whether it accomplishes the intention of its user.''\\
 \hfill{\blue{C.A.R. Hoare}}
@@ -180,14 +182,14 @@ Jean-Christophe \textsc{Filli\^atre}
 \bigskip
 \end{frame}
 
-\section*{Scheme}
+\section*{Method}
 \begin{frame}
-\frametitle{The art of program verification}
+\frametitle{Method}
 \includegraphics{definition_en.mps}
 \bigskip\pause
   \begin{enumerate}
-  \item {\red specify} a program \pause
-  \item {\red generate} verification conditions \pause
+  \item {\red specify} a program 
+  \item {\red generate} verification conditions 
   \item {\red discharge} them, using
     \begin{itemize}
     \item ATP when possible
@@ -196,32 +198,39 @@ Jean-Christophe \textsc{Filli\^atre}
   \end{enumerate}
 \end{frame}
 
-\section*{Related work}
+
+\section*{A vantage point}
 \begin{frame}
-\frametitle{Related work}
-{\red last 40 years}
-	\begin{itemize}
-		\item[] formal verification of imperative programs 
-		\item[] emergence of efficient ATPs (Alt-Ergo, Z3, CVC4, ...)
-		\item[] first-order verification plateforms (Why3, Boogie, ...)
-	\end{itemize}\vspace*{1em} \pause
-{\red more recently}
-	\begin{itemize}
-		\item[] higher-order functional programs (Coq, PVS, Pangolin,...)
-		\item[] higher-order {\red stateful} programs (Who, F$^\star$, HTT, CFML, ...)
-	\end{itemize}
-\pause
+
+\frametitle{A vantage point}
+\hspace*{-1.5em}
+\only<1->{ verification of {\red imperative} programs (C, Java, ...)}
+\begin{itemize}
+\item<2->[] \hspace*{-2em} ${\blue \bullet}$  first-order logic {\small(Hoare Logic, Weakest Precondition Calculus)}
+\item<3->[] \hspace*{-2em}  ${\blue \bullet}$ fully automatic first-order provers (Nqthm, Otter, SPASS)
+\item<4->[] \hspace*{-2em}  ${\blue \bullet}$ efficient SMT provers (Alt-Ergo, Z3, ...) 
+\end{itemize}
 \bigskip
-{\red challenge}: proof automation
+\hspace*{-1.5em}
+\only<1->{verification of {\red functional } \underline{stateful} programs (OCaml, F$\sharp$, ...)}
+\begin{itemize}
+\item<5->[] \hspace*{-2em}  ${\blue \bullet}$ higher-order logic {CIC, \small(Hoare Type Theory, Kanig PhD, ...)} 
+%\item<6->[] \hspace*{-2em}  ${\blue \bullet}$ purely functional programs (Coq, PVS, Pangolin)
+\item<6->[] \hspace*{-2em}  ${\blue \bullet}$ stateful functional programs (F$^{\star}$, Who, CFML)
+\item<7->[]  \hspace*{-2em}  ${\blue \bullet}$ interactive proof assistants (Coq, Isabelle, ...)
+\end{itemize}\bigskip
+\only<9>{$$\fbox{\texttt{{\blue challenge}:{\red HO programs proof automation}}}$$}
 \end{frame}
 
+
 \section*{Two sum programs}
+\subsection*{code}
 \begin{frame}[fragile]\frametitle{Computing the sum of array elements}
 \begin{adjustwidth}{-0.3cm}{1.0cm}
 \begin{small}
 \begin{minipage}[t]{0.4\textwidth}
 \begin{whycode}  
-let sum_loop (a: int array)
+let sum_while (a: int array)
 = let s = ref 0 in
   let n = Array.length a in
   let i = ref 0 in
@@ -244,15 +253,109 @@ let sum_iter (a: int array)
 \end{small}
 \end{adjustwidth}
 \end{frame}
+\addtocounter{framenumber}{-1}
 
-\section*{Verifying Sum_loop}
-\newcommand{\OliveGreen}[1]{\textcolor{OliveGreen}{#1}}
-\newcommand{\Rouge}[1]{\textcolor{red}{#1}}
-\newcommand{\Noir}[1]{\textcolor{black}{#1}}
+\subsection*{imperativeness}
+\begin{frame}[fragile]\frametitle{Computing the sum of array elements}
+\begin{adjustwidth}{-0.3cm}{1.0cm}
+\begin{small}
+\begin{minipage}[t]{0.4\textwidth}
+\begin{whycode}  
+let sum_while (a: int array)
+= let s = ${\red \texttt{ref 0}}$ in
+  let n = Array.length a in
+  let i = ref 0 in
+  while !i < n do
+    ${\red \texttt{s := !s + a.(!i)}}$;
+    i := !i + 1
+  done;
+  ${\red \texttt{!s}}$
+\end{whycode}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.4\textwidth}
+\begin{whycode} 
+let sum_iter (a: int array)
+= let s = ${\red \texttt{ref 0}}$ in
+  Array.iter 
+    (fun x -> ${\red \texttt{s := !s + x}}$) a;
+   ${\red \texttt{!s}}$
+\end{whycode}	
+\end{minipage}
+\end{small}
+\end{adjustwidth}
+\end{frame}
+\addtocounter{framenumber}{-1}
 
+\subsection*{while vs imperative}
+\begin{frame}[fragile]\frametitle{Computing the sum of array elements}
+\begin{adjustwidth}{-0.3cm}{1.0cm}
+\begin{small}
+\begin{minipage}[t]{0.4\textwidth}
+\begin{whycode}  
+let sum_while (a: int array)
+= let s = ref 0 in
+  let n = Array.length a in
+  let i = ref 0 in
+  ${\red \texttt{while}}$ !i < n ${\red \texttt{do}}$
+    s := !s + a.(!i);
+    i := !i + 1
+  ${\red \texttt{done}}$;
+  !s
+\end{whycode}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.4\textwidth}
+\begin{whycode} 
+let sum_iter (a: int array)
+= let s = ref 0 in
+  ${\red \texttt{Array.iter}}$ 
+    ${\red \texttt{(fun x -> s := !s + x)}}$ a;
+  !s
+\end{whycode}	
+\end{minipage}
+\end{small}
+\end{adjustwidth}
+\end{frame}
+
+\subsection*{same spec}
+\begin{frame}[fragile]\frametitle{Computing the sum of array elements}
+\begin{adjustwidth}{-1em}{2em}
+\begin{small}
+\begin{minipage}[t]{0.4\textwidth}
+\begin{whycode}  
+let sum_while (a: int array)
+= let s = ref 0 in
+  let n = Array.length a in
+  let i = ref 0 in
+  while !i < n do
+    s := !s + a.(!i);
+    i := !i + 1
+  done;
+  !s
+\end{whycode}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.4\textwidth}
+\begin{whycode} 
+let sum_iter (a: int array)
+= let s = ref 0 in
+  Array.iter 
+    (fun x -> s := !s + x) a;
+  !s
+\end{whycode}	
+\end{minipage}
+\end{small}
+\end{adjustwidth}
+\only<1>{$$\textcolor{blue}{\texttt{programs are different}}$$
+$$~$$}
+\only<2>{$${\blue \texttt{but their meaning is the same:}}$$
+$${ \red \texttt{ result =} \hspace*{-1em}\sum_{~0 \leq j < \text{a.length}}\hspace*{-1em} a[j]~}$$}
+\end{frame}
+\addtocounter{framenumber}{-1}
+
+
+\section*{Verifying sum_while}
 \begin{frame}[fragile]
 \frametitle<1>
-{Sum with loop}
+{Proving Sum\_while}
 \frametitle<2>
 {\quad Program specification}
 \frametitle<3>
@@ -264,7 +367,7 @@ let sum_iter (a: int array)
 \vspace*{-1em}
 \begin{normalsize}
 	\begin{whycode}  
-let sum_loop (a: int array) *?\only<2->{\\ 
+let sum_while (a: int array) *?\only<2->{\\ 
 	{\blue ensures} \{ \texttt{{\blue result} = {\red sum 0 (length a) a }}\}}?* 
 = let s = ref 0 in
   let n = Array.length a in
@@ -606,7 +709,7 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 \item[{\red 3.}] prove that inlining procedure  
 \begin{itemize}	
 \item[{\red $\bullet$}] {\normalsize always {\red terminates}}
-\item[{\red $\bullet$}] {\normalsize {\red preserves} semantics}
+\item[{\red $\bullet$}] {\normalsize {\red preserves} semantics} \pause
 \end{itemize}
 \end{itemize}
 \end{frame}
@@ -626,7 +729,7 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 	\begin{whycode}
 	    'apply2' : (int -> int -> bool) -> (int -> (int -> bool)) \end{whycode}
 	\end{footnotesize}	\pause
-	\item[-] global {\red mutable} references (with primitive data values) \pause
+	\item[-] global {\red mutable} references (with int, int list, ...) \pause
 	\item[-] {\red first-order} recursion 
 	\begin{small}
 	\begin{whycode}
@@ -645,7 +748,8 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 %\frametitle<3>{Ordering types}
 \frametitle<3>{Reference assignment}
 \frametitle<4>{Recursive calls}
-\frametitle<5>{Inlining correctness}
+\frametitle<5-6>{Inlining correctness}
+\frametitle<7>{Restrictions on typing system}
 \begin{large}
 \only<1>{
 $$\Gamma \vdash t: \tau^{\texttt{\textbf{i}}}{, \theta, \rho}$$\bigskip
@@ -674,7 +778,17 @@ $$~$$
 $$~$$}
 \only<5>{
 $$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, \rho $$\bigskip 
+$$\OliveGreen{\texttt{well-typed terms {\red =} terms inlined correctly}}$$
+$$~$$
+$$~$$}
+\only<6>{
+$$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, \rho $$\bigskip 
 $$\OliveGreen{\texttt{well-typed terms {\red -->} terms inlined correctly}}$$
+$$~$$
+$$~$$}
+\only<7>{
+$$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, \rho $$\bigskip 
+$$\OliveGreen{\texttt{well-typed terms {\red <--} terms inlined correctly}}$$
 $$~$$
 $$~$$}
 %\only<6>{
@@ -826,29 +940,97 @@ $$ \texttt{\red  semantics is not preserved} $$}
 $$ \OliveGreen{ \texttt{rejected by type system}} $$}
 \end{frame}
 
+%voici un autre exemple que l'on a sur lequel on a evalué notre approche
 
-\section*{Example: sum of list elements} 
-\begin{frame}[fragile]
-\frametitle{example the sum of list elements}
-\hspace*{-1em}
-\begin{footnotesize}
-\begin{whycode}
- let sum_list (l: int list) : int
- ensures { result = $\sum$ l }
- = let s = ref 0 in
-   List.iter 
-     (${\red\texttt{fun before after -> !s = }\sum \texttt{ before}}$) (fun x -> s := !s + x) l; 
-   !s     
-\end{whycode}
-\end{footnotesize}
+\section*{Experimental evaluation}
+\begin{frame}
+\frametitle{Experimental evaluation}
+\begin{itemize}
+\item apply inlining manually on various 
+\begin{itemize}
+\item {\red HO functions} (iterators, maps, folders,...)
+\item {\red data structures} (arrays, lists, binary trees, ...) \pause \bigskip
+\end{itemize}
+\item use existing {\red verification tools (Why3, Alt-Ergo)} to compare VCs generated from inlined programs vs loop programs
+\end{itemize}
 \end{frame}
 
+\section*{sum of list elements} 
 \begin{frame}[fragile]
-\frametitle{precondition and postcondition}
+\frametitle{example: sum\_list}
+\hspace*{-1em}
+\begin{whycode}
+ let sum_list (l: int list) : int
+ ensures { ${\red \texttt{result =  sum l}}$ }
+ = let s = ref 0 in
+   List.iter 
+     (${\red\texttt{fun before after -> !s = }\sum \texttt{ before}}$) 
+     (fun x -> s := !s + x) l; 
+   !s     
+\end{whycode}
+\end{frame}
+
+
+\section*{iter spec}
+\subsection*{Invariant parameter}
+\begin{frame}[fragile]
+\frametitle{Invariant parameter}
+\hspace*{-1em}
+%\begin{small}
+\begin{whycode}
+let iter ($\textcolor{red}{\texttt{inv:int list -> int list -> prop}}$) 
+(f:int -> unit) (l: int list)
+\end{whycode}\vspace*{-1em}\begin{whygray} 
+= let rec loop (${ \texttt{before:int list}}$) (after:int list)
+  = match after with
+     | Nil       -> ()
+     | Cons x xs -> f x; loop ${ \texttt{(Cons x before)}}$ xs
+  in loop ${\texttt{Nil}}$ l
+\end{whygray}
+\end{frame}
+\addtocounter{framenumber}{-1}
+
+\subsection*{before and after}
+\begin{frame}[fragile]
+\frametitle<1>{Before and after}
+\frametitle<2->{Reversed order}
+\hspace*{-1em}
+%\begin{small}
+\begin{whycode}
+let iter ($\textcolor{red}{\texttt{inv:int list -> int list -> prop}}$) 
+(f:int -> unit) (l: int list)
+= let rec loop (${\red \texttt{before:int list}}$) (after:int list)
+  = match after with
+     | Nil       -> ()
+     | Cons x xs -> f x; loop ${\red \texttt{(Cons x before)}}$ xs
+  in loop ${\red\texttt{Nil}}$ l
+\end{whycode}
+%\end{small}
+
+\begin{displaymath}\hspace*{-1.5em}
+\begin{array}{lccccl}
+\only<2->{{ \{} \texttt{x}_{\red 1} & \texttt{...} & \texttt{x}_{\red k} { \}} & 
+{ \{}  \texttt{x}_{\red k+1} & \texttt{...} & \texttt{x}_{\red n} { \}} \\}
+
+\only<2->{
+&\stackrel{\texttt{\red before}}{\texttt{<-----------------}} & 
+& 
+&\stackrel{\texttt{\red after}}{\texttt{---------------->}} & \\
+{\{}  \texttt{b}_{\red k} & \texttt{...} & \texttt{b}_{\red 0} { \}}  
+&\hspace*{-1em}  {\{} \texttt{a}_{\red 1} & \texttt{...} & \texttt{x}_{\red n-k} { \}}}
+\end{array}
+\end{displaymath}
+\end{frame}
+\addtocounter{framenumber}{-1}
+
+\subsection*{pre and post}
+\begin{frame}[fragile]
+\frametitle{Precondition and postcondition}
 \hspace*{-4em}
 \begin{footnotesize}
 \begin{whycode}
-let iter ($\textcolor{red}{\text{inv:int list -> int list -> prop}}$) (f:int -> unit) (l: int list)
+let iter ($\textcolor{red}{\text{inv:int list -> int list -> prop}}$) 
+(f:int -> unit) (l: int list)
 requires { ${\red \texttt{inv Nil l}}$ }
 ensures  { ${\red \texttt{inv (reverse l) Nil}}$ } 
 = ${\gray\texttt{let rec loop (before:int list) (after:int list)}}$
@@ -863,15 +1045,13 @@ ensures  { ${\red \texttt{inv (reverse l) Nil}}$ }
 \end{frame}
 \addtocounter{framenumber}{-1}
 
-
-
 \begin{frame}[fragile]
-\frametitle{loop invariant}
+\frametitle{Loop invariant}
 \hspace*{-1em}
 \begin{footnotesize}
 \begin{whycode}
-${\gray\texttt{let iter (inv:int list -> int list -> prop)}} ~
-{\gray\texttt{(f:int -> unit) (l:int list)}}$
+${\gray\texttt{let iter (inv:int list -> int list -> prop)}}$
+${\gray\texttt{(f:int -> unit) (l:int list)}}$
 ${\gray\texttt{requires \{ inv Nil l \}}}$
 ${\gray\texttt{ensures~ \{ inv (reverse l) Nil\}}}$    
 = let rec loop $(\textcolor{red}{\text{before:int list}})$ (after: int list) 
@@ -887,59 +1067,49 @@ ${\gray\texttt{ensures~ \{ inv (reverse l) Nil\}}}$
 \addtocounter{framenumber}{-1}
 
 
+\subsection*{Ghost code}
 \begin{frame}[fragile]
-\frametitle{regular code}
+\frametitle{Regular code}
 \hspace*{-1em}
-\begin{footnotesize}
 \begin{whycode}
-${\gray\texttt{let iter (inv:int list -> int list -> prop)}} ~
-{\gray\texttt{(f:int -> unit) (l:int list)}}$
-${\gray\texttt{requires \{ inv Nil l \}}}$
-${\gray\texttt{ensures~ \{ inv (reverse l) Nil \}}}$    
-= ${\gray\texttt{let rec loop (before:int list) (after:int list)}}$
-  ${\gray\texttt{requires \{ inv before after \} }}$
-  ${\gray\texttt{ensures~ \{ inv ((reverse after) ++ before) Nil \}}}$
-  = match after with 
+let iter (${\texttt{{\red inv}:int list -> int list -> prop}}$) 
+(f:int -> unit) (l: int list)
+= let rec loop (${\texttt{{\red before}:int list}}$) (after:int list)
+  = match after with
      | Nil       -> ()
-     | Cons x xs -> f x; loop ($\textcolor{red}{\text{Cons x before}}$) xs 
-  in loop $\texttt{\red Nil}$ l 
+     | Cons x xs -> f x; loop ${\red \texttt{(Cons x before)}}$ xs
+  in loop ${\red\texttt{Nil}}$ l
 \end{whycode}
-\end{footnotesize}
 \end{frame}
 \addtocounter{framenumber}{-1}
 
 \begin{frame}[fragile]
-\frametitle{\red{ghost code}}
-\begin{footnotesize}
+\frametitle{{\red Ghost code}}
+\hspace*{-1em}
 \begin{whycode}
-let iter ($\textcolor{red}{\text{ghost inv:int list -> int list -> prop}}$) (f:int -> unit) (l: int list)
-requires { ${ \texttt{inv Nil l }}$ }
-ensures  { ${ \texttt{inv (reverse l) Nil}}$ }
-= let rec loop $(\textcolor{red}{\text{ghost before:int list}})$ (after: int list) 
-  requires $\texttt{\{ inv { before after} \}}$
-  ensures  $\texttt{\{ inv {((reverse after) ++ before)} }\}$     
-  = match after with 
+let iter (${\texttt{{\red ghost inv}:int list -> int list -> prop}}$) 
+(f:int -> unit) (l: int list)
+= let rec loop (${ \texttt{{\red ghost before}:int list}}$) (after:int list)
+  = match after with
      | Nil       -> ()
-     | Cons x xs -> f x; loop ($\textcolor{red}{\text{Cons x before}}$) xs 
-  in loop $\texttt{\red Nil}$ l 
+     | Cons x xs -> f x; loop ${\red \texttt{(Cons x before)}}$ xs
+  in loop ${\red\texttt{Nil}}$ l
 \end{whycode}
-\end{footnotesize}
 \end{frame}
 \addtocounter{framenumber}{-1}
-
 
 
 \section*{Ghost Code}
 
-\begin{frame}
- \begin{itemize}
- 	\item[] $${\large \red \texttt{Ghost Code}}$$
- 	\begin{center}
- 	\includegraphics[scale=0.2]{Ghostbusters2}
- 	\end{center} 
- \end{itemize}
-\end{frame}
-\addtocounter{framenumber}{-1}
+%\begin{frame}
+% \begin{itemize}
+% 	\item[] $${\large \red \texttt{Ghost Code}}$$
+% 	\begin{center}
+% 	\includegraphics[scale=0.2]{Ghostbusters2}
+% 	\end{center} 
+% \end{itemize}
+%\end{frame}
+%\addtocounter{framenumber}{-1}
 
 \subsection*{ghost properties informally}
 % un pgm avec du code ghost :
@@ -947,7 +1117,7 @@ ensures  { ${ \texttt{inv (reverse l) Nil}}$ }
 %  - pour l'exécuter, j'oublie le code ghost
 
 \begin{frame}
-\frametitle{\red{ghost code}}
+\frametitle{{Idea}}
 	may be inserted for the purpose of specification and/or proof \\[1em]
 	\pause	
 	\begin{itemize}
@@ -958,8 +1128,6 @@ in particular, ghost code may be removed without observable modification
 \end{frame}
 
 
-
-
 \subsection*{Ghost formalisation}
 
 % 4. formalisation de Ghost-ML
@@ -968,76 +1136,137 @@ in particular, ghost code may be removed without observable modification
 %      obligations), l'opération erasure et la preuve
 
 \begin{frame}
-\frametitle{our second contribution}
+\frametitle{Our second contribution}
 \begin{itemize}
-\item formalize Ghost-ML: syntax, semantics, type system with ghost effects \pause
-\item prove ghost code non-interference with regular code \pause
-\item define ghost erasure and prove semantics preservation  
+\item formalize {\red Ghost-ML}: syntax, semantics \pause
+\item extend type system with {\red ghost effects} \pause
+\item prove ghost code {\red non-interference} with regular code \pause
+\item define ghost {\red erasure} and prove {\red semantics preservation}
 \end{itemize}
 \end{frame}
 
+%\begin{frame}
+%\frametitle{ghost code non-interference}
+%type system with effects 
+%$$\Gamma \vdash_{gh} t: \tau^{i}, (\theta, \rho, {\red \beta}) $$
+%
+%\bigskip\pause
+%typing invariant 
+%$$\Gamma \vdash_{gh} t : \tau, (\theta, \rho, \gbr) 
+% ~~ \Rightarrow ~~
+%\models (\gbr = \gbtr) \Rightarrow (\theta = \bth \bwedge \rho = \brh) $$
+%\end{frame}
+%
+%
+%\begin{frame}
+%\frametitle{ghost code propagation}
+%\begin{footnotesize}	
+%\begin{displaymath}
+%\begin{array}{l}
+%\dfrac
+%	{
+%		\ghosttyping
+%			{t_1}
+%			{\tau_1}
+%			{\theta_1}
+%			{\rho_1}
+%			{\gbra{1}^{\rouge{'}}}
+%			{} \qquad
+%		\ghosttyping
+%			{t_2}
+%			{\tau_2}
+%			{\theta_2}
+%			{\rho_2}
+%			{\gbra{2}}
+%			{  \quad \models \gba{1} \Rightarrow \gba{1}^{'}}
+%	}
+%	{\ghosttyping
+%		{let~x^{\gbra{1}}_{\tau_1} = t_1~in~t_2}
+%		{\tau_2}
+%		{\theta_1 \bvee \theta_2}
+%		{\rho_1 \bvee \rho_2}
+%		{\gbra{2} \bvee (\gbran{1} \bwedge \gbra{1}^{\rouge{'}})}
+%		{}}
+%	{}
+%	\end{array}	
+%\end{displaymath}
+%\end{footnotesize}	
+%\end{frame}
+
+\section*{Future Work}
 \begin{frame}
-\frametitle{ghost code non-interference}
-type system with effects 
-$$\Gamma \vdash_{gh} t: \tau^{i}, \theta, \rho, {\red \beta} $$
-
-\bigskip\pause
-typing invariant 
-$$\Gamma \vdash_{gh} t : \tau, (\theta, \rho, \gbr) 
- ~~ \Rightarrow ~~
-\models (\gbr = \gbtr) \Rightarrow (\theta = \bth \bwedge \rho = \brh) $$
-\end{frame}
-
-
-\begin{frame}
-\frametitle{ghost code propagation}
-\begin{footnotesize}	
-\begin{displaymath}
-\begin{array}{l}
-\dfrac
-	{
-		\ghosttyping
-			{t_1}
-			{\tau_1}
-			{\theta_1}
-			{\rho_1}
-			{\gbra{1}^{\rouge{'}}}
-			{} \qquad
-		\ghosttyping
-			{t_2}
-			{\tau_2}
-			{\theta_2}
-			{\rho_2}
-			{\gbra{2}}
-			{  \quad \models \gba{1} \Rightarrow \gba{1}^{'}}
-	}
-	{\ghosttyping
-		{let~x^{\gbra{1}}_{\tau_1} = t_1~in~t_2}
-		{\tau_2}
-		{\theta_1 \bvee \theta_2}
-		{\rho_1 \bvee \rho_2}
-		{\gbra{2} \bvee (\gbran{1} \bwedge \gbra{1}^{\rouge{'}})}
-		{}}
-	{}
-	\end{array}	
-\end{displaymath}
-\end{footnotesize}	
-\end{frame}
-
-\section*{Conclusion}
-\begin{frame}
-\frametitle{conclusion}
+\frametitle{Future work}
 \begin{itemize}
-\item experimental evaluation 
+\item continue {\red experimental evaluation}  \pause
+\begin{itemize} 
+	\item make a {quantitative study} of HO programs used in practice \pause
+	\item { implement} a prototype    \pause \bigskip
+\end{itemize} 
+\item submit a {\red research paper} \pause
 \begin{itemize}
-	\item inlining can be useful 
-\end{itemize}
-\item formalization
-\begin{itemize}
-	\item inlining, ghost-code, correctness proofs
+\item on inlining (PEPM 2014) \pause
+\item on ghost code (PLPV 2014)
 \end{itemize}
 \end{itemize}
 \end{frame}
+
+%\begin{frame}[fragile]
+%\frametitle{\red{ghost code}}
+%\begin{footnotesize}
+%\begin{whycode}
+%let iter ($\textcolor{red}{\text{ghost inv:int list -> int list -> prop}}$) (f:int -> unit) (l: int list)
+%requires { ${ \texttt{inv Nil l }}$ }
+%ensures  { ${ \texttt{inv (reverse l) Nil}}$ }
+%= let rec loop $(\textcolor{red}{\text{ghost before:int list}})$ (after: int list) 
+%  requires $\texttt{\{ inv { before after} \}}$
+%  ensures  $\texttt{\{ inv {((reverse after) ++ before)} }\}$     
+%  = match after with 
+%     | Nil       -> ()
+%     | Cons x xs -> f x; loop ($\textcolor{red}{\text{Cons x before}}$) xs 
+%  in loop $\texttt{\red Nil}$ l 
+%\end{whycode}
+%\end{footnotesize}
+%\end{frame}
+%\addtocounter{framenumber}{-1}
+%\begin{frame}[fragile]
+%\frametitle{regular code}
+%\hspace*{-1em}
+%\begin{footnotesize}
+%\begin{whycode}
+%${\gray\texttt{let iter (inv:int list -> int list -> prop)}} ~
+%{\gray\texttt{(f:int -> unit) (l:int list)}}$
+%${\gray\texttt{requires \{ inv Nil l \}}}$
+%${\gray\texttt{ensures~ \{ inv (reverse l) Nil \}}}$    
+%= ${\gray\texttt{let rec loop (before:int list) (after:int list)}}$
+%  ${\gray\texttt{requires \{ inv before after \} }}$
+%  ${\gray\texttt{ensures~ \{ inv ((reverse after) ++ before) Nil \}}}$
+%  = match after with 
+%     | Nil       -> ()
+%     | Cons x xs -> f x; loop ($\textcolor{red}{\text{Cons x before}}$) xs 
+%  in loop $\texttt{\red Nil}$ l 
+%\end{whycode}
+%\end{footnotesize}
+%\end{frame}
+%\addtocounter{framenumber}{-1}
+
+%\begin{frame}
+%\frametitle{Related work}
+%{\red last 40 years}
+%	\begin{itemize}
+%		\item[] formal verification of imperative programs 
+%		\item[] emergence of efficient ATPs (Alt-Ergo, Z3, CVC4, ...)
+%		\item[] first-order verification plateforms (Why3, Boogie, ...)
+%	\end{itemize}\vspace*{1em} \pause
+%{\red more recently}
+%	\begin{itemize}
+%		\item[] higher-order functional programs (Coq, PVS, Pangolin,...)
+%		\item[] higher-order {\red stateful} programs (Who, F$^\star$, HTT, CFML, ...)
+%	\end{itemize}
+%\pause
+%\bigskip
+%{\red challenge}: proof automation
+%\end{frame}
+
 %\begin{frame}\frametitle{To summarize, in our work}\vspace*{-4em}
 %\begin{itemize}
 %	\item[\blue$-$]  we described of the inlining by the set of rewriting rules; \\[1em]
@@ -1261,7 +1490,7 @@ $$\Gamma \vdash_{gh} t : \tau, (\theta, \rho, \gbr)
 %\vspace*{-2em}
 %\begin{normalsize}
 %	\begin{whycode}  
-%let sum_loop (a: int array) *?\only<2->{\\ 
+%let sum_while (a: int array) *?\only<2->{\\ 
 %	{\blue ensures} $\{\texttt{ {\blue result} = }{\red~\sum_{~0 \leq j < \text{a.length}} a[j]}~\}$}?* 
 %= let s = ref 0 in
 %  let n = Array.length a in
