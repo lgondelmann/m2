@@ -698,7 +698,6 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 \subsection*{Proving the result}
 \begin{frame}[fragile]
 \frametitle<1-4>{\OliveGreen{Instantiate f}}
-\frametitle<5>{\normalsize \red Seems to be a good idea}
 \vspace*{-2em}
 \begin{footnotesize}
 \begin{whycode}
@@ -723,7 +722,6 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 \only<2>{$$\fbox{\OliveGreen{\textbf{we get a first-order program}}}$$}
 \only<3>{$$\fbox{\OliveGreen{\textbf{spec is first-order and complete}}}$$}
 \only<4>{$$\fbox{\OliveGreen{\textbf{generated VCs can be proved automatically}}}$$}
-\only<5>{$$\texttt{\Rouge{\textbf{\normalsize Let's work it out !}}}$$}
 \end{center}
 \end{footnotesize}
 \end{frame}
@@ -1208,8 +1206,8 @@ let iter (${\texttt{{\red ghost inv}:int list -> int list -> prop}}$)
 	\pause	
 	\begin{itemize}
 	\item[\red $\bullet$] regular code does not see ghost data
-	\item[\red $\bullet$] ghost code may read regular data (but cannot modify it)\\[1em]
-	\item[\red $\bullet$] ghost code must not diverge
+	\item[\red $\bullet$] ghost code may read regular data (but cannot modify it)
+	\item[\red $\bullet$] ghost code must not diverge\\[1em]
 	\end{itemize}
 in particular, ghost code may be removed without change of observable behaviour
 \end{frame}
