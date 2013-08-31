@@ -392,7 +392,7 @@ let sum_while (a: int array) *?\only<1->{\\
 \end{whycode}\vspace*{-0.5em}
 \end{normalsize}
 \begin{center}
-\only<2-3>{\texttt{{\red sum i j a} : axiomatic FO logical symbol}}
+\only<2>{\texttt{{\red sum i j a} : axiomatic FO logical symbol}}
 \only<4>{\OliveGreen{we used only first-order formulae}}
 \only<5>{\OliveGreen{generated VCs can be easily proved by ATPs}}
 \end{center}
@@ -431,7 +431,7 @@ let sum_while (a: int array) *?\only<1->{\\
 \only<5-8>{\texttt{{\blue modular proof}}:}
 \only<5>{\white\texttt{: Array.iter { body} is { second-order} program}}
 \only<6>{\texttt{ Array.iter is {\red second-order} program}}
-\only<7>{\texttt{ \quad ~{\red argument f}  a {\red stateful} function}}
+\only<7>{\texttt{ {\red argument f} is a {\red stateful} function}}
 \only<8>{\texttt{ \quad {\red may be difficult to automatize}}\\}
 \end{flushleft}
 \begin{center}
