@@ -1,6 +1,3 @@
-
-
-
 \documentclass[xcolor=dvipsnames]{beamer}
 \usepackage{etex}
 \usetheme{Pittsburgh}
@@ -13,7 +10,8 @@
 \usepackage{pstricks,pstricks-add,pst-math,pst-xkey}
 \usepackage{multicol}
 \usepackage{bcprules, proof}
-
+\usepackage{multirow}
+\usepackage{array}
 %\usepackage[T1]{fontenc}
 \usepackage{graphicx}
 \usepackage{hyperref}
@@ -24,7 +22,7 @@
 \RequirePackage{listings}
 \RequirePackage{amssymb}
 \usepackage{tikz}
-
+\usepackage{tabularx}
 \lstset{
 	xleftmargin=\parindent,
   basicstyle={\ttfamily},
@@ -128,43 +126,40 @@ emphstyle=\color{gray}}\gray}{\gray}
 
 \definecolor{cblue}{RGB}{90,110,160}
 
-
+\makeatletter
+\def\hlinewd#1{%
+\noalign{\ifnum0=`}\fi\hrule \@height #1 %
+\futurelet\reserved@a\@xhline}
+\makeatother
 \begin{document}
 \section*{Title}
 \begin{frame}
 \begin{center}
-\vspace{-1.cm}
-%\HRule
+
 
 \textsc{\blue{\Large Deductive Verification of \\[0.2cm] 
 Stateful Second-Order Programs }}\\
 %\HRule
- \textsc{ \scriptsize master's degree second year internship}\\[2cm]
-%{\small  L\'eon \textsc{Gondelman}}  \\[0.5cm]
-%{\small Advisor: Jean-Christophe \textsc{Filli\a^tre}}
-\bigskip
-\begin{minipage}{0.3\textwidth}
-\begin{flushleft} 
-\emph{Author:}\\
-L\'eon \textsc{Gondelman}
-\end{flushleft}
-\end{minipage}
-\begin{minipage}{0.5\textwidth}
-\begin{flushright} 
-\emph{Supervisor:} \\
-Jean-Christophe \textsc{Filli\^atre}
-\end{flushright}
-\end{minipage}
+ \textsc{ \scriptsize master's degree second year internship defense}\\[1cm]
+L\'eon \textsc{Gondelman}\\[1.5cm]
+\end{center}\bigskip
 
-\vfill
+\begin{normalsize}
+\begin{center} 
+\hspace*{-9em}{\blue Supervisor}: Jean-Christophe \textsc{Filli\^atre} \\
+\hspace*{1em}{\blue Laboratoire}: LRI / Inria Saclay (Equipe Toccata), Orsay, France \\
+\end{center}
+\end{normalsize}
+\vfill\begin{center}
+\today
+\end{center} 
 
-% Bottom of the page
-{\small \today}
+
 
 
 
 %\includegraphics[scale=0.15]{image_title3}
-\end{center}
+
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -182,9 +177,9 @@ Jean-Christophe \textsc{Filli\^atre}
 \bigskip
 \end{frame}
 
-\section*{Method}
+\section*{Approach}
 \begin{frame}
-\frametitle{Method}
+\frametitle{Approach}
 \includegraphics{definition_en.mps}
 \bigskip\pause
   \begin{enumerate}
@@ -192,36 +187,48 @@ Jean-Christophe \textsc{Filli\^atre}
   \item {\red generate} verification conditions 
   \item {\red discharge} them, using
     \begin{itemize}
-    \item ATP when possible
-    \item proof assistants otherwise
+    \item automated theorems provers
+    \item interactive proof assistants
     \end{itemize}
   \end{enumerate}
 \end{frame}
 
-
-\section*{A vantage point}
+\section*{Related work}
 \begin{frame}
-
-\frametitle{A vantage point}
-\hspace*{-1.5em}
-\only<1->{ verification of {\red imperative} programs (C, Java, ...)}
-\begin{itemize}
-\item<2->[] \hspace*{-2em} ${\blue \bullet}$  first-order logic {\small(Hoare Logic, Weakest Precondition Calculus)}
-\item<3->[] \hspace*{-2em}  ${\blue \bullet}$ fully automatic first-order provers (Nqthm, Otter, SPASS)
-\item<4->[] \hspace*{-2em}  ${\blue \bullet}$ efficient SMT provers (Alt-Ergo, Z3, ...) 
-\end{itemize}
-\bigskip
-\hspace*{-1.5em}
-\only<1->{verification of {\red functional } \underline{stateful} programs (OCaml, F$\sharp$, ...)}
-\begin{itemize}
-\item<5->[] \hspace*{-2em}  ${\blue \bullet}$ higher-order logic {CIC, \small(Hoare Type Theory, Kanig PhD, ...)} 
-%\item<6->[] \hspace*{-2em}  ${\blue \bullet}$ purely functional programs (Coq, PVS, Pangolin)
-\item<6->[] \hspace*{-2em}  ${\blue \bullet}$ stateful functional programs (F$^{\star}$, Who, CFML)
-\item<7->[]  \hspace*{-2em}  ${\blue \bullet}$ interactive proof assistants (Coq, Isabelle, ...)
-\end{itemize}\bigskip
-\only<9>{$$\fbox{\texttt{{\blue challenge}:{\red HO programs proof automation}}}$$}
+\frametitle<1-6>{Related work}
+\frametitle<7>{Today}
+\begin{small}
+\begin{center}\hspace*{-1.5em}
+\begin{tabular}{|l|c|c|}
+\hline
+ {\red Programs}\phantom{ttt} & \phantom{ttttttttttt} {imperative} \phantom{ttttttttt}	& 
+ 
+ \phantom{ttttttttt} {functional} \phantom{tttttttttt}	 \\  \hlinewd{1.2pt}  
+{\red Specification} 
+	& \only<2->{\phantom{ttt} first-order logic \phantom{ttt}} 
+	& \only<2->{\phantom{ttt} higher-order logic \phantom{ttt} } \\ \hline
+{\red Generated VCs} 
+	& \only<3->{ Frama-C, Boogie, Why3, ...  }
+	& \only<3->{  Pangolin, F$^{\star}$, Who, ...  } \\ \hline
+{\red Proof}
+  & \only<4->{{ automated theorem provers}}
+		& \only<5->{{ interactive proof assistants}} \\ 
+	& \only<4->{{\footnotesize Nqthm, Alt-Ergo, ...}} 
+		&\only<5->{{\footnotesize Coq, Isabelle, ...}} \\ \hline
+\end{tabular}
+\end{center}
+\end{small}\bigskip
+\only<1-5>{
+\begin{flushleft}~\end{flushleft}}
+\only<6>{
+\hspace*{-2em}
+\texttt{{\red Scientific challenge}:~automated proof of HO programs}
+}
+\only<7>{
+\hspace*{-2em}
+{\texttt{{\blue This work}:~automated proof of {\blue SO stateful} programs}} 
+}
 \end{frame}
-
 
 \section*{Two sum programs}
 \subsection*{code}
@@ -315,6 +322,7 @@ let sum_iter (a: int array)
 \end{small}
 \end{adjustwidth}
 \end{frame}
+\addtocounter{framenumber}{-1}
 
 \subsection*{same spec}
 \begin{frame}[fragile]\frametitle{Computing the sum of array elements}
@@ -349,14 +357,14 @@ $$~$$}
 \only<2>{$${\blue \texttt{but their meaning is the same:}}$$
 $${ \red \texttt{ result =} \hspace*{-1em}\sum_{~0 \leq j < \text{a.length}}\hspace*{-1em} a[j]~}$$}
 \end{frame}
-\addtocounter{framenumber}{-1}
+
 
 
 \section*{Verifying sum_while}
 \begin{frame}[fragile]
-\frametitle<1>
-{Proving Sum\_while}
-\frametitle<2>
+%\frametitle<1>
+%{Proving Sum\_while}
+\frametitle<1-2>
 {\quad Program specification}
 \frametitle<3>
 {\quad Loop invariant}
@@ -367,7 +375,7 @@ $${ \red \texttt{ result =} \hspace*{-1em}\sum_{~0 \leq j < \text{a.length}}\hsp
 \vspace*{-1em}
 \begin{normalsize}
 	\begin{whycode}  
-let sum_while (a: int array) *?\only<2->{\\ 
+let sum_while (a: int array) *?\only<1->{\\ 
 	{\blue ensures} \{ \texttt{{\blue result} = {\red sum 0 (length a) a }}\}}?* 
 = let s = ref 0 in
   let n = Array.length a in
@@ -375,43 +383,82 @@ let sum_while (a: int array) *?\only<2->{\\
   while !i < n do *?
     \only<3->{\\    
   ${ \blue \hspace*{1em} \texttt{invariant}}  
-   ~\{{\red~\mathcal{I}: \texttt{!s = sum 0 !i a} \bwedge \texttt{0} \leq \texttt{!i} \leq \texttt{n}}~\}$} 
+   ~\{{\red~ \texttt{!s = sum 0 !i a} \bwedge \texttt{0} \leq \texttt{!i} \leq \texttt{n}}~\}$} 
   ?*
-	 	s := !s + a.(!i);  
+    s := !s + a.(!i);  
     i := !i + 1
   done;
   !s 
 \end{whycode}\vspace*{-0.5em}
 \end{normalsize}
-
-
 \begin{center}
+\only<2-3>{\texttt{{\red sum i j a} : axiomatic FO logical symbol}}
 \only<4>{\OliveGreen{we used only first-order formulae}}
-\only<5>{\OliveGreen{generated verification conditions can be easily proved by ATPs}}
-\only<6>{\red Can we prove \texttt{sum\_iter} in a similar way ?}
+\only<5>{\OliveGreen{generated VCs can be easily proved by ATPs}}
 \end{center}
 \end{frame}
 
 
-
-
 \section*{Verifying Sum_iter}
 \begin{frame}[fragile]
-\frametitle<1>{Sum example with {iterator}}
-\frametitle<2>{Program specification}
-\frametitle<3>{Invariant formula}
+\frametitle<1>{Program specification}
+\frametitle<2>{Program modularity}
+\frametitle<3>{Specification modularity}
+\frametitle<4>{One known solution}
+\frametitle<5>{Proof modularity}
+\frametitle<6-8>{Difficulties of this solution}
+\frametitle<9>{Our intuition}
+\frametitle<10>{Our approach}
+\frametitle<11>{Invariant formula}
 \begin{whycode}
- let sum_iter (a: int array) *?\only<2->{\\
+ let sum_iter (a: int array) *?\only<1->{\\
 	{\blue \texttt{ ensures }}\{\texttt{ {\blue result} =} 
 	{\red \texttt{ sum 0 (length a) a }}\}}?* 
  = let s = ref 0 in
    Array.iter*?
-   \only<3->{\\\hspace*{3.5em}
+   \only<11>{\\\hspace*{3.5em}
    {\red\texttt{(fun i -> !s = sum 0 i a)}}\\}?* 
        (fun x ->  s := !s + x) a; 
-     !s 
+   !s 
 \end{whycode}
+\begin{flushleft}
+\only<1-8>{\texttt{{\blue program is modular}}}
+\only<1>{\white \texttt{: we need to specify { Array.iter}}}
+\only<2-8>{\texttt{: we need to specify {Array.iter}}\\}
+\only<3-8>{\noindent \texttt{{\blue specification is modular}}}
+\only<3>{\white \texttt{: we can to prove {Array.iter} too}}
+\only<4-8>{\texttt{: we can prove {\red Array.iter}}\\}
+\only<5-8>{\texttt{{\blue modular proof}}:}
+\only<5>{\white\texttt{: Array.iter { body} is { second-order} program}}
+\only<6>{\texttt{ Array.iter is {\red second-order} program}}
+\only<7>{\texttt{ \quad ~{\red argument f}  a {\red stateful} function}}
+\only<8>{\texttt{ \quad {\red may be difficult to automatize}}\\}
+\end{flushleft}
+\begin{center}
+\vspace*{-2em}
+\only<9>{\texttt{\blue the proof of \texttt{sum\_iter} and \texttt{sum\_iter} should be similar}}
+\end{center}
+
+\only<10>{\vspace*{-4em}\hrulefill
+\begin{displaymath}
+\begin{array}{@{\hspace*{-0.5em}}llllllll}
+  \begin{minipage}{0.2\textwidth}
+  {\texttt{{\red SO} program}}\vspace*{-0.5em} \\
+ 	\hspace*{2em}+\vspace*{-0.5em}\\ 
+	{\hspace*{0.5em}\texttt{{\blue FO} spec}}
+  \end{minipage} & 
+	\stackrel{\texttt{\normalsize \red inlining}}{\texttt{--------->}} 
+& 	  \begin{minipage}{0.2\textwidth}
+  {\texttt{\color{cblue}{FO} \gray program}}\vspace*{-0.5em} \\
+ 	\hspace*{2em}\color{cblue}{+}\vspace*{-0.5em}\\ 
+	{\hspace*{0.5em}\texttt{\color{cblue}{FO} \gray spec}}
+  \end{minipage}
+& \stackrel{\texttt{\normalsize \gray VCs generator}}{{\gray \texttt{---------->}}}  & \texttt{\color{cblue}{FO} \gray VCs} 
+\end{array}
+\end{displaymath}
+\hrulefill}
 \end{frame}
+
 
 \section*{Verifying Iterator}
 \begin{frame}[fragile]
@@ -420,8 +467,7 @@ let sum_while (a: int array) *?\only<2->{\\
 \frametitle<3>{Loop initial and final states}
 \frametitle<4>{Loop iteration}
 \frametitle<5-6>{Pros and cons}
-\frametitle<7>{An existing solution}
-\frametitle<8>{Pragmatic approach}
+\frametitle<7>{Solution}
 \begin{whycode}  
 let iter *?\only<2->{{\red \texttt{(inv:int -> prop) }}}?*(f:int -> unit) (b: int array) *?\only<3->{\\ 
 \texttt{\blue requires }\{{\red \texttt{ inv 0 }}\} \\
@@ -440,13 +486,14 @@ $$ \fbox{\texttt{{\blue pros}: specification above is {\blue modular}}} $$}
 \only<6>{
 $$ \fbox{\texttt{{\red cons}: specification above is {\red partial}}} $$}
 \only<7>{
- $$\texttt{\OliveGreen{complete the specification}}$$\vspace*{-1.5em} 
-$$ \textcolor{purple}{\texttt{may be difficult to prove automatically}}$$
-}
-\only<8>{
-$$ \texttt{\OliveGreen{\underline{inline} the definition of iterator}} $$
-\vspace*{-1.5em} 
-$$ \hspace*{0em}\texttt{\OliveGreen{\underline{instantiate} the invariant formula}}$$}
+\hspace*{3.5em}
+\fbox{
+\begin{minipage}[C]{0.7\textwidth}
+\begin{center}
+\texttt{\OliveGreen{inline} the definition of iterator}\\
+\texttt{\OliveGreen{instantiate} the invariant formula}
+\end{center}
+\end{minipage}}}
 \end{frame}
 
 
@@ -689,7 +736,7 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 \begin{displaymath}
 \begin{array}{@{\hspace*{-1.2em}}llllllll}
   \begin{minipage}{0.2\textwidth}
-  {\texttt{{\red HO} program}}\vspace*{-0.5em} \\
+  {\texttt{{\red SO} program}}\vspace*{-0.5em} \\
  	\hspace*{2em}+\vspace*{-0.5em}\\ 
 	{\hspace*{0.5em}\texttt{{\blue FO} spec}}
   \end{minipage} & 
@@ -727,9 +774,11 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 	\item[-] {\red second-order} closures  
 	\begin{footnotesize}
 	\begin{whycode}
-	    'apply2' : (int -> int -> bool) -> (int -> (int -> bool)) \end{whycode}
+      iter : (int -> unit) -> int list -> unit)
+      map  : (int -> $\tau$) -> int list -> $\tau$ list)
+      fold : ($\tau$ -> int -> $\tau$) -> $\tau$ -> int list -> $\tau$) \end{whycode}
 	\end{footnotesize}	\pause
-	\item[-] global {\red mutable} references (with int, int list, ...) \pause
+	\item[-] global {\red mutable} references ({\blue ref} int, {\blue ref} (int list), ...) \pause
 	\item[-] {\red first-order} recursion  \pause
 %	\begin{small}
 %	\begin{whycode}
@@ -737,7 +786,7 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 %        = let rec g (x: int)
 %          = if x = 0 then ${\red\texttt{(f x)}}$ else g${\red\texttt{ (f (x-1))}}$ \end{whycode}
 %	\end{small}
-	\item[-] a type system {\red with effets}
+	\item[-] a type system {\red with effects}
 \end{itemize}
 \end{frame}
 
@@ -747,10 +796,8 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 \frametitle<2>{Ordering types}
 %\frametitle<3>{Ordering types}
 \frametitle<3>{Reference assignment}
-\frametitle<4>{Recursive calls}
-\frametitle<5>{Inlining correctness}
-\frametitle<6>{Writing a proof}
-\frametitle<7>{Restricting typing rules}
+\frametitle<4-5>{Recursive calls}
+%\frametitle<6>{Inlining correctness}
 \begin{large}
 \only<1>{
 $$\Gamma \vdash t: \tau^{\texttt{\textbf{i}}}{, \theta, \rho}$$\bigskip
@@ -763,35 +810,62 @@ $$~$$}
 %$$~$$}
 \only<2>{
 $$\hspace*{3em}\Gamma \vdash t: \tau^{\red \texttt{\textbf{i}}}, \theta, \rho \quad {\small \red \texttt{i = 0,1,2}} $$\bigskip
-$$\hspace*{-16.5em}\texttt{{\blue ref} x:}~\tau^{\red 0}$$
-$$\hspace*{-5em}\texttt{{\blue rec} g:}~\tau^{\red 0} \texttt{ -> } \texttt{(} \tau^{\red 0} \texttt{ -> ... -> } \tau^{\red 0} \texttt{)}$$
-$$\hspace*{2.5em}\texttt{{\blue fun} h:}~\tau^{\red 1} \texttt{ -> } \texttt{(} \tau^{\red 1} \texttt{ -> ... -> (} \tau^{{\red 0}} \texttt{ -> ... -> } \tau^{{\red 0}} \texttt{))}$$}
+$$\hspace*{-15.5em}\texttt{{\blue ref} x:}~\tau^{\red 0}$$
+$$\hspace*{-5em}\texttt{{\blue rec} g:}~\tau^{\red 0} \texttt{ -> }  \tau^{\red 0} \texttt{ -> ... -> } \tau^{\red 0} $$
+$$\hspace*{2.5em}\texttt{{\blue fun} h:}~\tau^{\red 1} \texttt{ -> }  \tau^{\red 1} \texttt{ -> ... -> } \tau^{{\red 0}} \texttt{ -> ... -> } \tau^{{\red 0}} $$}
 %\only<3>{
 %$$\Gamma \vdash t: \tau^{\red \texttt{\textbf{i}}}{\white, \theta, \rho} $$\bigskip
 %$$\hspace*{-1em}\texttt{{\blue fun} h:}~\tau^{\red 1} \texttt{ -> } \texttt{(} \tau^{\red 1} \texttt{ -> ... -> (} \tau^{{\red 0}} \texttt{ -> ... -> } \tau^{{\red 0}} \texttt{))}$$ $$~$$}
 \only<3>{
 $$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, {\red \theta}, \rho $$ \bigskip
-$$ \texttt{\red t may modify the global state}$$ $$~$$ $$~$$}
+$$ \texttt{\red t may modify the global state}$$ 
+ $$~$$
+\infrule[T-assign] 
+		{\Gamma \vdash \texttt{v}:\tau^{0}, \bot_{\theta}, \bot_{\rho}}
+    {\Gamma \vdash \texttt{r}_{\tau^{0}} := \texttt{v} : \texttt{unit}, {\red \top_{\theta}}, \bot_{\rho}}
+}
 \only<4>{
 $$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, {\red \rho} $$\bigskip 
 $$ \texttt{\red t may diverge} $$
 $$~$$
-$$~$$}
+\infrule[T-Rec] 
+		{\Gamma, 
+		\texttt{f:}{\tau^{\textcolor{red}{0}} 
+			\stackrel{\theta, {\red \boldsymbol{\top_{\rho}}}}{\Longrightarrow}\tau^{\textcolor{red}{1}}},~ 
+		\texttt{x:}{\tau\textcolor{red}{^0}} \vdash \texttt{t} : 
+		\tau^{\textcolor{red}{1}}, \theta, \rho} 
+		{ \Gamma \vdash \texttt{rec f x = t} : 
+			\tau^{\textcolor{red}{0}} \stackrel{\theta, {\red \top_{\rho}}}{\Longrightarrow}\tau^{\textcolor{red}{1}}, 
+			{\blue \bot_{\theta}}, 
+			\bot_{\rho}}}
 \only<5>{
-$$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, \rho $$\bigskip 
-$$\OliveGreen{\texttt{well-typed terms {\red =} terms inlined correctly}}$$
+$$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, {\red \rho} $$\bigskip 
+$$ \texttt{\red t may diverge} $$
 $$~$$
-$$~$$}
-\only<6>{
-$$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, \rho $$\bigskip 
-$$\OliveGreen{\texttt{well-typed terms {\red -->} terms inlined correctly}}$$
-$$~$$
-$$~$$}
-\only<7>{
-$$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, \rho $$\bigskip 
-$$\OliveGreen{\texttt{well-typed terms {\red <--} terms inlined correctly}}$$
-$$~$$
-$$~$$}
+\infrule[T-App] 
+	{\Gamma \vdash \texttt{f}: 
+	\tau^{0} \stackrel{\theta, {\red \boldsymbol{\top_{\rho}}}}{\Longrightarrow}
+  \tau^{1}, \bth, \brh 
+  \qquad \Gamma \vdash \texttt{v}:
+  	\tau^{0}, \bot_{\theta}, \bot_{\rho}}
+   {\Gamma \vdash \texttt{(t~v)} : 
+   	\tau^{1}, (\theta \bvee \theta'), {\red \boldsymbol{\top_{\rho}}}}}		
+			
+%\only<6>{
+%$$~$$
+%$$ \Gamma \vdash t: \tau^\texttt{i}, \theta, \rho \texttt{ holds }~~ {\red \boldsymbol{\Rightarrow}}~~ \texttt{   t can be inlined correctly}$$
+%$$~$$
+%$$~$$}
+%\only<6>{
+%$$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, \rho $$\bigskip 
+%$$\OliveGreen{\texttt{well-typed terms {\red -->} terms inlined correctly}}$$
+%$$~$$
+%$$~$$}
+%\only<7>{
+%$$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, \rho $$\bigskip 
+%$$\OliveGreen{\texttt{well-typed terms {\red <--} terms inlined correctly}}$$
+%$$~$$
+%$$~$$}
 %\only<6>{
 %$$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, \rho $$\bigskip 
 %$$\OliveGreen{\texttt{well-typed terms {\red -->} terms inlined correctly}}$$
@@ -896,19 +970,19 @@ $$~$$}
 \end{frame}
 \addtocounter{framenumber}{-1}
 
-\subsection*{restriction on typing}
+\subsection*{Additional hypothesis}
 \begin{frame}[fragile]
-\frametitle{restriction on typing}
+\frametitle{Additional hypothesis}
 		\infrule[] 
 			{\vspace*{0.5em}{\red \Gamma} \vdash t_1 :  {\red \tau^i, \theta_1, \rho_1}  \phantom{tttttttt} 
-			\quad {\red \Gamma, x:\tau^i}  \vdash t_2 : {\red \tau^j, \theta_2, \rho_2}  \phantom{ttttt} {\blue \texttt{\textbf{Cond}}}} 
-			{\vspace*{-1em}\hspace*{-2.1em}{\red \Gamma} \vdash \text{ let } x = t_1 \text{ in } t_2 
+			\quad {\red \Gamma, x:\tau^i}  \vdash t_2 : {\red \tau^j, \theta_2, \rho_2}  \phantom{ttttt} {\blue \texttt{\textbf{H}}}} 
+			{\vspace*{-1em}\hspace*{2.1em}{\red \Gamma} \vdash \text{ let } x = t_1 \text{ in } t_2 
 				: {\red \tau^{j}, 
 				(\theta_1 \bvee \theta_2), 
 				(\rho_1 \bvee \rho_2)} \phantom{tttttttt}}
 
 \bigskip
-$$ \textcolor{blue}{\texttt{Cond: } \texttt{(i = 2)} \Rightarrow 
+$$ \textcolor{blue}{\texttt{H: } \texttt{(i = 2)} \Rightarrow 
 			(\theta_1 = \bot_{\theta}\bwedge \rho_1 = \bot_{\rho})}$$
 \end{frame}
 \addtocounter{framenumber}{-1}
@@ -943,6 +1017,20 @@ $$ \OliveGreen{ \texttt{rejected by type system}} $$}
 
 %voici un autre exemple que l'on a sur lequel on a evalué notre approche
 
+
+\section*{Inlining correctness}
+\begin{frame}[fragile]
+\frametitle<1>{Inlining correctness}
+\begin{large}
+\only<1>{
+$$~$$
+$$ \Gamma \vdash t: \tau^\texttt{i}, \theta, \rho \texttt{ holds }~~ {\red \boldsymbol{\Rightarrow}}~~ \texttt{   t can be inlined correctly}$$
+$$~$$
+$$~$$}
+\end{large}
+\end{frame}
+
+
 \section*{Experimental evaluation}
 \begin{frame}
 \frametitle{Experimental evaluation}
@@ -965,7 +1053,7 @@ $$ \OliveGreen{ \texttt{rejected by type system}} $$}
  ensures { ${\red \texttt{result =  sum l}}$ }
  = let s = ref 0 in
    List.iter 
-     (${\red\texttt{fun before after -> !s = }\sum \texttt{ before}}$) 
+     (${\red\texttt{fun before after -> !s = sum before}}$) 
      (fun x -> s := !s + x) l; 
    !s     
 \end{whycode}
@@ -1008,19 +1096,19 @@ let iter ($\textcolor{red}{\texttt{inv:int list -> int list -> prop}}$)
 \end{whycode}
 %\end{small}
 
-\begin{displaymath}\hspace*{-1.5em}
-\begin{array}{lccccl}
-\only<2->{{ \{} \texttt{x}_{\red 1} & \texttt{...} & \texttt{x}_{\red k} { \}} & 
-{ \{}  \texttt{x}_{\red k+1} & \texttt{...} & \texttt{x}_{\red n} { \}} \\}
-
-\only<2->{
-&\stackrel{\texttt{\red before}}{\texttt{<-----------------}} & 
-& 
-&\stackrel{\texttt{\red after}}{\texttt{---------------->}} & \\
-{\{}  \texttt{b}_{\red k} & \texttt{...} & \texttt{b}_{\red 0} { \}}  
-&\hspace*{-1em}  {\{} \texttt{a}_{\red 1} & \texttt{...} & \texttt{x}_{\red n-k} { \}}}
-\end{array}
-\end{displaymath}
+%\begin{displaymath}\hspace*{-1.5em}
+%\begin{array}{lccccl}
+%\only<2->{{ \{} \texttt{x}_{\red 1} & \texttt{...} & \texttt{x}_{\red k} { \}} & 
+%{ \{}  \texttt{x}_{\red k+1} & \texttt{...} & \texttt{x}_{\red n} { \}} \\}
+%
+%\only<2->{
+%&\stackrel{\texttt{\red before}}{\texttt{<-----------------}} & 
+%& 
+%&\stackrel{\texttt{\red after}}{\texttt{---------------->}} & \\
+%{\{}  \texttt{b}_{\red k} & \texttt{...} & \texttt{b}_{\red 0} { \}}  
+%&\hspace*{-1em}  {\{} \texttt{a}_{\red 1} & \texttt{...} & \texttt{x}_{\red n-k} { \}}}
+%\end{array}
+%\end{displaymath}
 \end{frame}
 \addtocounter{framenumber}{-1}
 
@@ -1085,7 +1173,7 @@ let iter (${\texttt{{\red inv}:int list -> int list -> prop}}$)
 \addtocounter{framenumber}{-1}
 
 \begin{frame}[fragile]
-\frametitle{{\red Ghost code}}
+\frametitle{Ghost code}
 \hspace*{-1em}
 \begin{whycode}
 let iter (${\texttt{{\red ghost inv}:int list -> int list -> prop}}$) 
@@ -1097,11 +1185,8 @@ let iter (${\texttt{{\red ghost inv}:int list -> int list -> prop}}$)
   in loop ${\red\texttt{Nil}}$ l
 \end{whycode}
 \end{frame}
-\addtocounter{framenumber}{-1}
-
 
 \section*{Ghost Code}
-
 %\begin{frame}
 % \begin{itemize}
 % 	\item[] $${\large \red \texttt{Ghost Code}}$$
@@ -1118,14 +1203,15 @@ let iter (${\texttt{{\red ghost inv}:int list -> int list -> prop}}$)
 %  - pour l'exécuter, j'oublie le code ghost
 
 \begin{frame}
-\frametitle{{Idea}}
+\frametitle{{Ghost code}}
 	may be inserted for the purpose of specification and/or proof \\[1em]
 	\pause	
 	\begin{itemize}
 	\item[\red $\bullet$] regular code does not see ghost data
 	\item[\red $\bullet$] ghost code may read regular data (but cannot modify it)\\[1em]
+	\item[\red $\bullet$] ghost code must not diverge
 	\end{itemize}
-in particular, ghost code may be removed without observable modification
+in particular, ghost code may be removed without change of observable behaviour
 \end{frame}
 
 
@@ -1141,7 +1227,7 @@ in particular, ghost code may be removed without observable modification
 \begin{itemize}
 \item formalize {\red Ghost-ML}: syntax, semantics \pause
 \item extend type system with {\red ghost effects} \pause
-\item prove ghost code {\red non-interference} with regular code \pause
+\item prove {\red non-interference} between ghost code and regular code \pause
 \item define ghost {\red erasure} and prove {\red semantics preservation}
 \end{itemize}
 \end{frame}
@@ -1197,19 +1283,86 @@ in particular, ghost code may be removed without observable modification
 \section*{Future Work}
 \begin{frame}
 \frametitle{Future work}
+
 \begin{itemize}
-\item continue {\red experimental evaluation}  \pause
+\item[]\hspace*{-3em} ${\blue \bullet}$  continue {\red experimental evaluation}  \pause
+
 \begin{itemize} 
-	\item make a {quantitative study} of HO programs used in practice \pause
-	\item { implement} a prototype    \pause \bigskip
+	\item[] {\hspace*{-3em} ${\blue \bullet}$ \normalsize make a {quantitative study} of HO programs used in practice} \pause
+	\item[]  {\hspace*{-3em} ${\blue \bullet}$ \normalsize implement a prototype }   \pause \bigskip
 \end{itemize} 
-\item submit a {\red research paper} \pause
+
+\item[] \hspace*{-3em} ${\blue \bullet}$ continue a {\red theoretical study} of our approach \pause
 \begin{itemize}
-\item on inlining (PEPM 2014) \pause
-\item on ghost code (PLPV 2014)
+\item[] {\hspace*{-3em} ${\blue \bullet}$ \normalsize adapt correctness proof for   studied fragment extensions} 
+\item[] {\hspace*{-3em} ${\blue \bullet}$ \normalsize write two research papers} \pause
 \end{itemize}
 \end{itemize}
-\end{frame}
+ \end{frame}
+
+%\begin{frame}
+%
+%\frametitle{Related work}
+%\hspace*{-1.5em}
+%\only<1->{ verification of {\red imperative} programs (C, Java, ...)}
+%\begin{itemize}
+%\item<2->[] \hspace*{-2em} ${\blue \bullet}$  first-order logic {\small(Hoare Logic, Weakest Precondition Calculus)}
+%\item<3->[] \hspace*{-2em}  ${\blue \bullet}$ fully automatic first-order provers (Nqthm, Otter, SPASS)
+%\item<4->[] \hspace*{-2em}  ${\blue \bullet}$ efficient SMT provers (Alt-Ergo, Z3, ...) 
+%\end{itemize}
+%\bigskip
+%\hspace*{-1.5em}
+%\only<1->{verification of {\red functional } \underline{stateful} programs (OCaml, F$\sharp$, ...)}
+%\begin{itemize}
+%\item<5->[] \hspace*{-2em}  ${\blue \bullet}$ higher-order logic {CIC, \small(Hoare Type Theory, Kanig PhD, ...)} 
+%%\item<6->[] \hspace*{-2em}  ${\blue \bullet}$ purely functional programs (Coq, PVS, Pangolin)
+%\item<6->[] \hspace*{-2em}  ${\blue \bullet}$ stateful functional programs (F$^{\star}$, Who, CFML)
+%\item<7->[]  \hspace*{-2em}  ${\blue \bullet}$ interactive proof assistants (Coq, Isabelle, ...)
+%\end{itemize}\bigskip
+%\only<9>{$$\fbox{\texttt{{\blue challenge}:{\red HO programs proof automation}}}$$}
+%\end{frame}
+
+
+%\section*{Verifying Sum_iter}
+%\begin{frame}[fragile]
+%\frametitle<1>{Program specification}
+%\frametitle<2>{Program verification}
+%\frametitle<3>{Our approach}
+%\frametitle<4>{Invariant formula}
+%\begin{whycode}
+% let sum_iter (a: int array) *?\only<1->{\\
+%	{\blue \texttt{ ensures }}\{\texttt{ {\blue result} =} 
+%	{\red \texttt{ sum 0 (length a) a }}\}}?* 
+% = let s = ref 0 in
+%   Array.iter*?
+%   \only<4->{\\\hspace*{3.5em}
+%   {\red\texttt{(fun i -> !s = sum 0 i a)}}\\}?* 
+%       (fun x ->  s := !s + x) a; 
+%   !s 
+%\end{whycode}
+%\begin{center}
+%\only<2>{\red Can we prove \texttt{sum\_iter} in a way similar to imperative sum ?}
+%\only<3>{
+%\begin{displaymath}
+%\begin{array}{@{\hspace*{-1.2em}}llllllll}
+%  \begin{minipage}{0.2\textwidth}
+%  {\texttt{{\red HO} program}}\vspace*{-0.5em} \\
+% 	\hspace*{2em}+\vspace*{-0.5em}\\ 
+%	{\hspace*{0.5em}\texttt{{\blue FO} spec}}
+%  \end{minipage} & 
+%	\stackrel{\texttt{\normalsize \red }}{\texttt{---------->}} \hspace*{0.1em} 
+%& 
+%	  \begin{minipage}{0.2\textwidth}
+%  {\texttt{\color{cblue}{FO} \gray program}}\vspace*{-0.5em} \\
+% 	\hspace*{2em}\color{cblue}{+}\vspace*{-0.5em}\\ 
+%	{\hspace*{0.5em}\texttt{\color{cblue}{FO} \gray spec}}
+%  \end{minipage}
+%& \stackrel{\texttt{\normalsize \gray VCs generator}}{{\gray \texttt{------------->}}}  & \texttt{\color{cblue}{FO} \gray VCs} 
+%\end{array}
+%\end{displaymath}
+%}
+%\end{center}
+%\end{frame}
 
 %\begin{frame}[fragile]
 %\frametitle{\red{ghost code}}
