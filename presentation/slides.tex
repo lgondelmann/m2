@@ -242,8 +242,8 @@ L\'eon \textsc{Gondelman}\\[1.5cm]
 \begin{minipage}[t]{0.4\textwidth}
 \begin{whycode}  
 let sum_while (a: int array)
-= let s = ref 0 in
-  let n = Array.length a in
+= let n = Array.length a in
+  let s = ref 0 in
   let i = ref 0 in
   while !i < n do
     s := !s + a.(!i);
@@ -263,80 +263,81 @@ let sum_iter (a: int array)
 \end{minipage}
 \end{small}
 \end{adjustwidth}
+\vspace*{4.7em}~
 \end{frame}
 \addtocounter{framenumber}{-1}
 
-\subsection*{imperativeness}
-\begin{frame}[fragile]\frametitle{Computing the sum of array elements}
-\begin{adjustwidth}{-0.3cm}{1.0cm}
-\begin{small}
-\begin{minipage}[t]{0.4\textwidth}
-\begin{whycode}  
-let sum_while (a: int array)
-= let s = ${\red \texttt{ref 0}}$ in
-  let n = Array.length a in
-  let i = ref 0 in
-  while !i < n do
-    ${\red \texttt{s := !s + a.(!i)}}$;
-    i := !i + 1
-  done;
-  ${\red \texttt{!s}}$
-\end{whycode}
-\end{minipage}\hfill
-\begin{minipage}[t]{0.4\textwidth}
-\begin{whycode} 
-let sum_iter (a: int array)
-= let s = ${\red \texttt{ref 0}}$ in
-  Array.iter 
-    (fun x -> ${\red \texttt{s := !s + x}}$) a;
-  ${\red \texttt{!s}}$
-\end{whycode}	
-\end{minipage}
-\end{small}
-\end{adjustwidth}
-\end{frame}
-\addtocounter{framenumber}{-1}
-
-\subsection*{while vs imperative}
-\begin{frame}[fragile]\frametitle{Computing the sum of array elements}
-\begin{adjustwidth}{-0.3cm}{1.0cm}
-\begin{small}
-\begin{minipage}[t]{0.4\textwidth}
-\begin{whycode}  
-let sum_while (a: int array)
-= let s = ref 0 in
-  let n = Array.length a in
-  let i = ref 0 in
-  ${\red \texttt{while}}$ !i < n ${\red \texttt{do}}$
-    s := !s + a.(!i);
-    i := !i + 1
-  ${\red \texttt{done}}$;
-  !s
-\end{whycode}
-\end{minipage}\hfill
-\begin{minipage}[t]{0.4\textwidth}
-\begin{whycode} 
-let sum_iter (a: int array)
-= let s = ref 0 in
-  ${\red \texttt{Array.iter}}$ 
-    ${\red \texttt{(fun x -> s := !s + x)}}$ a;
-  !s
-\end{whycode}	
-\end{minipage}
-\end{small}
-\end{adjustwidth}
-\end{frame}
-\addtocounter{framenumber}{-1}
+%\subsection*{imperativeness}
+%\begin{frame}[fragile]\frametitle{Computing the sum of array elements}
+%\begin{adjustwidth}{-0.3cm}{1.0cm}
+%\begin{small}
+%\begin{minipage}[t]{0.4\textwidth}
+%\begin{whycode}  
+%let sum_while (a: int array)
+%= let n = Array.length a in
+%	let s = ${\red \texttt{ref 0}}$ in
+%  let i = ref 0 in
+%  while !i < n do
+%    ${\red \texttt{s := !s + a.(!i)}}$;
+%    i := !i + 1
+%  done;
+%  ${\red \texttt{!s}}$
+%\end{whycode}
+%\end{minipage}\hfill
+%\begin{minipage}[t]{0.4\textwidth}
+%\begin{whycode} 
+%let sum_iter (a: int array)
+%= let s = ${\red \texttt{ref 0}}$ in
+%  Array.iter 
+%    (fun x -> ${\red \texttt{s := !s + x}}$) a;
+%  ${\red \texttt{!s}}$
+%\end{whycode}	
+%\end{minipage}
+%\end{small}
+%\end{adjustwidth}
+%\end{frame}
+%\addtocounter{framenumber}{-1}
+%
+%\subsection*{while vs imperative}
+%\begin{frame}[fragile]\frametitle{Computing the sum of array elements}
+%\begin{adjustwidth}{-0.3cm}{1.0cm}
+%\begin{small}
+%\begin{minipage}[t]{0.4\textwidth}
+%\begin{whycode}  
+%let sum_while (a: int array)
+%= let s = ref 0 in
+%  let n = Array.length a in
+%  let i = ref 0 in
+%  ${\red \texttt{while}}$ !i < n ${\red \texttt{do}}$
+%    s := !s + a.(!i);
+%    i := !i + 1
+%  ${\red \texttt{done}}$;
+%  !s
+%\end{whycode}
+%\end{minipage}\hfill
+%\begin{minipage}[t]{0.4\textwidth}
+%\begin{whycode} 
+%let sum_iter (a: int array)
+%= let s = ref 0 in
+%  ${\red \texttt{Array.iter}}$ 
+%    ${\red \texttt{(fun x -> s := !s + x)}}$ a;
+%  !s
+%\end{whycode}	
+%\end{minipage}
+%\end{small}
+%\end{adjustwidth}
+%\end{frame}
+%\addtocounter{framenumber}{-1}
 
 \subsection*{same spec}
-\begin{frame}[fragile]\frametitle{Computing the sum of array elements}
-\begin{adjustwidth}{-1em}{2em}
+\begin{frame}[fragile]\frametitle{Proving the sum programs}
+\begin{adjustwidth}{-0.3cm}{1.0cm}
 \begin{small}
 \begin{minipage}[t]{0.4\textwidth}
 \begin{whycode}  
 let sum_while (a: int array)
-= let s = ref 0 in
-  let n = Array.length a in
+= let n = Array.length a in
+  let s = ref 0 in
   let i = ref 0 in
   while !i < n do
     s := !s + a.(!i);
