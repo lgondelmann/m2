@@ -796,8 +796,7 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
 \subsection*{Proving the result}
 \begin{frame}[fragile]
 \frametitle<1>{\OliveGreen{Instantiate f}}
-\frametitle<2-3>{\OliveGreen{Verification conditions and proof}}
-\vspace*{-2em}
+\frametitle<2>{{\blue Verification conditions and proof}}
 \begin{footnotesize}
 \begin{whycode}
 let sum_iter (a: int array) 
@@ -816,12 +815,19 @@ ensures { $\texttt{result = sum 0 (length a) a }$}
   in iter a; 
   !s
 \end{whycode}
-\vspace*{-4em}
-\begin{center} 
-\only<2>{$$\fbox{\OliveGreen{\textbf{we get a first-order program and specification}}}$$}
-\only<3>{$$\fbox{\OliveGreen{\textbf{generated VCs can be proved automatically}}}$$}
-\end{center}
 \end{footnotesize}
+\vspace*{-6em}
+\begin{flushleft}
+\only<1>{\vspace*{3em}
+$$~$$\\
+$$~$$}
+\only<2>{\vspace*{3em}
+\hspace*{8em}\OliveGreen{$\bullet$ we used only first-order formulae} \\
+\hspace*{8em}\OliveGreen{$\bullet$ generated VCs can be easily proved by ATPs}}
+\end{flushleft} 
+%\only<2>{$$\fbox{\OliveGreen{\textbf{we get a first-order program and specification}}}$$}
+%\only<3>{$$\fbox{\OliveGreen{\textbf{generated VCs can be proved automatically}}}$$}
+%\end{center}
 \end{frame}
 
 
