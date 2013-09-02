@@ -434,7 +434,7 @@ let sum_while (a: int array) *?\only<1->{\\
 
 \section*{Inlining idea}
 \begin{frame}
-\frametitle{Inlining}
+\frametitle{\OliveGreen{Proof via inlining}}
 \vspace*{-4em}
 \begin{displaymath}
 \begin{array}{@{\hspace*{-0.5em}}llllllll}
@@ -455,6 +455,7 @@ let sum_while (a: int array) *?\only<1->{\\
 \bigskip
 \begin{enumerate}
 \item use \OliveGreen{additional arguments} to represent the \OliveGreen{loop invariant}
+\item \textsf{\OliveGreen{specify} the iterator \OliveGreen{partially}}
 \item \textsf{\OliveGreen{inline} the definition of iterator}
 \item \textsf{\OliveGreen{instantiate} additional arguments}
 \end{enumerate}
@@ -565,8 +566,8 @@ let sum_while (a: int array) *?\only<1->{\\
 \frametitle<2>{Additional parameter}
 \frametitle<3>{Loop initial and final states}
 \frametitle<4>{Loop iteration}
-\frametitle<5-6>{Pros and cons}
-\frametitle<7>{Solution}
+\frametitle<5>{Pros and cons}
+\frametitle<6>{Solution}
 \begin{whycode}  
 let iter *?\only<2->{{\red \texttt{(inv:int -> prop) }}}?*(f:int -> unit) (b: int array) *?\only<3->{\\ 
 \texttt{\blue requires }\{{\red \texttt{ inv 0 }}\} \\
@@ -580,17 +581,26 @@ let n = Array.length b in
   in aux 0
 \end{whycode} 
 \bigskip
+%\only<5>{
+%$$ \fbox{\texttt{{\blue pros}: specification above is {\blue modular}}} $$}
+%\only<6>{
+%$$ \fbox{\texttt{{\red cons}: specification above is {\red partial}}} $$}
 \only<5>{
-$$ \fbox{\texttt{{\blue pros}: specification above is {\blue modular}}} $$}
+\hspace*{3.5em}
+\fbox{
+\begin{minipage}[C]{0.7\textwidth}
+\begin{center}
+\texttt{{\red cons}: specification above is {\red partial}}
+\texttt{{\blue pros}: specification above is {\blue modular}}\\
+\end{center}
+\end{minipage}}}
 \only<6>{
-$$ \fbox{\texttt{{\red cons}: specification above is {\red partial}}} $$}
-\only<7>{
 \hspace*{3.5em}
 \fbox{
 \begin{minipage}[C]{0.7\textwidth}
 \begin{center}
 \texttt{\OliveGreen{inline} the definition of iterator}\\
-\texttt{\OliveGreen{instantiate} the invariant formula}
+\texttt{\OliveGreen{instantiate} functional arguments}
 \end{center}
 \end{minipage}}}
 \end{frame}
