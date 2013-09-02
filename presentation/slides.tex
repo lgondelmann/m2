@@ -907,9 +907,9 @@ $$~$$}
 \begin{frame}[fragile]
 \frametitle<1>{Type system with effects}
 \frametitle<2>{Ordering types}
-%\frametitle<3>{Ordering types}
-\frametitle<3>{Reference assignment}
-\frametitle<4-5>{Recursive calls}
+\frametitle<3>{Effects}
+\frametitle<4>{Reference assignment}
+\frametitle<5-6>{Recursive calls}
 %\frametitle<6>{Inlining correctness}
 \begin{large}
 \only<1>{
@@ -930,6 +930,11 @@ $$\hspace*{2.5em}\texttt{{\blue fun} h:}~\tau^{\red 1} \texttt{ -> }  \tau^{\red
 %$$\Gamma \vdash t: \tau^{\red \texttt{\textbf{i}}}{\white, \theta, \rho} $$\bigskip
 %$$\hspace*{-1em}\texttt{{\blue fun} h:}~\tau^{\red 1} \texttt{ -> } \texttt{(} \tau^{\red 1} \texttt{ -> ... -> (} \tau^{{\red 0}} \texttt{ -> ... -> } \tau^{{\red 0}} \texttt{))}$$ $$~$$}
 \only<3>{
+$$\Gamma \vdash t: \tau^{\texttt{\textbf{i}}}{, {\red \theta, \rho}}$$\bigskip
+$$ \textsf{\red t may produce side-effects} $$
+$$~$$
+$$~$$}
+\only<4>{
 $$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, {\red \theta}, \rho $$ \bigskip
 $$ \textsf{\red t may modify the global state}$$ 
  $$~$$
@@ -937,7 +942,7 @@ $$ \textsf{\red t may modify the global state}$$
 		{\Gamma \vdash \texttt{v}:\tau^{0}, \bot_{\theta}, \bot_{\rho}}
     {\Gamma \vdash \texttt{r}_{\tau^{0}} := \texttt{v} : \texttt{unit}, {\red \top_{\theta}}, \bot_{\rho}}
 }
-\only<4>{
+\only<5>{
 $$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, {\red \rho} $$\bigskip 
 $$ \textsf{\red t may diverge} $$
 $$~$$
@@ -951,7 +956,7 @@ $$~$$
 			\tau^{\textcolor{red}{0}} \stackrel{\theta, {\red \top_{\rho}}}{\Longrightarrow}\tau^{\textcolor{red}{1}}, 
 			{\blue \bot_{\theta}}, 
 			{\blue \bot_{\rho}}}}
-\only<5>{
+\only<6>{
 $$\hspace*{1em} \Gamma \vdash t: \tau^\texttt{i}, \theta, {\red \rho} $$\bigskip 
 $$ \textsf{\red t may diverge} $$
 $$~$$
